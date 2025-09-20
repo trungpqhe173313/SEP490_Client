@@ -1,0 +1,31 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Apple Watch Series 7",
+      "price": 299,
+      "description": "The latest Apple Watch featuring a larger display and improved health features.",
+      "brand": "Apple",
+      "category": "Watches",
+      "features": ["GPS", "Heart Rate Monitoring", "Water Resistant"]
+    },
+    {
+      "id": 2,
+      "name": "Samsung Galaxy S22 Ultra",
+      "price": 999,
+      "description": "The latest Samsung Galaxy smartphone featuring a large 6.8-inch display and up to 16GB of RAM.",
+      "brand": "Samsung",
+      "category": "Smartphones",
+      "features": ["6.8-inch display", "Up to 16GB of RAM", "5G Connectivity"]
+    },
+    {
+      "id": 3,
+      "name": "MacBook Air",
+      "price": 999,
+      "description": "The latest MacBook Air featuring a 13.3-inch display and up to 16GB of RAM.",
+      "brand": "Apple",
+      "category": "Laptops",
+      "features": ["13.3-inch display", "Up to 16GB of RAM", "Touch ID"]
+    }
+  ]
+}
