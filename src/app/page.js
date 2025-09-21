@@ -1,4 +1,6 @@
-import Image from "next/image";
+export const metadata = {
+  title: "NutriBarn",
+};
 
 export default function Home() {
   return (
