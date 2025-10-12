@@ -11,10 +11,8 @@ const Header = () => {
       {/* Right side: Icons and User */}
       <div className="flex items-center space-x-4 text-sm text-gray-600">
         <span>Giao hàng</span>
-        <span>Chủ đề</span>
         <span>Hỗ trợ</span>
         <span>Góp ý</span>
-        <span>Giao diện cũ</span>
         <span>Tiếng Việt ▼</span>
 
         {/* Icons */}

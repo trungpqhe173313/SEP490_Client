@@ -27,7 +27,7 @@ export default function TableCommon({
     messagePopupDelete,
     placeholderSearch,
     usePagination,
-    useSearch
+    useDetail,
 }) {
     const [page, setPage] = useState(pageIndex);
     const [amountOnPage, setAmountOnPage] = useState(rowPerPage);

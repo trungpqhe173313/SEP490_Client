@@ -4,6 +4,7 @@ import "./globals.css";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Header from "@/components/Header/header";
+import Footer from "@/components/Footer/footer";
 import Navbar from "@/components/Navbar/navbar";
 import Loader from "@/components/Loader/loader";
 
@@ -17,6 +18,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const blacklistPathnames = ["/404", "/login"];
+
 export default function RootLayout({ children }) {
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
@@ -27,16 +30,23 @@ export default function RootLayout({ children }) {
 
   return (
     <html suppressHydrationWarning={true} lang="en">
-      <head/>
+      <head />
       <body suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {loading ? <Loader /> : (
-          <>
-            <Header />
-            <Navbar />
-            {children}
-          </>
+          blacklistPathnames.includes(pathname) ? (
+            children
+          ) : (
+            <>
+              <div className="sticky top-0 z-50">
+                <Header />
+                <Navbar />
+              </div>
+              {children}
+              <Footer />
+            </>
+          )
         )}
       </body>
     </html>
