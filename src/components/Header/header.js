@@ -10,15 +10,15 @@ const Header = () => {
 
       {/* Right side: Icons and User */}
       <div className="flex items-center space-x-4 text-sm text-gray-600">
-        <span>Giao hàng</span>
+        {/* <span>Giao hàng</span>
         <span>Hỗ trợ</span>
         <span>Góp ý</span>
-        <span>Tiếng Việt ▼</span>
+        <span>Tiếng Việt ▼</span> */}
 
         {/* Icons */}
-        <i className="fab fa-youtube text-red-600"></i>
+        {/* <i className="fab fa-youtube text-red-600"></i>
         <i className="far fa-bell"></i>
-        <i className="fas fa-cog"></i>
+        <i className="fas fa-cog"></i> */}
 
         {/* Avatar */}
         <div className="w-8 h-8 bg-gray-300 rounded-full"></div>

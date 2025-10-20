@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import {
-  CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
-  Typography,
-  Button
+    CircularProgress,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
+    TableRow,
+    TableSortLabel,
+    Typography,
+    Button
 } from '@mui/material';
 import ConfirmModal from '@/components/Modal/confirmModal';
 
@@ -31,7 +31,7 @@ export default function TableCommon({
 }) {
     const [page, setPage] = useState(pageIndex);
     const [amountOnPage, setAmountOnPage] = useState(rowPerPage);
-    const [sortType, setSortType] = useState('desc');
+    const [sortType, setSortType] = useState('asc');
     const [sortColumn, setSortColumn] = useState(defaultSortColumn || headers[0].key);
     const [search, setSearch] = useState('');
     const [data, setData] = useState(tableData);
@@ -87,7 +87,7 @@ export default function TableCommon({
     }
 
     return (
-        <div>
+        <div className="bg-white rounded-2xl">
             <ConfirmModal
                 isOpen={isOpenPopupConfirmDelete}
                 onClose={() => setIsOpenPopupConfirmDelete(false)}
@@ -95,13 +95,25 @@ export default function TableCommon({
                 onCancel={() => setIsOpenPopupConfirmDelete(false)}
                 message={messagePopupDelete}
             />
-            <TableContainer>
+            <TableContainer
+                sx={{
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                }}>
                 <Table>
-                    <TableHead>
+                    <TableHead className="bg-green-600">
                         <TableRow>
                             {headers.map((header, index) => (
-                                <TableCell key={index}>
+                                <TableCell key={index} sx={{ color: "white" }}>
                                     <TableSortLabel
+                                        sx={{
+                                            "&.Mui-active": {
+                                                color: "white",
+                                            },
+                                            "&.Mui-active .MuiTableSortLabel-icon": {
+                                                color: "white !important",
+                                            }
+                                        }}
                                         active={sortColumn === header.key}
                                         direction={sortColumn === header.key ? sortType : 'asc'}
                                         onClick={() => handleSort(header.key)}
@@ -110,8 +122,8 @@ export default function TableCommon({
                                     </TableSortLabel>
                                 </TableCell>
                             ))}
-                            <TableCell>
-                                Actions
+                            <TableCell sx={{ color: "white" }}>
+                                Hành động
                             </TableCell>
                         </TableRow>
                     </TableHead>
@@ -144,6 +156,10 @@ export default function TableCommon({
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowPerPage}
+                    labelRowsPerPage="Số hàng mỗi trang:"
+                    labelDisplayedRows={({ from, to, count }) =>
+                        `${from}–${to} trong tổng ${count !== -1 ? count : `hơn ${to}`}`
+                    }
                 />
             )}
         </div>

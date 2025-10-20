@@ -5,14 +5,14 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, onCancel, message }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="bg-black bg-opacity-50 fixed inset-0 z-50" onClick={onClose} />
-      <div className="bg-white w-96 p-6 rounded-md shadow-md">
+      <div className="bg-black/50 bg-opacity-50 fixed inset-0 z-50" onClick={onClose} />
+      <div className="bg-white w-96 p-6 rounded-md shadow-md z-51">
         <p className="my-4">{message}</p>
-        <div className="flex justify-end">
-          <button className="px-4 py-2 bg-red-500 text-white rounded-md" onClick={onConfirm}>
+        <div className="flex justify-end space-x-4 mt-8">
+          <button className="px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer" onClick={onConfirm}>
             Xác nhận
           </button>
-          <button className="px-4 py-2 bg-gray-500 text-white rounded-md" onClick={onCancel}>
+          <button className="px-4 py-2 bg-gray-500 text-white rounded-md cursor-pointer" onClick={onCancel}>
             Hủy bỏ
           </button>
         </div>

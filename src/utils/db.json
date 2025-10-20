@@ -1,28 +1,331 @@
 {
+  "users": [
+    {
+      "UserID": 1,
+      "Username": "admin",
+      "Email": "admin@farmstore.com",
+      "Password": "hashed_password_1",
+      "FullName": "System Administrator",
+      "Role": "Admin",
+      "IsActive": 1,
+      "CreatedAt": "2025-10-01T09:00:00",
+      "LastLogin": "2025-10-15T08:30:00"
+    },
+    {
+      "UserID": 2,
+      "Username": "johnworker",
+      "Email": "johnworker@farmstore.com",
+      "Password": "hashed_password_2",
+      "FullName": "John Worker",
+      "Role": "Employee",
+      "IsActive": 1,
+      "CreatedAt": "2025-10-02T09:00:00",
+      "LastLogin": "2025-10-16T09:15:00"
+    },
+    {
+      "UserID": 3,
+      "Username": "sarahstaff",
+      "Email": "sarah.staff@farmstore.com",
+      "Password": "hashed_password_3",
+      "FullName": "Sarah Nguyen",
+      "Role": "Employee",
+      "IsActive": 1,
+      "CreatedAt": "2025-10-03T09:00:00",
+      "LastLogin": "2025-10-18T08:00:00"
+    },
+    {
+      "UserID": 4,
+      "Username": "supplier1",
+      "Email": "contact@greenfarm.com",
+      "Password": "hashed_password_4",
+      "FullName": "GreenFarm Supplier",
+      "Role": "Supplier",
+      "IsActive": 1,
+      "CreatedAt": "2025-09-28T08:00:00",
+      "LastLogin": "2025-10-17T10:15:00"
+    },
+    {
+      "UserID": 5,
+      "Username": "supplier2",
+      "Email": "sales@agrotech.vn",
+      "Password": "hashed_password_5",
+      "FullName": "AgroTech Team",
+      "Role": "Supplier",
+      "IsActive": 1,
+      "CreatedAt": "2025-09-29T08:00:00",
+      "LastLogin": "2025-10-17T09:30:00"
+    },
+    {
+      "UserID": 6,
+      "Username": "supplier3",
+      "Email": "info@farmfresh.com",
+      "Password": "hashed_password_6",
+      "FullName": "Farm Fresh Ltd.",
+      "Role": "Supplier",
+      "IsActive": 1,
+      "CreatedAt": "2025-09-30T08:00:00",
+      "LastLogin": "2025-10-18T07:30:00"
+    }
+  ],
+
+  "employees": [
+    {
+      "EmployeeID": 1,
+      "UserID": 2,
+      "Position": "Warehouse Operator",
+      "DailyWage": 45.50,
+      "JobDescription": "Handles loading, unloading, and organizing pallets in the warehouse."
+    },
+    {
+      "EmployeeID": 2,
+      "UserID": 3,
+      "Position": "Sales Clerk",
+      "DailyWage": 50.00,
+      "JobDescription": "Assists customers with product information and manages checkout operations."
+    },
+    {
+      "EmployeeID": 3,
+      "UserID": 4,
+      "Position": "System Admin",
+      "DailyWage": 100.00,
+      "JobDescription": "Maintains server, manages users and internal data systems."
+    },
+    {
+      "EmployeeID": 4,
+      "UserID": 5,
+      "Position": "Logistics Coordinator",
+      "DailyWage": 65.75,
+      "JobDescription": "Coordinates delivery and shipping schedules."
+    },
+    {
+      "EmployeeID": 5,
+      "UserID": 6,
+      "Position": "Inventory Manager",
+      "DailyWage": 70.00,
+      "JobDescription": "Oversees product stock levels and ensures restocking when necessary."
+    },
+    {
+      "EmployeeID": 6,
+      "UserID": 1,
+      "Position": "Maintenance Worker",
+      "DailyWage": 40.00,
+      "JobDescription": "Ensures facilities and equipment are maintained properly."
+    }
+  ],
+
+  "suppliers": [
+    {
+      "SupplierID": 1,
+      "SupplierName": "GreenFarm Ltd.",
+      "Email": "contact@greenfarm.com",
+      "Phone": "+84 912 345 678",
+      "IsVerified": 1,
+      "CreatedAt": "2025-09-25T10:00:00"
+    },
+    {
+      "SupplierID": 2,
+      "SupplierName": "AgroTech Solutions",
+      "Email": "sales@agrotech.vn",
+      "Phone": "+84 976 543 210",
+      "IsVerified": 0,
+      "CreatedAt": "2025-09-28T14:30:00"
+    },
+    {
+      "SupplierID": 3,
+      "SupplierName": "Farm Fresh Co.",
+      "Email": "info@farmfresh.com",
+      "Phone": "+84 932 765 111",
+      "IsVerified": 1,
+      "CreatedAt": "2025-09-30T15:00:00"
+    },
+    {
+      "SupplierID": 4,
+      "SupplierName": "OrganicLand Export",
+      "Email": "sales@organicland.vn",
+      "Phone": "+84 945 888 222",
+      "IsVerified": 1,
+      "CreatedAt": "2025-10-01T12:00:00"
+    },
+    {
+      "SupplierID": 5,
+      "SupplierName": "MechAgro Tools",
+      "Email": "tools@mechagro.com",
+      "Phone": "+84 954 123 987",
+      "IsVerified": 0,
+      "CreatedAt": "2025-10-02T09:30:00"
+    },
+    {
+      "SupplierID": 6,
+      "SupplierName": "NutriGrow Supplies",
+      "Email": "support@nutrigrow.vn",
+      "Phone": "+84 981 333 444",
+      "IsVerified": 1,
+      "CreatedAt": "2025-10-04T10:45:00"
+    }
+  ],
+
+  "customers": [
+    {
+      "CustomerID": 1,
+      "CustomerName": "Le Thi Hoa",
+      "Email": "hoa.le@example.com",
+      "Phone": "+84 988 765 432",
+      "IsVerified": 1,
+      "CreatedAt": "2025-10-05T08:45:00"
+    },
+    {
+      "CustomerID": 2,
+      "CustomerName": "Tran Van Binh",
+      "Email": "binh.tran@example.com",
+      "Phone": "+84 981 234 567",
+      "IsVerified": 0,
+      "CreatedAt": "2025-10-06T11:10:00"
+    },
+    {
+      "CustomerID": 3,
+      "CustomerName": "Nguyen Thi Lan",
+      "Email": "lan.nguyen@example.com",
+      "Phone": "+84 912 567 890",
+      "IsVerified": 1,
+      "CreatedAt": "2025-10-07T10:00:00"
+    },
+    {
+      "CustomerID": 4,
+      "CustomerName": "Pham Van Hung",
+      "Email": "hung.pham@example.com",
+      "Phone": "+84 933 123 456",
+      "IsVerified": 0,
+      "CreatedAt": "2025-10-08T09:00:00"
+    },
+    {
+      "CustomerID": 5,
+      "CustomerName": "Doan Thi My",
+      "Email": "my.doan@example.com",
+      "Phone": "+84 934 456 789",
+      "IsVerified": 1,
+      "CreatedAt": "2025-10-09T11:00:00"
+    },
+    {
+      "CustomerID": 6,
+      "CustomerName": "Vu Tuan Kiet",
+      "Email": "kiet.vu@example.com",
+      "Phone": "+84 977 321 654",
+      "IsVerified": 1,
+      "CreatedAt": "2025-10-10T12:00:00"
+    }
+  ],
+
+  "categories": [
+    {
+      "CategoryID": 1,
+      "CategoryName": "Animal Feed",
+      "Description": "Feed and supplements for livestock and poultry.",
+      "CreatedAt": "2025-09-20T09:00:00"
+    },
+    {
+      "CategoryID": 2,
+      "CategoryName": "Farming Equipment",
+      "Description": "Tools and machinery for agricultural work.",
+      "CreatedAt": "2025-09-21T09:00:00"
+    },
+    {
+      "CategoryID": 3,
+      "CategoryName": "Seeds",
+      "Description": "Various seeds for crops and vegetables.",
+      "CreatedAt": "2025-09-22T09:00:00"
+    },
+    {
+      "CategoryID": 4,
+      "CategoryName": "Fertilizers",
+      "Description": "Organic and chemical fertilizers.",
+      "CreatedAt": "2025-09-23T09:00:00"
+    },
+    {
+      "CategoryID": 5,
+      "CategoryName": "Pesticides",
+      "Description": "Pesticide and pest-control products.",
+      "CreatedAt": "2025-09-24T09:00:00"
+    },
+    {
+      "CategoryID": 6,
+      "CategoryName": "Protective Gear",
+      "Description": "Safety gear for farmers and workers.",
+      "CreatedAt": "2025-09-25T09:00:00"
+    }
+  ],
+
   "products": [
     {
-      "id": 1,
-      "name": "Apple Watch Series 7",
-      "price": 299,
-      "description": "The latest Apple Watch featuring a larger display and improved health features.",
-      "brand": "Apple",
-      "category": "Watches"
+      "ProductID": 1,
+      "SupplierID": 1,
+      "CategoryID": 1,
+      "Code": "FD-001",
+      "ProductName": "Premium Cow Feed 25kg",
+      "WeightPerUnit": 25.0,
+      "StockQuantity": 150,
+      "IsAvailable": 1,
+      "CreatedAt": "2025-09-26T10:00:00",
+      "UpdatedAt": "2025-10-10T09:30:00"
     },
     {
-      "id": 2,
-      "name": "Samsung Galaxy S22 Ultra",
-      "price": 999,
-      "description": "The latest Samsung Galaxy smartphone featuring a large 6.8-inch display and up to 16GB of RAM.",
-      "brand": "Samsung",
-      "category": "Smartphones"
+      "ProductID": 2,
+      "SupplierID": 2,
+      "CategoryID": 2,
+      "Code": "EQ-010",
+      "ProductName": "Automatic Water Dispenser",
+      "WeightPerUnit": 4.5,
+      "StockQuantity": 45,
+      "IsAvailable": 1,
+      "CreatedAt": "2025-09-27T10:00:00",
+      "UpdatedAt": "2025-10-12T14:45:00"
     },
     {
-      "id": 3,
-      "name": "MacBook Air",
-      "price": 999,
-      "description": "The latest MacBook Air featuring a 13.3-inch display and up to 16GB of RAM.",
-      "brand": "Apple",
-      "category": "Laptops"
+      "ProductID": 3,
+      "SupplierID": 3,
+      "CategoryID": 3,
+      "Code": "SD-005",
+      "ProductName": "Hybrid Rice Seed Pack",
+      "WeightPerUnit": 1.0,
+      "StockQuantity": 200,
+      "IsAvailable": 1,
+      "CreatedAt": "2025-09-28T11:00:00",
+      "UpdatedAt": "2025-10-13T10:00:00"
+    },
+    {
+      "ProductID": 4,
+      "SupplierID": 4,
+      "CategoryID": 4,
+      "Code": "FT-008",
+      "ProductName": "Organic Compost Fertilizer 10kg",
+      "WeightPerUnit": 10.0,
+      "StockQuantity": 80,
+      "IsAvailable": 1,
+      "CreatedAt": "2025-09-29T12:00:00",
+      "UpdatedAt": "2025-10-15T08:00:00"
+    },
+    {
+      "ProductID": 5,
+      "SupplierID": 5,
+      "CategoryID": 5,
+      "Code": "PS-003",
+      "ProductName": "Eco Pest Repellent 500ml",
+      "WeightPerUnit": 0.5,
+      "StockQuantity": 120,
+      "IsAvailable": 1,
+      "CreatedAt": "2025-09-30T13:00:00",
+      "UpdatedAt": "2025-10-14T15:00:00"
+    },
+    {
+      "ProductID": 6,
+      "SupplierID": 6,
+      "CategoryID": 6,
+      "Code": "PG-002",
+      "ProductName": "Protective Gloves (Pack of 10)",
+      "WeightPerUnit": 0.8,
+      "StockQuantity": 300,
+      "IsAvailable": 1,
+      "CreatedAt": "2025-10-01T14:00:00",
+      "UpdatedAt": "2025-10-17T09:00:00"
     }
   ]
 }
