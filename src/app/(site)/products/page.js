@@ -2,9 +2,18 @@
 import { productService } from "@/services/product.service";
 import React, { useState, useEffect } from "react";
 import TableCommon from "@/components/Table/table";
+import { ProductForm } from "@/components/Form/productForm";
+import SuccessModal from "@/components/Modal/successModal";
+import Loader from "@/components/Loader/loader";
 
 export default function Products() {
     const [products, setProducts] = useState([]);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
+    const [modalSuccessMessage, setModalSuccessMessage] = useState("");
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const headerData = [
         {
@@ -39,26 +48,67 @@ export default function Products() {
         },
         {
             key: "SupplierID",
-            label: "Mã nhà cung cấp",
+            label: "Nhà cung cấp",
             customValue: (item) => item.SupplierID && <div>{item.SupplierID}</div>
         },
         {
             key: "CategoryID",
-            label: "Mã danh mục",
+            label: "Danh mục",
             customValue: (item) => item.CategoryID && <div>{item.CategoryID}</div>
         }
     ];
 
+    const fetchProducts = async () => {
+        const response = await productService.getAllProducts();
+        setProducts(response.data);
+    };
+
     useEffect(() => {
-        const fetchProducts = async () => {
-            const response = await productService.getAllProducts();
-            setProducts(response.data);
-        };
         fetchProducts();
+        setLoading(false);
     }, []);
+
+    const handleCreate = () => {
+        setEditingProduct(null);
+        setModalOpen(true);
+    };
+
+    const handleEdit = (product) => {
+        setEditingProduct(product);
+        setModalOpen(true);
+    };
+
+    const handleDelete = async (id) => {
+        await productService.deleteProduct(id);
+        fetchProducts();
+        setModalSuccessMessage("Xoá sản phẩm thanh cong");
+        setModalSuccessOpen(true);
+    };
+
+    const handleConfirm = (productData) => {
+        setLoading(true);
+        if (editingProduct) {
+            productService.updateProduct(editingProduct.ProductID, productData);
+            setModalSuccessMessage("Cập nhật sản phẩm thành công");
+            setModalSuccessOpen(true);
+        } else {
+            productService.createProduct(productData);
+            setModalSuccessMessage("Tạo sản phẩm thành công");
+            setModalSuccessOpen(true);
+        }
+        setModalOpen(false);
+        fetchProducts();
+        setLoading(false);
+    };
+
+    if (loading) {
+        return <Loader />;
+    }
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
+
+            {/* Filter */}
             <div className="col-span-1 p-4 rounded-2xl bg-white">
                 <div className="p-4">
                     <h2 className="text-xl font-bold">Lọc sản phẩm</h2>
@@ -125,7 +175,22 @@ export default function Products() {
                     </div>
                 </div>
             </div>
+
             <div className="col-span-3">
+                {/* Search and create */}
+                <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
+                    <div className="flex flex-col w-3/4 mr-4">
+                        <label className="block text-gray-700 text-sm font-bold" htmlFor="search">
+                            Tìm sản phẩm
+                        </label>
+                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" id="search" type="text" name="search" onChange={(e) => setSearchTerm(e.target.value)}/>
+                    </div>
+                    <div className="flex flex-col w-1/4">
+                        <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm sản phẩm</button>
+                    </div>
+                </div>
+
+                {/* Table */}
                 <TableCommon
                     headers={headerData}
                     tableData={products}
@@ -134,14 +199,23 @@ export default function Products() {
                     pageIndex={0}
                     totalCount={products.length}
                     rowPerPageOptions={[5, 10, 20]}
-                    handleEdit={(item) => console.log('edit', item)}
-                    handleDelete={(ProductID) => console.log('delete', ProductID)}
+                    handleEdit={(item) => handleEdit(item)}
+                    handleDelete={(ProductID) => handleDelete(ProductID)}
                     messagePopupDelete="Bạn có muốn xóa sản phẩm này không?"
                     placeholderSearch="Tìm sản phẩm"
                     usePagination={true}
                     useSearch={true}
                 />
             </div>
+
+            {/* Modal */}
+            <ProductForm
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onConfirm={handleConfirm}
+                initialData={editingProduct}
+            />
+            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
         </div>
     );
 }
