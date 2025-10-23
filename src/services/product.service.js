@@ -2,8 +2,12 @@ import API from '@/utils/axios';
 
 export const productService = {
     getAllProducts: async () => {
-        const response = await API.get('/products');
-        return response;
+        try {
+            const response = await API.get('/products/GetData');
+            return response.data;
+        } catch (error) {
+            console.log('Error in getAllProducts:', error);
+        }
     },
     getProductByID: async (id) => {
         const response = await API.get(`/products/${id}`);
