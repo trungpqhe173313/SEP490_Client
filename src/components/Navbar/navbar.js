@@ -20,6 +20,11 @@ const Navbar = () => {
             onClick={() => navigate("/")}>
           Tổng quan
         </span>
+        <span className={`${pathname === "/warehouses" 
+            ? "bg-green-800 hover:bg-green-700 px-3 py-1 rounded cursor-pointer" 
+            : "hover:bg-green-700 px-3 py-1 rounded cursor-pointer"}`} onClick={() => navigate("/warehouses")}>
+          Nhà kho
+        </span>
         <span className={`${pathname === "/products" 
             ? "bg-green-800 hover:bg-green-700 px-3 py-1 rounded cursor-pointer" 
             : "hover:bg-green-700 px-3 py-1 rounded cursor-pointer"}`} onClick={() => navigate("/products")}>
@@ -28,7 +33,7 @@ const Navbar = () => {
         {/* <span className="bg-green-800 px-3 py-1 rounded cursor-pointer">
           Đơn hàng
         </span> */}
-        <span className={`${pathname === "/customers" 
+        {/* <span className={`${pathname === "/customers" 
             ? "bg-green-800 hover:bg-green-700 px-3 py-1 rounded cursor-pointer" 
             : "hover:bg-green-700 px-3 py-1 rounded cursor-pointer"}`} onClick={() => navigate("/customers")}>
           Khách hàng
@@ -37,7 +42,7 @@ const Navbar = () => {
             ? "bg-green-800 hover:bg-green-700 px-3 py-1 rounded cursor-pointer" 
             : "hover:bg-green-700 px-3 py-1 rounded cursor-pointer"}`} onClick={() => navigate("/employees")}>
           Nhân viên
-        </span>
+        </span> */}
         <span className={`${pathname === "/categories" 
             ? "bg-green-800 hover:bg-green-700 px-3 py-1 rounded cursor-pointer" 
             : "hover:bg-green-700 px-3 py-1 rounded cursor-pointer"}`} onClick={() => navigate("/categories")}>

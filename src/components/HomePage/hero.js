@@ -23,6 +23,7 @@ const Hero = () => {
         </p>
         <div className="flex flex-row gap-4 justify-center pt-8">
           <Button 
+            suppressHydrationWarning
             variant="contained" 
             size="large" 
             endIcon={<ArrowForwardIcon />}

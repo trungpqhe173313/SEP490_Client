@@ -1,331 +1,440 @@
 {
+  "suppliers": [
+    {
+      "id": 1,
+      "SupplierName": "GreenFarm Co.",
+      "Email": "contact@greenfarm.vn",
+      "Phone": "+84 912 345 678",
+      "IsVerified": 1,
+      "CreatedAt": "2025-09-15T08:30:00"
+    },
+    {
+      "id": 2,
+      "SupplierName": "AgroTech Supplies",
+      "Email": "sales@agrotech.vn",
+      "Phone": "+84 935 222 111",
+      "IsVerified": 1,
+      "CreatedAt": "2025-09-16T09:45:00"
+    },
+    {
+      "id": 3,
+      "SupplierName": "FarmHub Distribution",
+      "Email": "info@farmhub.com",
+      "Phone": "+84 983 765 432",
+      "IsVerified": 0,
+      "CreatedAt": "2025-09-18T11:00:00"
+    },
+    {
+      "id": 4,
+      "SupplierName": "EcoGrow International",
+      "Email": "hello@ecogrow.com",
+      "Phone": "+84 977 666 789",
+      "IsVerified": 1,
+      "CreatedAt": "2025-09-19T13:30:00"
+    },
+    {
+      "id": 5,
+      "SupplierName": "OrganicLand Ltd.",
+      "Email": "contact@organicland.vn",
+      "Phone": "+84 921 888 222",
+      "IsVerified": 1,
+      "CreatedAt": "2025-09-20T14:20:00"
+    },
+    {
+      "id": 6,
+      "SupplierName": "MechAgro Tools",
+      "Email": "tools@mechagro.com",
+      "Phone": "+84 981 123 987",
+      "IsVerified": 0,
+      "CreatedAt": "2025-09-22T15:40:00"
+    }
+  ],
   "users": [
     {
       "UserID": 1,
       "Username": "admin",
-      "Email": "admin@farmstore.com",
+      "Email": "admin@farmhub.com",
       "Password": "hashed_password_1",
       "FullName": "System Administrator",
-      "Role": "Admin",
+      "Image": "https://example.com/img/admin.jpg",
       "IsActive": 1,
-      "CreatedAt": "2025-10-01T09:00:00",
-      "LastLogin": "2025-10-15T08:30:00"
+      "CreatedAt": "2025-09-01T09:00:00",
+      "LastLogin": "2025-10-10T08:30:00"
     },
     {
       "UserID": 2,
       "Username": "johnworker",
-      "Email": "johnworker@farmstore.com",
+      "Email": "john.worker@farmhub.com",
       "Password": "hashed_password_2",
       "FullName": "John Worker",
-      "Role": "Employee",
+      "Image": "https://example.com/img/john.jpg",
       "IsActive": 1,
-      "CreatedAt": "2025-10-02T09:00:00",
-      "LastLogin": "2025-10-16T09:15:00"
+      "CreatedAt": "2025-09-02T09:00:00",
+      "LastLogin": "2025-10-11T09:15:00"
     },
     {
       "UserID": 3,
       "Username": "sarahstaff",
-      "Email": "sarah.staff@farmstore.com",
+      "Email": "sarah.staff@farmhub.com",
       "Password": "hashed_password_3",
       "FullName": "Sarah Nguyen",
-      "Role": "Employee",
+      "Image": "https://example.com/img/sarah.jpg",
       "IsActive": 1,
-      "CreatedAt": "2025-10-03T09:00:00",
-      "LastLogin": "2025-10-18T08:00:00"
+      "CreatedAt": "2025-09-03T09:00:00",
+      "LastLogin": "2025-10-12T09:00:00"
     },
     {
       "UserID": 4,
       "Username": "supplier1",
-      "Email": "contact@greenfarm.com",
+      "Email": "contact@greenfarm.vn",
       "Password": "hashed_password_4",
       "FullName": "GreenFarm Supplier",
-      "Role": "Supplier",
+      "Image": "https://example.com/img/supplier1.jpg",
       "IsActive": 1,
-      "CreatedAt": "2025-09-28T08:00:00",
-      "LastLogin": "2025-10-17T10:15:00"
+      "CreatedAt": "2025-09-04T08:30:00",
+      "LastLogin": "2025-10-13T09:30:00"
     },
     {
       "UserID": 5,
       "Username": "supplier2",
       "Email": "sales@agrotech.vn",
       "Password": "hashed_password_5",
-      "FullName": "AgroTech Team",
-      "Role": "Supplier",
+      "FullName": "AgroTech Manager",
+      "Image": "https://example.com/img/supplier2.jpg",
       "IsActive": 1,
-      "CreatedAt": "2025-09-29T08:00:00",
-      "LastLogin": "2025-10-17T09:30:00"
+      "CreatedAt": "2025-09-05T08:30:00",
+      "LastLogin": "2025-10-13T10:00:00"
     },
     {
       "UserID": 6,
-      "Username": "supplier3",
-      "Email": "info@farmfresh.com",
+      "Username": "warehouseboss",
+      "Email": "warehouse@farmhub.com",
       "Password": "hashed_password_6",
-      "FullName": "Farm Fresh Ltd.",
-      "Role": "Supplier",
+      "FullName": "Le Van Kiet",
+      "Image": "https://example.com/img/warehouse.jpg",
       "IsActive": 1,
-      "CreatedAt": "2025-09-30T08:00:00",
-      "LastLogin": "2025-10-18T07:30:00"
+      "CreatedAt": "2025-09-06T08:30:00",
+      "LastLogin": "2025-10-14T09:45:00"
     }
   ],
-
-  "employees": [
+  "roles": [
     {
-      "EmployeeID": 1,
-      "UserID": 2,
-      "Position": "Warehouse Operator",
-      "DailyWage": 45.50,
-      "JobDescription": "Handles loading, unloading, and organizing pallets in the warehouse."
+      "RoleID": 1,
+      "RoleName": "Admin",
+      "Description": "Full system access and management",
+      "CreatedAt": "2025-09-01T09:00:00"
     },
     {
-      "EmployeeID": 2,
-      "UserID": 3,
-      "Position": "Sales Clerk",
-      "DailyWage": 50.00,
-      "JobDescription": "Assists customers with product information and manages checkout operations."
+      "RoleID": 2,
+      "RoleName": "Employee",
+      "Description": "Warehouse and sales staff",
+      "CreatedAt": "2025-09-01T09:00:00"
     },
     {
-      "EmployeeID": 3,
-      "UserID": 4,
-      "Position": "System Admin",
-      "DailyWage": 100.00,
-      "JobDescription": "Maintains server, manages users and internal data systems."
+      "RoleID": 3,
+      "RoleName": "Supplier",
+      "Description": "External supplier with product permissions",
+      "CreatedAt": "2025-09-01T09:00:00"
     },
     {
-      "EmployeeID": 4,
-      "UserID": 5,
-      "Position": "Logistics Coordinator",
-      "DailyWage": 65.75,
-      "JobDescription": "Coordinates delivery and shipping schedules."
+      "RoleID": 4,
+      "RoleName": "Manager",
+      "Description": "Oversees employees and inventory",
+      "CreatedAt": "2025-09-01T09:00:00"
     },
     {
-      "EmployeeID": 5,
-      "UserID": 6,
-      "Position": "Inventory Manager",
-      "DailyWage": 70.00,
-      "JobDescription": "Oversees product stock levels and ensures restocking when necessary."
+      "RoleID": 5,
+      "RoleName": "Viewer",
+      "Description": "Read-only access for reports",
+      "CreatedAt": "2025-09-01T09:00:00"
     },
     {
-      "EmployeeID": 6,
+      "RoleID": 6,
+      "RoleName": "Technician",
+      "Description": "Maintains system hardware and warehouse tools",
+      "CreatedAt": "2025-09-01T09:00:00"
+    }
+  ],
+  "userRoles": [
+    {
+      "UserRoleID": 1,
       "UserID": 1,
-      "Position": "Maintenance Worker",
-      "DailyWage": 40.00,
-      "JobDescription": "Ensures facilities and equipment are maintained properly."
+      "RoleID": 1,
+      "AssignedDate": "2025-09-01T09:00:00"
+    },
+    {
+      "UserRoleID": 2,
+      "UserID": 2,
+      "RoleID": 2,
+      "AssignedDate": "2025-09-02T09:00:00"
+    },
+    {
+      "UserRoleID": 3,
+      "UserID": 3,
+      "RoleID": 2,
+      "AssignedDate": "2025-09-03T09:00:00"
+    },
+    {
+      "UserRoleID": 4,
+      "UserID": 4,
+      "RoleID": 3,
+      "AssignedDate": "2025-09-04T09:00:00"
+    },
+    {
+      "UserRoleID": 5,
+      "UserID": 5,
+      "RoleID": 3,
+      "AssignedDate": "2025-09-05T09:00:00"
+    },
+    {
+      "UserRoleID": 6,
+      "UserID": 6,
+      "RoleID": 4,
+      "AssignedDate": "2025-09-06T09:00:00"
     }
   ],
-
-  "suppliers": [
+  "jobs": [
     {
-      "SupplierID": 1,
-      "SupplierName": "GreenFarm Ltd.",
-      "Email": "contact@greenfarm.com",
-      "Phone": "+84 912 345 678",
-      "IsVerified": 1,
-      "CreatedAt": "2025-09-25T10:00:00"
+      "ID": 1,
+      "JobName": "Warehouse Operator",
+      "PayType": "Daily",
+      "Rate": 45.5,
+      "CreatedAt": "2025-09-10T08:00:00"
     },
     {
-      "SupplierID": 2,
-      "SupplierName": "AgroTech Solutions",
-      "Email": "sales@agrotech.vn",
-      "Phone": "+84 976 543 210",
-      "IsVerified": 0,
-      "CreatedAt": "2025-09-28T14:30:00"
+      "ID": 2,
+      "JobName": "Sales Clerk",
+      "PayType": "Hourly",
+      "Rate": 12,
+      "CreatedAt": "2025-09-10T08:00:00"
     },
     {
-      "SupplierID": 3,
-      "SupplierName": "Farm Fresh Co.",
-      "Email": "info@farmfresh.com",
-      "Phone": "+84 932 765 111",
-      "IsVerified": 1,
-      "CreatedAt": "2025-09-30T15:00:00"
+      "ID": 3,
+      "JobName": "System Administrator",
+      "PayType": "Monthly",
+      "Rate": 3000,
+      "CreatedAt": "2025-09-10T08:00:00"
     },
     {
-      "SupplierID": 4,
-      "SupplierName": "OrganicLand Export",
-      "Email": "sales@organicland.vn",
-      "Phone": "+84 945 888 222",
-      "IsVerified": 1,
-      "CreatedAt": "2025-10-01T12:00:00"
+      "ID": 4,
+      "JobName": "Inventory Manager",
+      "PayType": "Monthly",
+      "Rate": 2500,
+      "CreatedAt": "2025-09-10T08:00:00"
     },
     {
-      "SupplierID": 5,
-      "SupplierName": "MechAgro Tools",
-      "Email": "tools@mechagro.com",
-      "Phone": "+84 954 123 987",
-      "IsVerified": 0,
-      "CreatedAt": "2025-10-02T09:30:00"
+      "ID": 5,
+      "JobName": "Logistics Coordinator",
+      "PayType": "Daily",
+      "Rate": 60,
+      "CreatedAt": "2025-09-10T08:00:00"
     },
     {
-      "SupplierID": 6,
-      "SupplierName": "NutriGrow Supplies",
-      "Email": "support@nutrigrow.vn",
-      "Phone": "+84 981 333 444",
-      "IsVerified": 1,
-      "CreatedAt": "2025-10-04T10:45:00"
+      "ID": 6,
+      "JobName": "Maintenance Worker",
+      "PayType": "Daily",
+      "Rate": 40,
+      "CreatedAt": "2025-09-10T08:00:00"
     }
   ],
-
-  "customers": [
+  "warehouses": [
     {
-      "CustomerID": 1,
-      "CustomerName": "Le Thi Hoa",
-      "Email": "hoa.le@example.com",
-      "Phone": "+84 988 765 432",
-      "IsVerified": 1,
-      "CreatedAt": "2025-10-05T08:45:00"
+      "id": 1,
+      "WarehouseName": "Central Depot",
+      "Location": "Hanoi, Vietnam",
+      "Capacity": 5000,
+      "Status": "Active",
+      "Note": "Main storage for animal feed and fertilizer",
+      "CreatedAt": "2025-09-20T08:00:00"
     },
     {
-      "CustomerID": 2,
-      "CustomerName": "Tran Van Binh",
-      "Email": "binh.tran@example.com",
-      "Phone": "+84 981 234 567",
-      "IsVerified": 0,
-      "CreatedAt": "2025-10-06T11:10:00"
+      "id": 2,
+      "WarehouseName": "Southern Hub",
+      "Location": "Ho Chi Minh City",
+      "Capacity": 4000,
+      "Status": "Active",
+      "Note": "Secondary distribution center",
+      "CreatedAt": "2025-09-21T08:00:00"
     },
     {
-      "CustomerID": 3,
-      "CustomerName": "Nguyen Thi Lan",
-      "Email": "lan.nguyen@example.com",
-      "Phone": "+84 912 567 890",
-      "IsVerified": 1,
-      "CreatedAt": "2025-10-07T10:00:00"
+      "id": 3,
+      "WarehouseName": "Northern Branch",
+      "Location": "Hai Phong",
+      "Capacity": 3000,
+      "Status": "Active",
+      "Note": null,
+      "CreatedAt": "2025-09-22T08:00:00"
     },
     {
-      "CustomerID": 4,
-      "CustomerName": "Pham Van Hung",
-      "Email": "hung.pham@example.com",
-      "Phone": "+84 933 123 456",
-      "IsVerified": 0,
-      "CreatedAt": "2025-10-08T09:00:00"
+      "id": 4,
+      "WarehouseName": "Central Cold Storage",
+      "Location": "Da Nang",
+      "Capacity": 2500,
+      "Status": "Active",
+      "Note": "For perishable goods",
+      "CreatedAt": "2025-09-23T08:00:00"
     },
     {
-      "CustomerID": 5,
-      "CustomerName": "Doan Thi My",
-      "Email": "my.doan@example.com",
-      "Phone": "+84 934 456 789",
-      "IsVerified": 1,
-      "CreatedAt": "2025-10-09T11:00:00"
+      "id": 5,
+      "WarehouseName": "Backup Storage",
+      "Location": "Can Tho",
+      "Capacity": 1500,
+      "Status": "Inactive",
+      "Note": "Used for surplus stock",
+      "CreatedAt": "2025-09-24T08:00:00"
     },
     {
-      "CustomerID": 6,
-      "CustomerName": "Vu Tuan Kiet",
-      "Email": "kiet.vu@example.com",
-      "Phone": "+84 977 321 654",
-      "IsVerified": 1,
-      "CreatedAt": "2025-10-10T12:00:00"
+      "id": 6,
+      "WarehouseName": "Testing Facility",
+      "Location": "Hue",
+      "Capacity": 1000,
+      "Status": "Active",
+      "Note": "Used for quality inspection",
+      "CreatedAt": "2025-09-25T08:00:00"
     }
   ],
-
   "categories": [
     {
-      "CategoryID": 1,
+      "id": 1,
       "CategoryName": "Animal Feed",
       "Description": "Feed and supplements for livestock and poultry.",
-      "CreatedAt": "2025-09-20T09:00:00"
+      "CreatedAt": "2025-09-12T09:00:00"
     },
     {
-      "CategoryID": 2,
-      "CategoryName": "Farming Equipment",
-      "Description": "Tools and machinery for agricultural work.",
-      "CreatedAt": "2025-09-21T09:00:00"
-    },
-    {
-      "CategoryID": 3,
-      "CategoryName": "Seeds",
-      "Description": "Various seeds for crops and vegetables.",
-      "CreatedAt": "2025-09-22T09:00:00"
-    },
-    {
-      "CategoryID": 4,
+      "id": 2,
       "CategoryName": "Fertilizers",
       "Description": "Organic and chemical fertilizers.",
-      "CreatedAt": "2025-09-23T09:00:00"
+      "CreatedAt": "2025-09-12T09:00:00"
     },
     {
-      "CategoryID": 5,
+      "id": 3,
+      "CategoryName": "Seeds",
+      "Description": "Various seeds for crops and vegetables.",
+      "CreatedAt": "2025-09-12T09:00:00"
+    },
+    {
+      "id": 4,
       "CategoryName": "Pesticides",
-      "Description": "Pesticide and pest-control products.",
-      "CreatedAt": "2025-09-24T09:00:00"
+      "Description": "Eco-friendly pest control products.",
+      "CreatedAt": "2025-09-12T09:00:00"
     },
     {
-      "CategoryID": 6,
+      "id": 5,
+      "CategoryName": "Farming Equipment",
+      "Description": "Tools and machinery for agricultural work.",
+      "CreatedAt": "2025-09-12T09:00:00"
+    },
+    {
+      "id": 6,
       "CategoryName": "Protective Gear",
       "Description": "Safety gear for farmers and workers.",
-      "CreatedAt": "2025-09-25T09:00:00"
+      "CreatedAt": "2025-09-12T09:00:00"
     }
   ],
-
   "products": [
     {
-      "ProductID": 1,
+      "id": 1,
+      "ProductName": "Premium Cow Feed 25kg",
+      "ImageURL": "https://picsum.photos/200",
+      "Code": "FD-001",
+      "WeightPerUnit": "29",
+      "Description": "High-protein feed for dairy cattle.",
+      "IsAvailable": 1,
       "SupplierID": 1,
       "CategoryID": 1,
-      "Code": "FD-001",
-      "ProductName": "Premium Cow Feed 25kg",
-      "WeightPerUnit": 25.0,
-      "StockQuantity": 150,
-      "IsAvailable": 1,
-      "CreatedAt": "2025-09-26T10:00:00",
-      "UpdatedAt": "2025-10-10T09:30:00"
+      "CreatedAt": "2025-09-21T09:00:00",
+      "UpdatedAt": "2025-10-24T08:19:23.756Z"
     },
     {
-      "ProductID": 2,
+      "id": 2,
       "SupplierID": 2,
       "CategoryID": 2,
-      "Code": "EQ-010",
-      "ProductName": "Automatic Water Dispenser",
-      "WeightPerUnit": 4.5,
-      "StockQuantity": 45,
+      "Code": "FT-002",
+      "ProductName": "Organic Compost Fertilizer 10kg",
+      "ImageURL": "https://picsum.photos/200",
+      "WeightPerUnit": 10,
+      "Description": "Natural compost for soil enrichment.",
       "IsAvailable": 1,
-      "CreatedAt": "2025-09-27T10:00:00",
-      "UpdatedAt": "2025-10-12T14:45:00"
+      "CreatedAt": "2025-09-21T09:00:00",
+      "UpdatedAt": "2025-10-11T09:00:00"
     },
     {
-      "ProductID": 3,
+      "id": 3,
       "SupplierID": 3,
       "CategoryID": 3,
-      "Code": "SD-005",
+      "Code": "SD-003",
       "ProductName": "Hybrid Rice Seed Pack",
-      "WeightPerUnit": 1.0,
-      "StockQuantity": 200,
+      "ImageURL": "https://picsum.photos/200",
+      "WeightPerUnit": 1,
+      "Description": "High-yield hybrid rice seeds.",
       "IsAvailable": 1,
-      "CreatedAt": "2025-09-28T11:00:00",
-      "UpdatedAt": "2025-10-13T10:00:00"
+      "CreatedAt": "2025-09-22T09:00:00",
+      "UpdatedAt": "2025-10-12T09:00:00"
     },
     {
-      "ProductID": 4,
+      "id": 4,
       "SupplierID": 4,
       "CategoryID": 4,
-      "Code": "FT-008",
-      "ProductName": "Organic Compost Fertilizer 10kg",
-      "WeightPerUnit": 10.0,
-      "StockQuantity": 80,
+      "Code": "PS-004",
+      "ProductName": "Eco Pest Repellent 500ml",
+      "ImageURL": "https://picsum.photos/200",
+      "WeightPerUnit": 0.5,
+      "Description": "Organic pest repellent safe for vegetables.",
       "IsAvailable": 1,
-      "CreatedAt": "2025-09-29T12:00:00",
-      "UpdatedAt": "2025-10-15T08:00:00"
+      "CreatedAt": "2025-09-23T09:00:00",
+      "UpdatedAt": "2025-10-13T09:00:00"
     },
     {
-      "ProductID": 5,
+      "id": 5,
       "SupplierID": 5,
       "CategoryID": 5,
-      "Code": "PS-003",
-      "ProductName": "Eco Pest Repellent 500ml",
-      "WeightPerUnit": 0.5,
-      "StockQuantity": 120,
+      "Code": "EQ-005",
+      "ProductName": "Automatic Water Dispenser",
+      "ImageURL": "https://picsum.photos/200",
+      "WeightPerUnit": 4.5,
+      "Description": "Automatic watering tool for livestock.",
       "IsAvailable": 1,
-      "CreatedAt": "2025-09-30T13:00:00",
-      "UpdatedAt": "2025-10-14T15:00:00"
+      "CreatedAt": "2025-09-24T09:00:00",
+      "UpdatedAt": "2025-10-14T09:00:00"
     },
     {
-      "ProductID": 6,
+      "id": 6,
       "SupplierID": 6,
       "CategoryID": 6,
-      "Code": "PG-002",
+      "Code": "PG-006",
       "ProductName": "Protective Gloves (Pack of 10)",
+      "ImageURL": "https://picsum.photos/200",
       "WeightPerUnit": 0.8,
-      "StockQuantity": 300,
+      "Description": "Durable gloves for safe handling.",
       "IsAvailable": 1,
-      "CreatedAt": "2025-10-01T14:00:00",
-      "UpdatedAt": "2025-10-17T09:00:00"
+      "CreatedAt": "2025-09-25T09:00:00",
+      "UpdatedAt": "2025-10-15T09:00:00"
+    },
+    {
+      "id": 7,
+      "ProductName": "sanphammoidaden",
+      "ImageURL": "https://picsum.photos/200",
+      "Code": "mamoidaden",
+      "WeightPerUnit": "2",
+      "Description": "motamoidaden",
+      "IsAvailable": 1,
+      "SupplierID": "1",
+      "CategoryID": "1",
+      "CreatedAt": "2025-10-24T08:19:37.737Z",
+      "UpdatedAt": "2025-10-24T08:27:35.943Z"
+    },
+    {
+      "id": "8",
+      "ProductName": "sanphammoidaden",
+      "ImageURL": "https://picsum.photos/200",
+      "Code": "mamoidaden",
+      "WeightPerUnit": "1",
+      "Description": "motamoidaden",
+      "IsAvailable": 1,
+      "SupplierID": "3",
+      "CategoryID": "5",
+      "CreatedAt": "2025-10-24T08:27:48.058Z",
+      "UpdatedAt": "2025-10-24T08:34:34.312Z"
     }
   ]
 }

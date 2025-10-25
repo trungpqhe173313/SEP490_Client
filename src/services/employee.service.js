@@ -1,19 +1,24 @@
 import API from '@/utils/axios';
 
 export const employeeService = {
-    getAllEmployees: async (data) => {
-        return API.get('/employees');
+    getAllEmployees: async () => {
+        const response = await API.get('/employees');
+        return response.data;
     },
     getEmployeeByID: async (id) => {
-        return API.get(`/employees/${id}`);
+        const response = await API.get(`/employees/${id}`);
+        return response.data;
     },
     createEmployee: async (data) => {
-        return API.post('/employees', data);
+        const response = await API.post('/employees', data);
+        return response.data;
     },
     updateEmployee: async (id, data) => {
-        return API.put(`/employees/${id}`, data);
+        const response = await API.put(`/employees/${id}`, data);
+        return response.data;
     },
     deleteEmployee: async (id) => {
-        return API.delete(`/employees/${id}`);
+        const response = await API.delete(`/employees/${id}`);
+        return response.data;
     }
 };

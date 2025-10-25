@@ -136,8 +136,8 @@ export default function TableCommon({
                                     </TableCell>
                                 ))}
                                 <TableCell>
-                                    <Button onClick={() => handleEdit(item)}>Sửa</Button>
-                                    <Button onClick={() => {
+                                    <Button sx={{backgroundColor:"#ffc107", margin:"5px", color:"black"}} onClick={() => handleEdit(item)}>Sửa</Button>
+                                    <Button sx={{backgroundColor:"red", margin:"5px", color:"white"}} onClick={() => {
                                         setIsOpenPopupConfirmDelete(true);
                                         setIdDeleting(item.id);
                                     }}>Xóa</Button>

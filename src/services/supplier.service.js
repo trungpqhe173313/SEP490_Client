@@ -2,18 +2,23 @@ import API from '@/utils/axios';
 
 export const supplierService = {
     getAllSuppliers: async () => {
-        return API.get('/suppliers');
+        const response = await API.get('/suppliers');
+        return response;
     },
     getSupplierByID: async (id) => {
-        return API.get(`/suppliers/${id}`);
+        const response = await API.get(`/suppliers/${id}`);
+        return response;
     },
     createSupplier: async (data) => {
-        return API.post('/suppliers', data);
+        const response = await API.post('/suppliers', data);
+        return response;
     },
     updateSupplier: async (id, data) => {
-        return API.put(`/suppliers/${id}`, data);
+        const response = await API.put(`/suppliers/${id}`, data);
+        return response;
     },
     deleteSupplier: async (id) => {
-        return API.delete(`/suppliers/${id}`);
+        const response = await API.delete(`/suppliers/${id}`);
+        return response;
     }
 };

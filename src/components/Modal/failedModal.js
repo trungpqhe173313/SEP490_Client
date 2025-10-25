@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Box, Typography, SvgIcon } from '@mui/material';
+import { Modal, Box, Typography, SvgIcon, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 function FailedModal({ isOpen, message, onClose }) {

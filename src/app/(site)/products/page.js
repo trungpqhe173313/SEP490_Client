@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
 import SuccessModal from "@/components/Modal/successModal";
+import FailedModal from "@/components/Modal/failedModal";
 import Loader from "@/components/Loader/loader";
 
 export default function Products() {
@@ -11,15 +12,22 @@ export default function Products() {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
+    const [modalFailedOpen, setModalFailedOpen] = useState(false);
+    const [modalFailedMessage, setModalFailedMessage] = useState("");
     const [editingProduct, setEditingProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
     const headerData = [
         {
-            key: "ProductID",
+            key: "id",
             label: "Mã sản phẩm",
-            customValue: (item) => item.ProductID && <div>{item.ProductID}</div>
+            customValue: (item) => item.id && <div>{item.id}</div>
+        },
+        {
+            key: "ImageURL",
+            label: "Hình ảnh",
+            customValue: (item) => item.ImageURL && <div><img src={item.ImageURL} alt={item.ProductName} /></div>
         },
         {
             key: "ProductName",
@@ -37,9 +45,9 @@ export default function Products() {
             customValue: (item) => item.WeightPerUnit && <div>{item.WeightPerUnit}</div>
         },
         {
-            key: "StockQuantity",
-            label: "Số lượng",
-            customValue: (item) => item.StockQuantity && <div>{item.StockQuantity}</div>
+            key: "Description",
+            label: "Mô tả",
+            customValue: (item) => item.Description && <div>{item.Description}</div>
         },
         {
             key: "IsAvailable",
@@ -55,9 +63,18 @@ export default function Products() {
             key: "CategoryID",
             label: "Danh mục",
             customValue: (item) => item.CategoryID && <div>{item.CategoryID}</div>
+        },
+        {
+            key: "CreatedAt",
+            label: "Ngày tạo",
+            customValue: (item) => item.CreatedAt && <div>{new Date(item.CreatedAt).toLocaleDateString('vi-VN')}</div>
+        },
+        {
+            key: "UpdatedAt",
+            label: "Ngày cập nhật",
+            customValue: (item) => item.UpdatedAt && <div>{new Date(item.UpdatedAt).toLocaleDateString('vi-VN')}</div>
         }
     ];
-
     const fetchProducts = async () => {
         const response = await productService.getAllProducts();
         setProducts(response.data);
@@ -79,26 +96,35 @@ export default function Products() {
     };
 
     const handleDelete = async (id) => {
-        await productService.deleteProduct(id);
-        fetchProducts();
-        setModalSuccessMessage("Xoá sản phẩm thanh cong");
+        setLoading(true);
+        console.log(id);
+        // await productService.deleteProduct(id);
+        // fetchProducts();
+        setModalSuccessMessage("Xoá sản phẩm thanh công");
         setModalSuccessOpen(true);
+        setLoading(false);
     };
 
-    const handleConfirm = (productData) => {
+    const handleConfirm = async (productData) => {
         setLoading(true);
-        if (editingProduct) {
-            productService.updateProduct(editingProduct.ProductID, productData);
-            setModalSuccessMessage("Cập nhật sản phẩm thành công");
+        try {
+            if (editingProduct) {
+                await productService.updateProduct(editingProduct.id, productData);
+                setModalSuccessMessage("Cập nhật sản phẩm thành công");
+            } else {
+                await productService.createProduct(productData);
+                setModalSuccessMessage("Tạo sản phẩm thành công");
+            }
             setModalSuccessOpen(true);
-        } else {
-            productService.createProduct(productData);
-            setModalSuccessMessage("Tạo sản phẩm thành công");
-            setModalSuccessOpen(true);
+            setModalOpen(false);
+            fetchProducts();
+        } catch (error) {
+            console.log(error);
+            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
         }
-        setModalOpen(false);
-        fetchProducts();
-        setLoading(false);
     };
 
     if (loading) {
@@ -183,7 +209,7 @@ export default function Products() {
                         <label className="block text-gray-700 text-sm font-bold" htmlFor="search">
                             Tìm sản phẩm
                         </label>
-                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" id="search" type="text" name="search" onChange={(e) => setSearchTerm(e.target.value)}/>
+                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" id="search" type="text" name="search" onChange={(e) => setSearchTerm(e.target.value)} />
                     </div>
                     <div className="flex flex-col w-1/4">
                         <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm sản phẩm</button>
@@ -194,7 +220,7 @@ export default function Products() {
                 <TableCommon
                     headers={headerData}
                     tableData={products}
-                    defaultSortColumn="ProductID"
+                    defaultSortColumn="id"
                     rowPerPage={5}
                     pageIndex={0}
                     totalCount={products.length}
@@ -216,6 +242,7 @@ export default function Products() {
                 initialData={editingProduct}
             />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
+            <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} onClose={() => setModalFailedOpen(false)} />
         </div>
     );
 }

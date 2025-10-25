@@ -2,18 +2,23 @@ import API from '@/utils/axios';
 
 export const categoryService = {
     getAllCategories: async () => {
-        return API.get('/categories');
+        const response = await API.get('/categories');
+        return response;
     },
     getCategoryByID: async (id) => {
-        return API.get(`/categories/${id}`);
+        const response = await API.get(`/categories/${id}`);
+        return response;
     },
     createCategory: async (data) => {
-        return API.post('/categories', data);
+        const response = await API.post('/categories', data);
+        return response;
     },
     updateCategory: async (id, data) => {
-        return API.put(`/categories/${id}`, data);
+        const response = await API.put(`/categories/${id}`, data);
+        return response;
     },
     deleteCategory: async (id) => {
-        return API.delete(`/categories/${id}`);
+        const response = await API.delete(`/categories/${id}`);
+        return response;
     }
 };
