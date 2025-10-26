@@ -8,60 +8,103 @@ import FailedModal from "@/components/Modal/failedModal";
 import Loader from "@/components/Loader/loader";
 
 export default function Suppliers() {
+    //object
     const [suppliers, setSuppliers] = useState([]);
+    const [editingSupplier, setEditingSupplier] = useState(null);
+
+    //modal
     const [modalOpen, setModalOpen] = useState(false);
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
-    const [editingSupplier, setEditingSupplier] = useState(null);
+
+    //filter
+    const [filterSupplierName, setFilterSupplierName] = useState("");
+    const [filterEmail, setFilterEmail] = useState("");
+    const [filterPhone, setFilterPhone] = useState("");
+    const [filterIsActive, setFilterIsActive] = useState(null);
+
+    //pagination
+    const [pageIndex, setPageIndex] = useState(0);
+    const [rowPerPage, setRowPerPage] = useState(5);
+    const [totalCount, setTotalCount] = useState(0);
+
+    //loading
     const [loading, setLoading] = useState(true);
 
     const headerData = [
         {
-            key: "id",
+            key: "supplierId",
             label: "Mã nhà cung cấp",
-            customValue: (item) => item.id && <div>{item.id}</div>
+            customValue: (item) => item.supplierId && <div>{item.supplierId}</div>
         },
         {
-            key: "SupplierName",
+            key: "supplierName",
             label: "Tên nhà cung cấp",
-            customValue: (item) => item.SupplierName && <div>{item.SupplierName}</div>
+            customValue: (item) => item.supplierName && <div>{item.supplierName}</div>
         },
         {
-            key: "Email",
+            key: "email",
             label: "Email",
-            customValue: (item) => item.Email && <div>{item.Email}</div>
+            customValue: (item) => item.email && <div>{item.email}</div>
         },
         {
-            key: "Phone",
+            key: "phone",
             label: "Số điện thoại",
-            customValue: (item) => item.Phone && <div>{item.Phone}</div>
+            customValue: (item) => item.phone && <div>{item.phone}</div>
         },
         {
-            key: "IsVerified",
+            key: "isActive",
             label: "Trạng thái",
-            customValue: (item) => item.IsVerified === 1 ?
-                <div className="text-green-600">Đã xác thực</div> :
-                <div className="text-red-600">Chưa xác thực</div>
+            customValue: (item) => item.isActive == 1 ?
+                <div className="text-green-600">Đang hoạt động</div> :
+                <div className="text-red-600">Dừng hoạt động</div>
         },
         {
-            key: "CreatedAt",
+            key: "createdAt",
             label: "Ngày tạo",
-            customValue: (item) => item.CreatedAt &&
-                <div>{new Date(item.CreatedAt).toLocaleDateString('vi-VN')}</div>
+            customValue: (item) => item.createdAt &&
+                <div>{new Date(item.createdAt).toLocaleDateString('vi-VN')}</div>
         }
     ];
 
+    // Pagination handlers for MUI TablePagination
+    const handleChangePage = (event, newPage) => {
+        setPageIndex(newPage);
+    }
+
+    const handleChangeRowPerPage = (event) => {
+        setRowPerPage(parseInt(event.target.value, 10));
+        setPageIndex(0);
+    };
+
     const fetchSuppliers = async () => {
-        const response = await supplierService.getAllSuppliers();
-        setSuppliers(response.data);
+        setLoading(true);
+        const body = {
+            pageIndex: pageIndex + 1,
+            pageSize: rowPerPage,
+            isActive: filterIsActive
+        };
+        if (filterSupplierName) {
+            body.SupplierName = filterSupplierName;
+        }
+        if (filterEmail) {
+            body.Email = filterEmail;
+        }
+        if (filterPhone) {
+            body.Phone = filterPhone;
+        }
+
+        const response = await supplierService.getAllSuppliers(body);
+        setSuppliers(response.data.items);
+        setTotalCount(response.data.totalCount);
+        setLoading(false);
     };
 
     useEffect(() => {
         fetchSuppliers();
-        setLoading(false);
-    }, []);
+    }, [pageIndex, rowPerPage, filterSupplierName, filterEmail, filterPhone]);
 
     const handleCreate = () => {
         setEditingSupplier(null);
@@ -73,10 +116,10 @@ export default function Suppliers() {
         setModalOpen(true);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (supplier) => {
         setLoading(true);
-        // await supplierService.deleteSupplier(id);
-        // fetchSuppliers();
+        await supplierService.deleteSupplier(supplier.supplierId);
+        fetchSuppliers();
         setModalSuccessMessage("Xoá nhà cung cấp thành công");
         setModalSuccessOpen(true);
         setLoading(false);
@@ -86,7 +129,7 @@ export default function Suppliers() {
         setLoading(true);
         try {
             if (editingSupplier) {
-                await supplierService.updateSupplier(editingSupplier.id, supplierData);
+                await supplierService.updateSupplier(editingSupplier.supplierId, supplierData);
                 setModalSuccessMessage("Cập nhật nhà cung cấp thành công");
             } else {
                 await supplierService.createSupplier(supplierData);
@@ -149,15 +192,16 @@ export default function Suppliers() {
                 <TableCommon
                     headers={headerData}
                     tableData={suppliers}
-                    defaultSortColumn="id"
-                    rowPerPage={5}
-                    pageIndex={0}
-                    totalCount={suppliers.length}
+                    defaultSortColumn="supplierId"
+                    rowPerPage={rowPerPage}
+                    pageIndex={pageIndex}
+                    totalCount={totalCount}
                     rowPerPageOptions={[5, 10, 20]}
+                    handleChangePage={handleChangePage}
+                    handleChangeRowPerPage={handleChangeRowPerPage}
                     handleEdit={handleEdit}
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa nhà cung cấp này không?"
-                    placeholderSearch="Tìm nhà cung cấp"
                     usePagination={true}
                     useSearch={true}
                 />

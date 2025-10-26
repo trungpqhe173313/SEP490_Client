@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-    CircularProgress,
     Table,
     TableBody,
     TableCell,
@@ -9,7 +8,6 @@ import {
     TablePagination,
     TableRow,
     TableSortLabel,
-    Typography,
     Button
 } from '@mui/material';
 import ConfirmModal from '@/components/Modal/confirmModal';
@@ -22,18 +20,17 @@ export default function TableCommon({
     pageIndex,
     totalCount,
     rowPerPageOptions,
+    handleChangePage,
+    handleChangeRowPerPage,
     handleEdit,
     handleDelete,
     messagePopupDelete,
-    placeholderSearch,
     usePagination,
     useDetail,
+    handleFetchDetail
 }) {
-    const [page, setPage] = useState(pageIndex);
-    const [amountOnPage, setAmountOnPage] = useState(rowPerPage);
     const [sortType, setSortType] = useState('asc');
     const [sortColumn, setSortColumn] = useState(defaultSortColumn || headers[0].key);
-    const [search, setSearch] = useState('');
     const [data, setData] = useState(tableData);
     const [isOpenPopupConfirmDelete, setIsOpenPopupConfirmDelete] = useState(false);
     const [idDeleting, setIdDeleting] = useState('');
@@ -43,13 +40,6 @@ export default function TableCommon({
         setData(tableData);
     }, [tableData]);
 
-    // Pagination handlers for MUI TablePagination
-    const handleChangePage = (event, newPage) => setPage(newPage);
-    const handleChangeRowPerPage = (event) => {
-        setAmountOnPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
     const handleSort = (column) => {
         if (sortColumn === column) {
             setSortType(sortType === 'asc' ? 'desc' : 'asc');
@@ -58,8 +48,6 @@ export default function TableCommon({
             setSortType('asc');
         }
     };
-
-    const handleSearch = (value) => setSearch(value);
 
     const getValueToDisplayOnTable = (indexColumn, item) => {
         const customValue = headers[indexColumn].customValue;
@@ -73,7 +61,7 @@ export default function TableCommon({
         }
     };
 
-    // Sort and paginate data
+    // Sort data
     let displayedData = [...data];
     if (sortColumn) {
         displayedData.sort((a, b) => {
@@ -81,9 +69,6 @@ export default function TableCommon({
             if (a[sortColumn] > b[sortColumn]) return sortType === 'asc' ? 1 : -1;
             return 0;
         });
-    }
-    if (usePagination) {
-        displayedData = displayedData.slice(page * amountOnPage, page * amountOnPage + amountOnPage);
     }
 
     return (
@@ -139,7 +124,7 @@ export default function TableCommon({
                                     <Button sx={{backgroundColor:"#ffc107", margin:"5px", color:"black"}} onClick={() => handleEdit(item)}>Sửa</Button>
                                     <Button sx={{backgroundColor:"red", margin:"5px", color:"white"}} onClick={() => {
                                         setIsOpenPopupConfirmDelete(true);
-                                        setIdDeleting(item.id);
+                                        setIdDeleting(item);
                                     }}>Xóa</Button>
                                 </TableCell>
                             </TableRow>
@@ -152,8 +137,8 @@ export default function TableCommon({
                     rowsPerPageOptions={rowPerPageOptions}
                     component="div"
                     count={totalCount}
-                    rowsPerPage={amountOnPage}
-                    page={page}
+                    rowsPerPage={rowPerPage}
+                    page={pageIndex}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowPerPage}
                     labelRowsPerPage="Số hàng mỗi trang:"
