@@ -152,8 +152,8 @@ export default function Suppliers() {
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
-            <div className="col-span-1 p-4 rounded-2xl bg-white">
-                <div className="p-4">
+            <div className="col-span-1">
+                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-30">
                     <h2 className="text-xl font-bold">Lọc nhà cung cấp</h2>
                     <div className="flex flex-col">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">

@@ -36,7 +36,7 @@ export function SupplierForm({
     const handleChange = (e) => {
         const { name, value } = e.target;
         let newValue = value;
-        if (name === "id" || name === "isActive") newValue = parseInt(value);
+        if (name === "isActive") newValue = value === "true";
         setForm((prev) => ({
             ...prev,
             [name]: newValue
@@ -58,7 +58,7 @@ export function SupplierForm({
         <Modal open={isOpen} onClose={onClose}>
             <div className="fixed inset-0 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-1/2 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden z-51">
-                    <div className="w-full bg-green-600 text-white p-4 flex-row flex justify-between">
+                    <div className="w-full bg-green-600 text-white p-4 flex-row flex justify-between sticky top-0">
                         <h2 className="text-2xl font-bold my-auto">
                             {initialData ? "Cập nhật nhà cung cấp" : "Thêm nhà cung cấp mới"}
                         </h2>
@@ -95,9 +95,9 @@ export function SupplierForm({
                                 <label className="block text-md font-bold">Trạng thái</label>
                                 <p className="text-xs text-gray-500">Nhập trạng thái nhà cung cấp</p>
                             </div>
-                            <select name="isActive" value={form.isActive} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-3 py-2">
-                                <option value={1}>Đang hoạt động</option>
-                                <option value={0}>Dừng hoạt động</option>
+                            <select name="isActive" value={form.isActive ? "true" : "false"} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-3 py-2">
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Dừng hoạt động</option>
                             </select>
                         </div>
                         }
