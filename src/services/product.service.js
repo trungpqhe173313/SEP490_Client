@@ -1,36 +1,24 @@
 import API from '@/utils/axios';
 
 export const productService = {
-    // getAllProducts: async () => {
-    //     try {
-    //         const response = await API.get('/products/GetData');
-    //         return response.data;
-    //     } catch (error) {
-    //         console.log('Error in getAllProducts:', error);
-    //     }
-    // },
-    getAllProducts: async () => {
-        try {
-            const response = await API.get('/products');
-            return response;
-        } catch (error) {
-            console.log('Error in getAllProducts:', error);
-        }
+    getAllProducts: async (data) => {
+        const response = await API.post('/products/GetData', data);
+        return response.data;
     },
-    getProductByID: async (id) => {
-        const response = await API.get(`/products/${id}`);
-        return response;
+    getProductsByWarehouse: async (id) => {
+        const response = await API.get(`/products/GetProductsByWarehouse/${id}`);
+        return response.data;
     },
     createProduct: async (data) => {
-        const response = await API.post('/products', data);
-        return response;
+        const response = await API.post('/products/CreateProduct', data);
+        return response.data;
     },
     updateProduct: async (id, data) => {
-        const response = await API.put(`/products/${id}`, data);
-        return response;
+        const response = await API.put(`/products/UpdateProduct/${id}`, data);
+        return response.data;
     },
     deleteProduct: async (id) => {
-        const response = await API.delete(`/products/${id}`);
-        return response;
+        const response = await API.delete(`/products/DeleteProduct/${id}`);
+        return response.data;
     }
 };

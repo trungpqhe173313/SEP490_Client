@@ -8,48 +8,85 @@ import FailedModal from "@/components/Modal/failedModal";
 import Loader from "@/components/Loader/loader";
 
 export default function Categories() {
+    //Data state
     const [categories, setCategories] = useState([]);
+    const [editingCategory, setEditingCategory] = useState(null);
+
+    //Modal state
     const [modalOpen, setModalOpen] = useState(false);
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
-    const [editingCategory, setEditingCategory] = useState(null);
+    
+    //Filter state
+    const [filterCategoryName, setFilterCategoryName] = useState("");
+
+    //Pagination state
+    const [pageIndex, setPageIndex] = useState(0);
+    const [rowPerPage, setRowPerPage] = useState(5);
+    const [totalCount, setTotalCount] = useState(0);
+
     const [loading, setLoading] = useState(true);
 
     const headerData = [
         {
-            key: "id",
+            key: "categoryId",
             label: "Mã danh mục",
-            customValue: (item) => item.id && <div>{item.id}</div>
+            customValue: (item) => item.categoryId && <div>{item.categoryId}</div>
         },
         {
-            key: "CategoryName",
+            key: "categoryName",
             label: "Tên danh mục",
-            customValue: (item) => item.CategoryName && <div>{item.CategoryName}</div>
+            customValue: (item) => item.categoryName && <div>{item.categoryName}</div>
         },
         {
-            key: "Description",
+            key: "description",
             label: "Mô tả",
-            customValue: (item) => item.Description && <div>{item.Description}</div>
+            customValue: (item) => item.description && <div>{item.description}</div>
         },
         {
-            key: "CreatedAt",
+            key: "isActive",
+            label: "Trạng thái",
+            customValue: (item) => item.isActive == 1 ? <div className="text-green-600">Đang hoạt động</div> : <div className="text-red-600">Dừng hoạt động</div>
+        },
+        {
+            key: "createdAt",
             label: "Ngày tạo",
-            customValue: (item) => item.CreatedAt && <div>{new Date(item.CreatedAt).toLocaleDateString('vi-VN')}</div>
-        }
+            customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleDateString('vi-VN')}</div>
+        },
+        {
+            key: "updateAt",
+            label: "Ngày cập nhật",
+            customValue: (item) => item.updateAt && <div>{new Date(item.updateAt).toLocaleDateString('vi-VN')}</div>
+        },
     ];
 
+    // Pagination handlers
+    const handleChangePage = (event, newPage) => setPageIndex(newPage);
+    const handleChangeRowPerPage = (event) => {
+        setRowPerPage(parseInt(event.target.value, 10));
+        setPageIndex(0);
+    };
+
     const fetchCategories = async () => {
-        const response = await categoryService.getAllCategories();
-        setCategories(response.data);
+        setLoading(true);
+        const body = {
+            pageIndex: pageIndex + 1,
+            pageSize: rowPerPage,
+            categoryName: filterCategoryName
+        }
+        const response = await categoryService.getAllCategories(body);
+        setCategories(response.data.items);
+        setTotalCount(response.data.totalCount);
+        setLoading(false);
     };
 
     useEffect(() => {
         fetchCategories();
-        setLoading(false);
-    }, []);
+    }, [pageIndex, rowPerPage, filterCategoryName]);
 
+    // Modal handlers
     const handleCreate = () => {
         setEditingCategory(null);
         setModalOpen(true);
@@ -60,10 +97,10 @@ export default function Categories() {
         setModalOpen(true);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (category) => {
         setLoading(true);
-        // await categoryService.deleteCategory(id);
-        // fetchCategories();
+        await categoryService.deleteCategory(category.categoryId);
+        fetchCategories();
         setModalSuccessMessage("Xoá danh mục thành công");
         setModalSuccessOpen(true);
         setLoading(false);
@@ -73,7 +110,7 @@ export default function Categories() {
         setLoading(true);
         try {
             if (editingCategory) {
-                await categoryService.updateCategory(editingCategory.id, categoryData);
+                await categoryService.updateCategory(editingCategory.categoryId, categoryData);
                 setModalSuccessMessage("Cập nhật danh mục thành công");
             } else {
                 await categoryService.createCategory(categoryData);
@@ -96,41 +133,21 @@ export default function Categories() {
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
-            <div className="col-span-1 p-4 rounded-2xl bg-white">
-                <div className="p-4">
+            {/* Filter sidebar */}
+            <div className="col-span-1">
+                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-30">
                     <h2 className="text-xl font-bold">Lọc danh mục</h2>
-                    {/* <div className="flex flex-col">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">
-                            Trạng thái
-                        </label>
-                        <select className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-gray-200 rounded px-3" id="status" name="status">
-                            <option value="">Tất cả</option>
-                            <option value="Active">Hoạt động</option>
-                            <option value="Inactive">Không hoạt động</option>
-                        </select>
-                    </div>
-                    <div className="flex flex-col">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="parent">
-                            Danh mục cha
-                        </label>
-                        <select className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-gray-200 rounded px-3" id="parent" name="parent">
-                            <option value="">Tất cả</option>
-                            {categories.map(category => (
-                                <option key={category.CategoryID} value={category.CategoryID}>
-                                    {category.CategoryName}
-                                </option>
-                            ))}
-                        </select>
-                    </div> */}
+ 
                 </div>
             </div>
+            {/* Main content */}
             <div className="col-span-3">
                 <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
                     <div className="flex flex-col w-3/4 mr-4">
                         <label className="block text-gray-700 text-sm font-bold" htmlFor="search">
                             Tìm danh mục
                         </label>
-                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" id="search" type="text" name="search" />
+                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" type="text" name="search" />
                     </div>
                     <div className="flex flex-col w-1/4">
                         <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm danh mục</button>
@@ -139,17 +156,17 @@ export default function Categories() {
                 <TableCommon
                     headers={headerData}
                     tableData={categories}
-                    defaultSortColumn="id"
-                    rowPerPage={5}
-                    pageIndex={0}
-                    totalCount={categories.length}
+                    defaultSortColumn="categoryId"
+                    rowPerPage={rowPerPage}
+                    pageIndex={pageIndex}
+                    totalCount={totalCount}
                     rowPerPageOptions={[5, 10, 20]}
+                    handleChangePage={handleChangePage}
+                    handleChangeRowPerPage={handleChangeRowPerPage}
                     handleEdit={handleEdit}
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa danh mục này không?"
-                    placeholderSearch="Tìm danh mục"
                     usePagination={true}
-                    useSearch={true}
                 />
             </div>
             <CategoryForm

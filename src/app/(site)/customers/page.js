@@ -2,83 +2,180 @@
 import { customerService } from "@/services/customer.service";
 import React, { useState, useEffect } from "react";
 import TableCommon from "@/components/Table/table";
+import { CustomerForm } from "@/components/Form/customerForm";
+import SuccessModal from "@/components/Modal/successModal";
+import FailedModal from "@/components/Modal/failedModal";
+import Loader from "@/components/Loader/loader";
 
 export default function Customers() {
+    // Data state
     const [customers, setCustomers] = useState([]);
+    const [editingCustomer, setEditingCustomer] = useState(null);
+
+    // Modal state
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
+    const [modalSuccessMessage, setModalSuccessMessage] = useState("");
+    const [modalFailedOpen, setModalFailedOpen] = useState(false);
+    const [modalFailedMessage, setModalFailedMessage] = useState("");
+
+    // Filter state
+    const [filterCustomerName, setFilterCustomerName] = useState("");
+
+    // Pagination state
+    const [pageIndex, setPageIndex] = useState(0);
+    const [rowPerPage, setRowPerPage] = useState(5);
+    const [totalCount, setTotalCount] = useState(0);
+
+    const [loading, setLoading] = useState(true);
 
     const headerData = [
         {
-            key: "CustomerID",
+            key: "userId",
             label: "Mã khách hàng",
-            customValue: (item) => item.CustomerID && <div>{item.CustomerID}</div>
+            customValue: (item) => item.userId && <div>{item.userId}</div>
         },
         {
-            key: "CustomerName",
+            key: "fullName",
             label: "Tên khách hàng",
-            customValue: (item) => item.CustomerName && <div>{item.CustomerName}</div>
+            customValue: (item) => item.fullName && <div>{item.fullName}</div>
         },
         {
-            key: "Email",
+            key: "email",
             label: "Email",
-            customValue: (item) => item.Email && <div>{item.Email}</div>
+            customValue: (item) => item.email && <div>{item.email}</div>
         },
         {
-            key: "Phone",
-            label: "Số điện thoại",
-            customValue: (item) => item.Phone && <div>{item.Phone}</div>
+            key: "roleName",
+            label: "Vai trò",
+            customValue: (item) => item.roleName && <div>{item.roleName}</div>
         },
         {
-            key: "IsVerified",
+            key: "isActive",
             label: "Trạng thái",
-            customValue: (item) => item.IsVerified === 1 ? 
-                <div className="text-green-600">Đã xác thực</div> : 
-                <div className="text-red-600">Chưa xác thực</div>
+            customValue: (item) => item.isActive ? <div className="text-green-600">Đang hoạt động</div> : <div className="text-red-600">Dừng hoạt động</div>
+        },
+        {
+            key: "createdAt",
+            label: "Ngày tạo",
+            customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleDateString('vi-VN')}</div>
         }
     ];
 
+    // Pagination handlers
+    const handleChangePage = (event, newPage) => setPageIndex(newPage);
+    const handleChangeRowPerPage = (event) => {
+        setRowPerPage(parseInt(event.target.value, 10));
+        setPageIndex(0);
+    };
+
+    const fetchCustomers = async () => {
+        setLoading(true);
+        const body = {
+            pageIndex: pageIndex + 1,
+            pageSize: rowPerPage,
+            fullName: filterCustomerName
+        }
+        const response = await customerService.getAllCustomers(body);
+        setCustomers(response.data.items);
+        setTotalCount(response.data.totalCount);
+        setLoading(false);
+    };
+
     useEffect(() => {
-        const fetchCustomers = async () => {
-            const response = await customerService.getAllCustomers();
-            setCustomers(response.data);
-        };
         fetchCustomers();
-    }, []);
+    }, [pageIndex, rowPerPage, filterCustomerName]);
+
+    // Modal handlers
+    const handleCreate = () => {
+        setEditingCustomer(null);
+        setModalOpen(true);
+    };
+
+    const handleEdit = (customer) => {
+        setEditingCustomer(customer);
+        setModalOpen(true);
+    };
+
+    const handleDelete = async (customer) => {
+        setLoading(true);
+        await customerService.deleteCustomer(customer.userId);
+        fetchCustomers();
+        setModalSuccessMessage("Xoá khách hàng thành công");
+        setModalSuccessOpen(true);
+        setLoading(false);
+    };
+
+    const handleConfirm = async (customerData) => {
+        setLoading(true);
+        try {
+            if (editingCustomer) {
+                await customerService.updateCustomer(editingCustomer.userId, customerData);
+                setModalSuccessMessage("Cập nhật khách hàng thành công");
+            } else {
+                await customerService.createCustomer(customerData);
+                setModalSuccessMessage("Tạo khách hàng thành công");
+            }
+            setModalSuccessOpen(true);
+            setModalOpen(false);
+            fetchCustomers();
+        } catch (error) {
+            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return <Loader />;
+    }
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
-            <div className="col-span-1 p-4 rounded-2xl bg-white">
-                <div className="p-4">
+            {/* Filter sidebar */}
+            <div className="col-span-1">
+                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-30">
                     <h2 className="text-xl font-bold">Lọc khách hàng</h2>
-                    {/* <div className="flex flex-col">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="type">
-                            Loại khách hàng
-                        </label>
-                        <select className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-gray-200 rounded px-3" id="type" name="type">
-                            <option value="">Tất cả</option>
-                            <option value="VIP">VIP</option>
-                            <option value="Regular">Thường xuyên</option>
-                            <option value="New">Mới</option>
-                        </select>
-                    </div> */}
                 </div>
             </div>
+            {/* Main content */}
             <div className="col-span-3">
+                <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
+                    <div className="flex flex-col w-3/4 mr-4">
+                        <label className="block text-gray-700 text-sm font-bold" htmlFor="search">
+                            Tìm khách hàng
+                        </label>
+                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" type="text" name="search" onChange={e => setFilterCustomerName(e.target.value)} />
+                    </div>
+                    <div className="flex flex-col w-1/4">
+                        <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm khách hàng</button>
+                    </div>
+                </div>
                 <TableCommon
                     headers={headerData}
                     tableData={customers}
-                    defaultSortColumn="CustomerID"
-                    rowPerPage={5}
-                    pageIndex={0}
-                    totalCount={customers.length}
+                    defaultSortColumn="userId"
+                    rowPerPage={rowPerPage}
+                    pageIndex={pageIndex}
+                    totalCount={totalCount}
                     rowPerPageOptions={[5, 10, 20]}
-                    handleEdit={(item) => console.log('edit', item)}
-                    handleDelete={(id) => console.log('delete', id)}
+                    handleChangePage={handleChangePage}
+                    handleChangeRowPerPage={handleChangeRowPerPage}
+                    handleEdit={handleEdit}
+                    handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa khách hàng này không?"
-                    placeholderSearch="Tìm kiếm khách hàng"
                     usePagination={true}
-                    useSearch={true}
                 />
             </div>
+            <CustomerForm
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onConfirm={handleConfirm}
+                initialData={editingCustomer}
+            />
+            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
+            <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} onClose={() => setModalFailedOpen(false)} />
         </div>
     );
 }

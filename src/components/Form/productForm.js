@@ -8,17 +8,17 @@ export function ProductForm({
     initialData
 }) {
     const [form, setForm] = useState({
-        id: 0,
-        ProductName: "",
-        ImageURL: "https://picsum.photos/200",
-        Code: "",
-        WeightPerUnit: "",
-        Description: "",
-        IsAvailable: 1,
-        SupplierID: "",
-        CategoryID: "",
-        CreatedAt: "",
-        UpdatedAt: ""
+        productName: "",
+        imageURL: "https://picsum.photos/200",
+        code: "",
+        weightPerUnit: "",
+        quantity: 0,
+        description: "",
+        isAvailable: true,
+        warehouseId: 1,
+        supplierId: "",
+        categoryId: "",
+        updatedAt: ""
     });
     const [error, setError] = useState("");
     const today = new Date();
@@ -26,31 +26,30 @@ export function ProductForm({
     useEffect(() => {
         if (initialData) {
             setForm({
-                id: initialData.id || 0,
-                ProductName: initialData.ProductName || "",
-                ImageURL: initialData.ImageURL || "https://picsum.photos/200",
-                Code: initialData.Code || "",
-                WeightPerUnit: initialData.WeightPerUnit || "",
-                Description: initialData.Description || "",
-                IsAvailable: initialData.IsAvailable ?? 1,
-                SupplierID: initialData.SupplierID || "",
-                CategoryID: initialData.CategoryID || "",
-                CreatedAt: initialData.CreatedAt || "",
-                UpdatedAt: today
+                productName: initialData.productName || "",
+                imageURL: initialData.imageURL || "https://picsum.photos/200",
+                code: initialData.code || "",
+                weightPerUnit: initialData.weightPerUnit || "",
+                quantity: initialData.quantity || 0,
+                description: initialData.description || "",
+                isAvailable: initialData.isAvailable ?? true,
+                warehouseId: initialData.warehouseId || 1,
+                supplierId: initialData.supplierId || "",
+                categoryId: initialData.categoryId || "",
+                updatedAt: today
             });
         } else {
             setForm({
-                id: 0,
-                ProductName: "",
-                ImageURL: "https://picsum.photos/200",
-                Code: "",
-                WeightPerUnit: "",
-                Description: "",
-                IsAvailable: 1,
-                SupplierID: "",
-                CategoryID: "",
-                CreatedAt: today,
-                UpdatedAt: today
+                productName: "",
+                imageURL: "https://picsum.photos/200",
+                code: "",
+                weightPerUnit: "",
+                quantity: 0,
+                description: "",
+                isAvailable: true,
+                warehouseId: 1,
+                supplierId: "",
+                categoryId: "",
             });
         }
         setError("");
@@ -59,7 +58,9 @@ export function ProductForm({
     const handleChange = (e) => {
         const { name, value } = e.target;
         let newValue = value;
-        if (["id", "WeightPerUnit"].includes(name)) {
+        if (name === "isAvailable") {
+            newValue = value === "true";
+        } else if (["weightPerUnit"].includes(name)) {
             newValue = parseInt(value);
         }
         setForm((prev) => ({
@@ -70,7 +71,7 @@ export function ProductForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!form.ProductName || !form.Code || !form.WeightPerUnit) {
+        if (!form.productName || !form.code || !form.weightPerUnit) {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return;
         }
@@ -86,38 +87,29 @@ export function ProductForm({
             aria-labelledby="product-modal-title"
             aria-describedby="product-modal-description"
         >
-            <div className="fixed inset-0 flex items-center justify-center z-50" onClick={onClose}>
+            <div className="fixed inset-0 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-1/2 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
-                    <div className="w-full bg-green-600 text-white p-4">
+                    <div className="w-full bg-green-600 text-white p-4 flex-row flex justify-between sticky top-0">
                         <h2 className="text-2xl font-bold my-auto" id="product-modal-title">
                             {initialData ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}
                         </h2>
+                        <button className="text-white cursor-pointer bg-red-600 hover:bg-red-700 p-1" onClick={onClose}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4 p-8">
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">ID </label>
-                                <p className="text-xs text-gray-500">Nhập ID sản phẩm</p>
-                            </div>
-                            <input
-                                type="number"
-                                name="id"
-                                value={form.id}
-                                onChange={handleChange}
-                                className="w-full bg-white border border-gray-300 rounded px-3 py-2"
-                                required
-                            />
-                        </div>
-                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
-                            <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Tên sản phẩm *</label>
+                                <label className="block text-md font-bold">Tên sản phẩm</label>
                                 <p className="text-xs text-gray-500">Nhập tên sản phẩm</p>
                             </div>
                             <input
                                 type="text"
-                                name="ProductName"
-                                value={form.ProductName}
+                                name="productName"
+                                value={form.productName}
                                 onChange={handleChange}
                                 className="w-full bg-white border border-gray-300 rounded px-3 py-2"
                                 required
@@ -125,13 +117,13 @@ export function ProductForm({
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Mã </label>
+                                <label className="block text-md font-bold">Mã</label>
                                 <p className="text-xs text-gray-500">Nhập mã sản phẩm</p>
                             </div>
                             <input
                                 type="text"
-                                name="Code"
-                                value={form.Code}
+                                name="code"
+                                value={form.code}
                                 onChange={handleChange}
                                 className="w-full bg-white border border-gray-300 rounded px-3 py-2"
                                 required
@@ -139,13 +131,13 @@ export function ProductForm({
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Khối lượng </label>
+                                <label className="block text-md font-bold">Khối lượng</label>
                                 <p className="text-xs text-gray-500">Nhập khối lượng sản phẩm</p>
                             </div>
                             <input
                                 type="number"
-                                name="WeightPerUnit"
-                                value={form.WeightPerUnit}
+                                name="weightPerUnit"
+                                value={form.weightPerUnit}
                                 onChange={handleChange}
                                 className="w-full bg-white border border-gray-300 rounded px-3 py-2"
                                 required
@@ -153,13 +145,13 @@ export function ProductForm({
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Mô tả </label>
+                                <label className="block text-md font-bold">Mô tả</label>
                                 <p className="text-xs text-gray-500">Nhập mô tả sản phẩm</p>
                             </div>
                             <input
                                 type="text"
-                                name="Description"
-                                value={form.Description}
+                                name="description"
+                                value={form.description}
                                 onChange={handleChange}
                                 className="w-full bg-white border border-gray-300 rounded px-3 py-2"
                                 required
@@ -171,9 +163,9 @@ export function ProductForm({
                                 <p className="text-xs text-gray-500">Nhập tên nhà cung cấp</p>
                             </div>
                             <input
-                                type="text"
-                                name="SupplierID"
-                                value={form.SupplierID}
+                                type="number"
+                                name="supplierId"
+                                value={form.supplierId}
                                 onChange={handleChange}
                                 className="w-full bg-white border border-gray-300 rounded px-3 py-2"
                             />
@@ -184,9 +176,9 @@ export function ProductForm({
                                 <p className="text-xs text-gray-500">Nhập tên danh mục</p>
                             </div>
                             <input
-                                type="text"
-                                name="CategoryID"
-                                value={form.CategoryID}
+                                type="number"
+                                name="categoryId"
+                                value={form.categoryId}
                                 onChange={handleChange}
                                 className="w-full bg-white border border-gray-300 rounded px-3 py-2"
                             />
@@ -197,13 +189,13 @@ export function ProductForm({
                                 <p className="text-xs text-gray-500">Nhập trạng thái sản phẩm</p>
                             </div>
                             <select
-                                name="IsAvailable"
-                                value={form.IsAvailable}
+                                name="isAvailable"
+                                value={form.isAvailable ? "true" : "false"}
                                 onChange={handleChange}
                                 className="w-full bg-white border border-gray-300 rounded px-3 py-2"
                             >
-                                <option value={1}>Còn hàng</option>
-                                <option value={0}>Hết hàng</option>
+                                <option value="true">Còn hàng</option>
+                                <option value="false">Hết hàng</option>
                             </select>
                         </div>
                         {error && <div className="text-red-600 text-md">{error}</div>}
@@ -217,7 +209,7 @@ export function ProductForm({
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+                                className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white cursor-pointer"
                             >
                                 {initialData ? "Cập nhật" : "Tạo mới"}
                             </button>
@@ -227,4 +219,5 @@ export function ProductForm({
             </div>
         </Modal>
     )
-}       
+}
+
