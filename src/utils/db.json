@@ -436,5 +436,27 @@
       "CreatedAt": "2025-10-24T08:27:48.058Z",
       "UpdatedAt": "2025-10-24T08:34:34.312Z"
     }
+  ],
+  "customers": [
+    {
+      "userId": 10,
+      "fullName": "Nguyen Van A",
+      "Email": "TtLkD@example.com",
+      "image": "https://picsum.photos/200",
+      "CreatedAt": "2025-09-25T08:00:00",
+      "roleName": "Customer",
+      "isActive": true
+    }
+  ],
+  "employees": [
+    {
+      "userId": 11,
+      "fullName": "Nguyen Van A",
+      "Email": "TtLkD@example.com",
+      "image": "https://picsum.photos/200",
+      "CreatedAt": "2025-09-25T08:00:00",
+      "roleName": "Employee",
+      "isActive": true
+    }
   ]
 }
