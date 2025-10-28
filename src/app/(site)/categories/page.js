@@ -18,7 +18,7 @@ export default function Categories() {
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
-    
+
     //Filter state
     const [filterCategoryName, setFilterCategoryName] = useState("");
 
@@ -43,7 +43,7 @@ export default function Categories() {
         {
             key: "description",
             label: "Mô tả",
-            customValue: (item) => item.description && <div>{item.description}</div>
+            customValue: (item) => item.description ? <div>{item.description}</div> : <div>"Chưa có"</div>
         },
         {
             key: "isActive",
@@ -120,7 +120,7 @@ export default function Categories() {
             setModalOpen(false);
             fetchCategories();
         } catch (error) {
-            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -137,17 +137,13 @@ export default function Categories() {
             <div className="col-span-1">
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-30">
                     <h2 className="text-xl font-bold">Lọc danh mục</h2>
- 
                 </div>
             </div>
             {/* Main content */}
             <div className="col-span-3">
                 <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
                     <div className="flex flex-col w-3/4 mr-4">
-                        <label className="block text-gray-700 text-sm font-bold" htmlFor="search">
-                            Tìm danh mục
-                        </label>
-                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" type="text" name="search" />
+                        <h1 className="text-2xl font-bold">Danh sách danh mục</h1>
                     </div>
                     <div className="flex flex-col w-1/4">
                         <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm danh mục</button>

@@ -36,9 +36,8 @@ export default function Products() {
         { key: "productName", label: "Tên sản phẩm", customValue: (item) => item.productName && <div>{item.productName}</div> },
         { key: "code", label: "Mã", customValue: (item) => item.code && <div>{item.code}</div> },
         { key: "weightPerUnit", label: "Khối lượng", customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit}</div> },
-        { key: "stockQuantity", label: "Số lượng", customValue: (item) => item.stockQuantity && <div>{item.stockQuantity}</div> },
-        { key: "supplierId", label: "Mã nhà cung cấp", customValue: (item) => item.supplierId && <div>{item.supplierId}</div> },
-        { key: "categoryId", label: "Mã danh mục", customValue: (item) => item.categoryId && <div>{item.categoryId}</div> },
+        { key: "supplierName", label: "Nhà cung cấp", customValue: (item) => item.supplierName && <div>{item.supplierName}</div> },
+        { key: "categoryName", label: "Danh mục", customValue: (item) => item.categoryName && <div>{item.categoryName}</div> },
         { key: "isAvailable", label: "Trạng thái", customValue: (item) => item.isAvailable === true ? <div className="text-green-600">Còn hàng</div> : <div className="text-red-600">Hết hàng</div> },
         { key: "createdAt", label: "Ngày tạo", customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleDateString('vi-VN')}</div> }
     ];
@@ -99,7 +98,7 @@ export default function Products() {
             setModalOpen(false);
             fetchProducts();
         } catch (error) {
-            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -120,10 +119,7 @@ export default function Products() {
             <div className="col-span-3">
                 <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
                     <div className="flex flex-col w-3/4 mr-4">
-                        <label className="block text-gray-700 text-sm font-bold" htmlFor="search">
-                            Tìm sản phẩm
-                        </label>
-                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" id="search" type="text" name="search" onChange={e => console(e.target.value)} />
+                        <h1 className="text-2xl font-bold">Danh sách sản phẩm</h1>
                     </div>
                     <div className="flex flex-col w-1/4">
                         <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={handleCreate}>Thêm sản phẩm</button>

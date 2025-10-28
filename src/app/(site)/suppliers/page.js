@@ -104,7 +104,7 @@ export default function Suppliers() {
 
     useEffect(() => {
         fetchSuppliers();
-    }, [pageIndex, rowPerPage, filterSupplierName, filterEmail, filterPhone]);
+    }, [pageIndex, rowPerPage, filterSupplierName, filterEmail, filterPhone, filterIsActive]);
 
     const handleCreate = () => {
         setEditingSupplier(null);
@@ -139,7 +139,7 @@ export default function Suppliers() {
             setModalOpen(false);
             fetchSuppliers();
         } catch (error) {
-            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -155,7 +155,7 @@ export default function Suppliers() {
             <div className="col-span-1">
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-30">
                     <h2 className="text-xl font-bold">Lọc nhà cung cấp</h2>
-                    <div className="flex flex-col">
+                    {/* <div className="flex flex-col">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">
                             Trạng thái
                         </label>
@@ -174,16 +174,13 @@ export default function Suppliers() {
                             className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-gray-200 rounded px-3"
                             id="createdDate"
                         />
-                    </div>
+                    </div> */}
                 </div>
             </div>
             <div className="col-span-3">
                 <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
                     <div className="flex flex-col w-3/4 mr-4">
-                        <label className="block text-gray-700 text-sm font-bold" htmlFor="search">
-                            Tìm nhà cung cấp
-                        </label>
-                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" id="search" type="text" name="search" />
+                        <h1 className="text-2xl font-bold">Danh sách nhà cung cấp</h1>
                     </div>
                     <div className="flex flex-col w-1/4">
                         <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm nhà cung cấp</button>

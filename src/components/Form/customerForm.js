@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal } from "@mui/material";
+import { customerService } from "@/services/customer.service";
 
 export function CustomerForm({
     isOpen,
@@ -7,41 +8,97 @@ export function CustomerForm({
     onConfirm,
     initialData
 }) {
-    const [form, setForm] = useState({
-        fullName: "",
-        email: "",
-        roleName: "Customer",
-        isActive: true,
-        createdAt: ""
-    });
+    const [form, setForm] = useState({});
     const [error, setError] = useState("");
-    const today = new Date();
+
+    //data for check exist
+    const [customers, setCustomers] = useState([]);
+
+    const fetchCustomers = async () => {
+        try {
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                fullName: ""
+            };
+            const response = await customerService.getAllCustomers(body);
+            const customerData = response.data.items.map((customer) => ({
+                fullName: customer.fullName,
+                username: customer.username,
+                email: customer.email
+            }));
+            setCustomers(customerData);
+        } catch (error) {
+            console.error("Error fetching customers:", error);
+        }
+    };
 
     useEffect(() => {
         if (initialData) {
             setForm({
+                username: initialData.username || "",
+                password: initialData.password || "",
                 fullName: initialData.fullName || "",
+                image: "https://picsum.photos/200",
                 email: initialData.email || "",
-                roleName: initialData.roleName || "Customer",
                 isActive: initialData.isActive ?? true,
-                createdAt: initialData.createdAt || today
             });
         } else {
             setForm({
+                username: "",
+                image: "https://picsum.photos/200",
                 fullName: "",
                 email: "",
-                roleName: "Customer",
-                isActive: true,
-                createdAt: today
             });
         }
         setError("");
+        fetchCustomers();
     }, [initialData, isOpen]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    //Validation
+    const [validUsername, setValidUsername] = useState(true);
+    const [validEmail, setValidEmail] = useState(true);
+    const [validFullName, setValidFullName] = useState(true);
+
+    const [errorUsername, setErrorUsername] = useState("");
+    const [errorEmail, setErrorEmail] = useState("");
+    const [errorFullName, setErrorFullName] = useState("");
+
+    const handleChange = (name, value) => {
         let newValue = value;
-        if (name === "isActive") newValue = value === "true";
+        switch (name) {
+            case "isActive":
+                newValue = value === "true";
+                break;
+            case "email":
+                const checkingEmail = value.trim().replace(/\s\s+/g, ' ');
+                if (value.length > 60 || value.length < 6) {
+                    setValidEmail(false);
+                    setErrorEmail("Email phải trong khoảng 6 đến 60 ky tự.");
+                } else if (customers.find(customer => customer.email.toLowerCase() === checkingEmail.toLowerCase() && customer.email !== initialData?.email)) {
+                    setValidEmail(false);
+                    setErrorEmail(`Email ${checkingEmail} đã tồn tại, vui lòng nhập email khác.`);
+                } else {
+                    setValidEmail(true);
+                    setErrorEmail("");
+                }
+                break;
+            case "username":
+                const checkingUsername = value.trim().replace(/\s\s+/g, ' ');
+                if (value.length > 60 || value.length < 6) {
+                    setValidUsername(false);
+                    setErrorUsername("Tên tài khoản phải trong khoảng 6 đến 60 ky tự.");
+                } else if (customers.find(customer => customer.username.toLowerCase() === checkingUsername.toLowerCase() && customer.username !== initialData?.username)) {
+                    setValidUsername(false);
+                    setErrorUsername(`Tài khoản ${checkingUsername} đã tồn tại, vui lòng nhập tên tài khoản khác.`);
+                } else {
+                    setValidUsername(true);
+                    setErrorUsername("");
+                }
+                break;
+            default:
+                break;
+        }
         setForm((prev) => ({
             ...prev,
             [name]: newValue
@@ -50,8 +107,13 @@ export function CustomerForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!form.fullName || !form.email) {
+        if (form.fullName === "" || form.username === "") {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
+            return;
+        }
+        const invalidForms = !validFullName || !validUsername || !validEmail;
+        if (invalidForms) {
+            setError("Có nhập liệu không hợp lệ, vui lòng thử lại.");
             return;
         }
         setError("");
@@ -76,29 +138,60 @@ export function CustomerForm({
                     <form onSubmit={handleSubmit} className="space-y-4 p-8">
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
-                                <label className="block text-md font-bold">Tên khách hàng *</label>
-                                <p className="text-xs text-gray-500">Nhập tên khách hàng</p>
+                                <label className="block text-md font-bold">Tên tài khoản *</label>
+                                <p className="text-xs text-gray-500">Nhập tên tài khoản</p>
                             </div>
-                            <input type="text" name="fullName" value={form.fullName} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-3 py-2" required />
+                            <input
+                                type="text"
+                                name="username"
+                                value={form.username}
+                                onChange={(e) => handleChange("username", e.target.value)}
+                                className={`w-full bg-white border rounded px-3 py-2 ${!validUsername ? "border-red-500" : "border-green-500"}`}
+                                required
+                            />
+                            {errorUsername && <p className="text-red-500 text-xs italic">{errorUsername}</p>}
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
-                                <label className="block text-md font-bold">Email *</label>
-                                <p className="text-xs text-gray-500">Nhập Email khách hàng</p>
+                                <label className="block text-md font-bold">Tên khách hàng *</label>
+                                <p className="text-xs text-gray-500">Nhập tên khách hàng</p>
                             </div>
-                            <input type="email" name="email" value={form.email} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-3 py-2" required />
+                            <input
+                                type="text"
+                                name="fullName"
+                                value={form.fullName}
+                                onChange={(e) => handleChange("fullName", e.target.value)}
+                                className={`w-full bg-white border rounded px-3 py-2 ${!validFullName ? "border-red-500" : "border-green-500"}`}
+                                required
+                            />
+                            {errorFullName && <p className="text-red-500 text-xs italic">{errorFullName}</p>}
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
+                            <div>
+                                <label className="block text-md font-bold">Email </label>
+                                <p className="text-xs text-gray-500">Nhập Email khách hàng</p>
+                            </div>
+                            <input
+                                type="email"
+                                name="email"
+                                value={form.email}
+                                onChange={(e) => handleChange("email", e.target.value)}
+                                className={`w-full bg-white border rounded px-3 py-2 ${!validEmail ? "border-red-500" : "border-green-500"}`}
+                            />
+                            {errorEmail && <p className="text-red-500 text-xs italic">{errorEmail}</p>}
+                        </div>
+                        {initialData && <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Trạng thái</label>
                                 <p className="text-xs text-gray-500">Chọn trạng thái khách hàng</p>
                             </div>
-                            <select name="isActive" value={form.isActive ? "true" : "false"} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-3 py-2">
+                            <select name="isActive" value={form.isActive ? "true" : "false"} onChange={(e) => handleChange("isActive", e.target.value)} className="w-full bg-white border border-gray-300 rounded px-3 py-2">
                                 <option value="true">Đang hoạt động</option>
                                 <option value="false">Dừng hoạt động</option>
                             </select>
                         </div>
-                        {error && <div className="text-red-600 text-md">{error}</div>}
+                        }
+                        {error && <div className="text-red-600 text-md text-right">{error}</div>}
                         <div className="flex justify-end gap-2 pt-2">
                             <button type="button" className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white cursor-pointer" onClick={onClose}>Hủy</button>
                             <button type="submit" className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 cursor-pointer">
