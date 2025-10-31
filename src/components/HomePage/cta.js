@@ -36,7 +36,8 @@ const CallToAction = () => {
               variant="contained" 
               size="large"
               endIcon={<ArrowForwardIcon />}
-              className="!whitespace-nowrap !px-12 !py-3 !bg-green-600 !text-white hover:!bg-green-800"
+              className="!whitespace-nowrap !px-16 !py-4 !background-primary !text-white"
+              sx={{backgroundColor: "#016630"}}
             >
               Bắt đầu dùng thử
             </Button>

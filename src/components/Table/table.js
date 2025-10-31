@@ -86,10 +86,10 @@ export default function TableCommon({
                     overflow: "hidden",
                 }}>
                 <Table>
-                    <TableHead className="bg-green-600">
+                    <TableHead className="background-primary">
                         <TableRow>
                             {headers.map((header, index) => (
-                                <TableCell key={index} sx={{ color: "white" }}>
+                                <TableCell key={index} sx={{ color: "white" }} className="!text-center">
                                     <TableSortLabel
                                         sx={{
                                             "&.Mui-active": {
@@ -107,20 +107,20 @@ export default function TableCommon({
                                     </TableSortLabel>
                                 </TableCell>
                             ))}
-                            <TableCell sx={{ color: "white" }}>
+                            <TableCell sx={{ color: "white" }} className="!text-center">
                                 Hành động
                             </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {displayedData.map((item, index) => (
-                            <TableRow key={item.id || index}>
+                            <TableRow key={item.id || index} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
                                 {headers.map((header, indexColumn) => (
-                                    <TableCell key={indexColumn}>
+                                    <TableCell key={indexColumn} className="!text-center">
                                         {getValueToDisplayOnTable(indexColumn, item)}
                                     </TableCell>
                                 ))}
-                                <TableCell>
+                                <TableCell align="center" verticalalign="middle"> 
                                     <Button sx={{backgroundColor:"#ffc107", margin:"5px", color:"black"}} onClick={() => handleEdit(item)}>Sửa</Button>
                                     <Button sx={{backgroundColor:"red", margin:"5px", color:"white"}} onClick={() => {
                                         setIsOpenPopupConfirmDelete(true);

@@ -22,6 +22,18 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   } 
+
+  .background-primary {
+    background-color: #00a544;
+  }
+
+  .background-hovered:hover {
+    background-color: #008138;
+  }
+
+  .background-selected {
+    background-color: #016630;
+  }
 }
 
 body {

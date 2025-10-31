@@ -5,7 +5,7 @@ import TableCommon from "@/components/Table/table";
 import { EmployeeForm } from "@/components/Form/employeeForm";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
-import Loader from "@/components/Loader/loader";
+import { useLoading } from "@/context/LoadingContext";
 
 export default function Employees() {
     // Data state
@@ -27,7 +27,7 @@ export default function Employees() {
     const [rowPerPage, setRowPerPage] = useState(5);
     const [totalCount, setTotalCount] = useState(0);
 
-    const [loading, setLoading] = useState(true);
+    const { setLoading } = useLoading();
 
     const headerData = [
         {
@@ -127,15 +127,11 @@ export default function Employees() {
         }
     };
 
-    if (loading) {
-        return <Loader />;
-    }
-
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
             {/* Filter sidebar */}
             <div className="col-span-1">
-                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-30">
+                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc nhân viên</h2>
                 </div>
             </div>
@@ -146,7 +142,7 @@ export default function Employees() {
                         <h1 className="text-2xl font-bold">Danh sách nhân viên</h1>
                     </div>
                     <div className="flex flex-col w-1/4">
-                        <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm nhân viên</button>
+                        <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm nhân viên</button>
                     </div>
                 </div>
                 <TableCommon

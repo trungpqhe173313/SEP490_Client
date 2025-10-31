@@ -225,7 +225,7 @@ export function ProductForm({
         >
             <div className="fixed inset-0 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-1/2 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
-                    <div className="w-full bg-green-600 text-white p-4 flex-row flex justify-between sticky top-0">
+                    <div className="w-full background-primary text-white p-4 flex-row flex justify-between sticky top-0">
                         <h2 className="text-2xl font-bold my-auto" id="product-modal-title">
                             {initialData ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}
                         </h2>
@@ -352,7 +352,7 @@ export function ProductForm({
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white cursor-pointer"
+                                className="px-4 py-2 rounded background-primary background-hovered text-white cursor-pointer"
                             >
                                 {initialData ? "Cập nhật" : "Tạo mới"}
                             </button>

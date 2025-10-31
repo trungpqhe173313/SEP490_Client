@@ -107,7 +107,7 @@ export function CategoryForm({
         <Modal open={isOpen} onClose={onClose}>
             <div className="fixed inset-0 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-1/2 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
-                    <div className="w-full bg-green-600 text-white p-4 flex-row flex justify-between sticky top-0">
+                    <div className="w-full background-primary text-white p-4 flex-row flex justify-between sticky top-0">
                         <h2 className="text-2xl font-bold my-auto">
                             {initialData ? "Cập nhật danh mục" : "Thêm danh mục mới"}
                         </h2>
@@ -154,7 +154,7 @@ export function CategoryForm({
                         {error && <div className="text-red-600 text-md text-right">{error}</div>}
                         <div className="flex justify-end gap-2 pt-2">
                             <button type="button" className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white cursor-pointer" onClick={onClose}>Hủy</button>
-                            <button type="submit" className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 cursor-pointer">
+                            <button type="submit" className="px-4 py-2 rounded background-primary text-white background-hovered cursor-pointer">
                                 {initialData ? "Cập nhật" : "Tạo mới"}
                             </button>
                         </div>

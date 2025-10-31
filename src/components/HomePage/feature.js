@@ -66,7 +66,7 @@ const Feature = () => {
 								className="bg-green-50 shadow-md border border-gray-200 transition-all"
 							>
 								<CardContent className="pt-6">
-									<div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
+									<div className="w-12 h-12 background-primary rounded-lg flex items-center justify-center mb-4">
 										<Icon className="text-white" fontSize="medium" />
 									</div>
 									<h3 className="text-lg font-semibold mb-2">

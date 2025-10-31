@@ -74,14 +74,14 @@ const AboutUs = () => {
                     <IconButton 
                       href={member.linkedin}
                       aria-label={`${member.name}'s LinkedIn profile`}
-                      className="!bg-green-600 !text-white hover:!bg-green-800"
+                      className="!background-primary !text-white hover:!background-selected"
                     >
                       <LinkedInIcon />
                     </IconButton>
                     <IconButton 
                       href={member.github}
                       aria-label={`${member.name}'s GitHub profile`}
-                      className="!bg-green-600 !text-white hover:!bg-green-800"
+                      className="!background-primary !text-white hover:!background-selected"
                     >
                       <GitHubIcon />
                     </IconButton>

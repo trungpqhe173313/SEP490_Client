@@ -5,7 +5,7 @@ import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
-import Loader from "@/components/Loader/loader";
+import { useLoading } from "@/context/LoadingContext";
 
 export default function Products() {
     // Data state
@@ -28,7 +28,7 @@ export default function Products() {
     const [totalCount, setTotalCount] = useState(0);
 
     // Loading state
-    const [loading, setLoading] = useState(true);
+    const { setLoading } = useLoading();
 
     // Table headers
     const headerData = [
@@ -105,13 +105,11 @@ export default function Products() {
         }
     };
 
-    if (loading) return <Loader />;
-
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
             {/* Filter sidebar */}
             <div className="col-span-1">
-                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-30">
+                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc sản phẩm</h2>
                 </div>
             </div>
@@ -122,7 +120,7 @@ export default function Products() {
                         <h1 className="text-2xl font-bold">Danh sách sản phẩm</h1>
                     </div>
                     <div className="flex flex-col w-1/4">
-                        <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={handleCreate}>Thêm sản phẩm</button>
+                        <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={handleCreate}>Thêm sản phẩm</button>
                     </div>
                 </div>
                 <TableCommon

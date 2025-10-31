@@ -12,7 +12,7 @@ function ConfirmModal({ isOpen, onClose, onConfirm, onCancel, message }) {
         <div className="bg-white w-96 p-6 rounded-md shadow-md z-51">
           <p className="my-4">{message}</p>
           <div className="flex justify-end space-x-4 mt-8">
-            <button className="px-4 py-2 bg-green-600 text-white rounded-md cursor-pointer" onClick={handleConfirmClick}>
+            <button className="px-4 py-2 background-primary text-white rounded-md cursor-pointer" onClick={handleConfirmClick}>
               Xác nhận
             </button>
             <button className="px-4 py-2 bg-red-600 text-white rounded-md cursor-pointer" onClick={handleCancelClick}>
