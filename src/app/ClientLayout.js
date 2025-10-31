@@ -19,8 +19,10 @@ export default function ClientLayout({ children }) {
         <Header />
         <Navbar />
       </div>
-      {children}
-      <Footer />
+      <div className="ml-50">
+        {children}
+      </div>
+      {/* <Footer /> */}
     </>
   );
 }

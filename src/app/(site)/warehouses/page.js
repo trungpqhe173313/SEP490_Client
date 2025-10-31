@@ -5,7 +5,7 @@ import TableCommon from "@/components/Table/table";
 import { WarehouseForm } from "@/components/Form/warehouseForm";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
-import Loader from "@/components/Loader/loader";
+import { useLoading } from "@/context/LoadingContext";
 
 export default function Warehouses() {
     const [warehouses, setWarehouses] = useState([]);
@@ -15,7 +15,7 @@ export default function Warehouses() {
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
     const [editingWarehouse, setEditingWarehouse] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { setLoading } = useLoading();
 
     const headerData = [
         {
@@ -63,7 +63,7 @@ export default function Warehouses() {
     };
 
     useEffect(() => {
-        fetchWarehouses();
+        //fetchWarehouses();
         setLoading(false);
     }, []);
 
@@ -107,10 +107,6 @@ export default function Warehouses() {
         }
     };
 
-    if (loading) {
-        return <Loader />;
-    }
-
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
             <div className="col-span-1 p-4 rounded-2xl bg-white">
@@ -128,7 +124,7 @@ export default function Warehouses() {
                         <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" id="search" type="text" name="search" />
                     </div>
                     <div className="flex flex-col w-1/4">
-                        <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm kho</button>
+                        <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm kho</button>
                     </div>
                 </div>
                 <TableCommon

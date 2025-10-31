@@ -7,12 +7,12 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img 
+        <img
           src="/herowarehouse.jpg"
-          alt="Modern warehouse with inventory management" 
+          alt="Modern warehouse with inventory management"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gray-600" style={{opacity: 0.7}} />
+        <div className="absolute inset-0 bg-green-600/40" />
       </div>
       {/* Content */}
       <div className="relative z-10 px-4 py-8 max-w-5xl mx-auto text-center">
@@ -23,17 +23,17 @@ const Hero = () => {
           Tối ưu hàng tồn kho, hợp lý hóa quy trình và nâng cao hiệu suất với hệ thống quản lý nguyên liệu thông minh của chúng tôi
         </p>
         <div className="flex flex-row gap-4 justify-center pt-8">
-          <Button 
-            suppressHydrationWarning
-            variant="contained" 
-            size="large" 
+          <Button
+            variant="contained"
+            size="large"
             endIcon={<ArrowForwardIcon />}
-            className="!text-lg !px-8 !py-3 !bg-green-600 !text-white hover:!bg-green-800"
+            className="!text-lg !px-8 !py-3 !background-primary !text-white !background-selected"
+            sx={{ backgroundColor: "#016630" }}
           >
             Bắt đầu ngay
           </Button>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             size="large"
             className="!text-lg !px-8 !py-3 !border-white !text-white hover:!bg-white/10 hover:!border-white"
           >

@@ -1,11 +1,15 @@
 "use client";
 import { productService } from "@/services/product.service";
+
 import React, { useState, useEffect } from "react";
+import { useLoading } from "@/context/LoadingContext";
+import { useRef } from "react";
+
 import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
+
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
-import Loader from "@/components/Loader/loader";
 
 export default function Products() {
     // Data state
@@ -28,7 +32,8 @@ export default function Products() {
     const [totalCount, setTotalCount] = useState(0);
 
     // Loading state
-    const [loading, setLoading] = useState(true);
+    const { setLoading } = useLoading();
+    const buttonRef = useRef(null);
 
     // Table headers
     const headerData = [
@@ -36,9 +41,8 @@ export default function Products() {
         { key: "productName", label: "Tên sản phẩm", customValue: (item) => item.productName && <div>{item.productName}</div> },
         { key: "code", label: "Mã", customValue: (item) => item.code && <div>{item.code}</div> },
         { key: "weightPerUnit", label: "Khối lượng", customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit}</div> },
-        { key: "stockQuantity", label: "Số lượng", customValue: (item) => item.stockQuantity && <div>{item.stockQuantity}</div> },
-        { key: "supplierId", label: "Mã nhà cung cấp", customValue: (item) => item.supplierId && <div>{item.supplierId}</div> },
-        { key: "categoryId", label: "Mã danh mục", customValue: (item) => item.categoryId && <div>{item.categoryId}</div> },
+        { key: "supplierName", label: "Nhà cung cấp", customValue: (item) => item.supplierName && <div>{item.supplierName}</div> },
+        { key: "categoryName", label: "Danh mục", customValue: (item) => item.categoryName && <div>{item.categoryName}</div> },
         { key: "isAvailable", label: "Trạng thái", customValue: (item) => item.isAvailable === true ? <div className="text-green-600">Còn hàng</div> : <div className="text-red-600">Hết hàng</div> },
         { key: "createdAt", label: "Ngày tạo", customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleDateString('vi-VN')}</div> }
     ];
@@ -66,7 +70,14 @@ export default function Products() {
 
     useEffect(() => {
         fetchProducts();
-    }, [pageIndex, rowPerPage, filterProductName]);
+    }, [pageIndex, rowPerPage]);
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            buttonRef.current?.click();
+        }
+    };
 
     // Modal handlers
     const handleCreate = () => {
@@ -99,34 +110,50 @@ export default function Products() {
             setModalOpen(false);
             fetchProducts();
         } catch (error) {
-            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
         }
     };
 
-    if (loading) return <Loader />;
-
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
             {/* Filter sidebar */}
             <div className="col-span-1">
-                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-30">
+                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc sản phẩm</h2>
+                    <div className="flex flex-col items-center my-4">
+                        <div>
+                            <label className="mr-2">Tên sản phẩm:</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterProductName}
+                                onChange={(e) => setFilterProductName(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-center">
+                        <button
+                            className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
+                            onClick={() => fetchProducts()}
+                            ref={buttonRef}
+                        >
+                            Lọc
+                        </button>
+                    </div>
                 </div>
             </div>
             {/* Main content */}
             <div className="col-span-3">
                 <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
                     <div className="flex flex-col w-3/4 mr-4">
-                        <label className="block text-gray-700 text-sm font-bold" htmlFor="search">
-                            Tìm sản phẩm
-                        </label>
-                        <input className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-black-200 rounded px-3" id="search" type="text" name="search" onChange={e => console(e.target.value)} />
+                        <h1 className="text-2xl font-bold">Danh sách sản phẩm</h1>
                     </div>
                     <div className="flex flex-col w-1/4">
-                        <button className="block border bg-green-600 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={handleCreate}>Thêm sản phẩm</button>
+                        <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={handleCreate}>Thêm sản phẩm</button>
                     </div>
                 </div>
                 <TableCommon
