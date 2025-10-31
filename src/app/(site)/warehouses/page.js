@@ -63,7 +63,7 @@ export default function Warehouses() {
     };
 
     useEffect(() => {
-        fetchWarehouses();
+        //fetchWarehouses();
         setLoading(false);
     }, []);
 
