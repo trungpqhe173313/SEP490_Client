@@ -1,9 +1,13 @@
 "use client";
 import { categoryService } from "@/services/category.service";
+
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
+import { useRef } from "react";
+
 import TableCommon from "@/components/Table/table";
 import { CategoryForm } from "@/components/Form/categoryForm";
+
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 
@@ -28,6 +32,7 @@ export default function Categories() {
     const [totalCount, setTotalCount] = useState(0);
 
     const { setLoading } = useLoading();
+    const buttonRef = useRef(null);
 
     const headerData = [
         {
@@ -84,7 +89,14 @@ export default function Categories() {
 
     useEffect(() => {
         fetchCategories();
-    }, [pageIndex, rowPerPage, filterCategoryName]);
+    }, [pageIndex, rowPerPage]);
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            buttonRef.current?.click();
+        }
+    };
 
     // Modal handlers
     const handleCreate = () => {
@@ -131,8 +143,29 @@ export default function Categories() {
         <div className="grid grid-cols-4 p-8 gap-4">
             {/* Filter sidebar */}
             <div className="col-span-1">
-                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
+                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0 w-full">
                     <h2 className="text-xl font-bold">Lọc danh mục</h2>
+                    <div className="flex flex-col items-center my-4">
+                        <div>
+                            <label className="mr-2">Tên danh mục:</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterCategoryName}
+                                onChange={(e) => setFilterCategoryName(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-center">
+                        <button
+                            className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
+                            onClick={() => fetchCategories()}
+                            ref={buttonRef}
+                        >
+                            Lọc
+                        </button>
+                    </div>
                 </div>
             </div>
             {/* Main content */}

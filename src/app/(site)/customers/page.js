@@ -1,11 +1,15 @@
 "use client";
 import { customerService } from "@/services/customer.service";
+
 import React, { useState, useEffect } from "react";
+import { useLoading } from "@/context/LoadingContext";
+import { useRef } from "react";
+
 import TableCommon from "@/components/Table/table";
 import { CustomerForm } from "@/components/Form/customerForm";
+
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
-import { useLoading } from "@/context/LoadingContext";
 
 export default function Customers() {
     // Data state
@@ -20,7 +24,9 @@ export default function Customers() {
     const [modalFailedMessage, setModalFailedMessage] = useState("");
 
     // Filter state
-    const [filterCustomerName, setFilterCustomerName] = useState("");
+    const [filterFullName, setFilterFullName] = useState("");
+    const [filterEmail, setFilterEmail] = useState("");
+    const [filterIsActive, setFilterIsActive] = useState(true);
 
     // Pagination state
     const [pageIndex, setPageIndex] = useState(0);
@@ -28,6 +34,7 @@ export default function Customers() {
     const [totalCount, setTotalCount] = useState(0);
 
     const { setLoading } = useLoading();
+    const buttonRef = useRef(null);
 
     const headerData = [
         {
@@ -74,7 +81,13 @@ export default function Customers() {
         const body = {
             pageIndex: pageIndex + 1,
             pageSize: rowPerPage,
-            fullName: filterCustomerName
+            isActive: filterIsActive === "true" ? true : filterIsActive === "false" ? false : null
+        }
+        if (filterFullName) {
+            body.fullName = filterFullName;
+        }
+        if (filterEmail) {
+            body.email = filterEmail;
         }
         const response = await customerService.getAllCustomers(body);
         setCustomers(response.data.items);
@@ -84,7 +97,14 @@ export default function Customers() {
 
     useEffect(() => {
         fetchCustomers();
-    }, [pageIndex, rowPerPage, filterCustomerName]);
+    }, [pageIndex, rowPerPage]);
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            buttonRef.current.click();
+        }
+    };
 
     // Modal handlers
     const handleCreate = () => {
@@ -133,6 +153,50 @@ export default function Customers() {
             <div className="col-span-1">
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc khách hàng</h2>
+                    <div className="flex flex-col items-center my-4">
+                        <div className="mt-2 w-full">   
+                            <label className="mr-2">Tên khách hàng:</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterFullName}
+                                onChange={(e) => setFilterFullName(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                        <div className="mt-2 w-full">
+                            <label className="mr-2">Email:</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterEmail}
+                                onChange={(e) => setFilterEmail(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                        <div className="mt-2 w-full">
+                            <label className="mr-2">Trạng thái:</label>
+                            <select
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterIsActive}
+                                onChange={(e) => setFilterIsActive(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            >
+                                <option value="null">Tất cả</option>
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Dừng hoạt động</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="flex justify-center">
+                        <button
+                            className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
+                            onClick={() => fetchCustomers()}
+                            ref={buttonRef}
+                        >
+                            Lọc
+                        </button>
+                    </div>
                 </div>
             </div>
             {/* Main content */}

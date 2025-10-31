@@ -1,11 +1,15 @@
 "use client";
 import { productService } from "@/services/product.service";
+
 import React, { useState, useEffect } from "react";
+import { useLoading } from "@/context/LoadingContext";
+import { useRef } from "react";
+
 import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
+
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
-import { useLoading } from "@/context/LoadingContext";
 
 export default function Products() {
     // Data state
@@ -29,6 +33,7 @@ export default function Products() {
 
     // Loading state
     const { setLoading } = useLoading();
+    const buttonRef = useRef(null);
 
     // Table headers
     const headerData = [
@@ -65,7 +70,14 @@ export default function Products() {
 
     useEffect(() => {
         fetchProducts();
-    }, [pageIndex, rowPerPage, filterProductName]);
+    }, [pageIndex, rowPerPage]);
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            buttonRef.current?.click();
+        }
+    };
 
     // Modal handlers
     const handleCreate = () => {
@@ -111,6 +123,27 @@ export default function Products() {
             <div className="col-span-1">
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc sản phẩm</h2>
+                    <div className="flex flex-col items-center my-4">
+                        <div>
+                            <label className="mr-2">Tên sản phẩm:</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterProductName}
+                                onChange={(e) => setFilterProductName(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-center">
+                        <button
+                            className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
+                            onClick={() => fetchProducts()}
+                            ref={buttonRef}
+                        >
+                            Lọc
+                        </button>
+                    </div>
                 </div>
             </div>
             {/* Main content */}

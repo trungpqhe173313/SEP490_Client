@@ -1,11 +1,16 @@
 "use client";
 import { supplierService } from "@/services/supplier.service";
+
 import React, { useState, useEffect } from "react";
+import { useLoading } from "@/context/LoadingContext";
+import { useRef } from "react";
+
 import TableCommon from "@/components/Table/table";
 import { SupplierForm } from "@/components/Form/supplierForm";
+
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
-import { useLoading } from "@/context/LoadingContext";
+
 
 export default function Suppliers() {
     //object
@@ -23,7 +28,7 @@ export default function Suppliers() {
     const [filterSupplierName, setFilterSupplierName] = useState("");
     const [filterEmail, setFilterEmail] = useState("");
     const [filterPhone, setFilterPhone] = useState("");
-    const [filterIsActive, setFilterIsActive] = useState(null);
+    const [filterIsActive, setFilterIsActive] = useState(true);
 
     //pagination
     const [pageIndex, setPageIndex] = useState(0);
@@ -32,6 +37,7 @@ export default function Suppliers() {
 
     //loading
     const { setLoading } = useLoading();
+    const buttonRef = useRef(null);
 
     const headerData = [
         {
@@ -84,7 +90,7 @@ export default function Suppliers() {
         const body = {
             pageIndex: pageIndex + 1,
             pageSize: rowPerPage,
-            isActive: filterIsActive
+            isActive: filterIsActive === "true" ? true : filterIsActive === "false" ? false : null
         };
         if (filterSupplierName) {
             body.SupplierName = filterSupplierName;
@@ -104,7 +110,14 @@ export default function Suppliers() {
 
     useEffect(() => {
         fetchSuppliers();
-    }, [pageIndex, rowPerPage, filterSupplierName, filterEmail, filterPhone, filterIsActive]);
+    }, [pageIndex, rowPerPage]);
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            buttonRef.current?.click();
+        }
+    };
 
     const handleCreate = () => {
         setEditingSupplier(null);
@@ -151,26 +164,60 @@ export default function Suppliers() {
             <div className="col-span-1">
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc nhà cung cấp</h2>
-                    {/* <div className="flex flex-col">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="status">
-                            Trạng thái
-                        </label>
-                        <select className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-gray-200 rounded px-3" id="status" name="status">
-                            <option value="">Tất cả</option>
-                            <option value="1">Đã xác thực</option>
-                            <option value="0">Chưa xác thực</option>
-                        </select>
+                    <div className="flex flex-col items-center my-4">
+                        <div className="mt-2 w-full">   
+                            <label className="mr-2">Tên danh mục:</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterSupplierName}
+                                onChange={(e) => setFilterSupplierName(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                        <div className="mt-2 w-full">
+                            <label className="mr-2">Email:</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterEmail}
+                                onChange={(e) => setFilterEmail(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                        <div className="mt-2 w-full">
+                            <label className="mr-2">Số điện thoại:</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterPhone}
+                                onChange={(e) => setFilterPhone(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                        <div className="mt-2 w-full">
+                            <label className="mr-2">Trạng thái:</label>
+                            <select
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterIsActive}
+                                onChange={(e) => setFilterIsActive(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            >
+                                <option value="null">Tất cả</option>
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Dừng hoạt động</option>
+                            </select>
+                        </div>
                     </div>
-                    <div className="flex flex-col">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="createdDate">
-                            Ngày tạo
-                        </label>
-                        <input
-                            type="date"
-                            className="block w-full text-gray-700 text-sm font-semibold mb-2 h-10 border border-gray-200 rounded px-3"
-                            id="createdDate"
-                        />
-                    </div> */}
+                    <div className="flex justify-center">
+                        <button
+                            className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
+                            onClick={() => fetchSuppliers()}
+                            ref={buttonRef}
+                        >
+                            Lọc
+                        </button>
+                    </div>
                 </div>
             </div>
             <div className="col-span-3">
