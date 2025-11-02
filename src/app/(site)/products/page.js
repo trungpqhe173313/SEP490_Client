@@ -170,6 +170,7 @@ export default function Products() {
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa sản phẩm này không?"
                     usePagination={true}
+                    useAction={true}
                 />
             </div>
             <ProductForm

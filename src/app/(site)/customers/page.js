@@ -154,7 +154,7 @@ export default function Customers() {
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc khách hàng</h2>
                     <div className="flex flex-col items-center my-4">
-                        <div className="mt-2 w-full">   
+                        <div className="mt-2 w-full">
                             <label className="mr-2">Tên khách hàng:</label>
                             <input
                                 type="text"
@@ -223,6 +223,7 @@ export default function Customers() {
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa khách hàng này không?"
                     usePagination={true}
+                    useAction={true}
                 />
             </div>
             <CustomerForm

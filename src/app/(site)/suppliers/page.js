@@ -244,6 +244,7 @@ export default function Suppliers() {
                     messagePopupDelete="Bạn có muốn xóa nhà cung cấp này không?"
                     usePagination={true}
                     useSearch={true}
+                    useAction={true}
                 />
             </div>
             <SupplierForm

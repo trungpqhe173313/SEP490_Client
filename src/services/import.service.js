@@ -5,6 +5,29 @@ export const importService = {
         const response = await API.post('/stockinput/GetData', data);
         return response.data;
     },
+    downloadTemplate: async () => {
+        const response = await API.get('/stockinput/DownloadTemplate', {
+            responseType: "blob",
+            headers: {
+                Accept: "*/*",
+            }
+        });
+        return response;
+    },
+
+    createImportWithExcel: async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await API.post("/stockinput/ImportFromExcel", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        return response.data;
+    },
+
     createImport: async (data) => {
         const response = await API.post('/stockinput/CreateStockInputs', data);
         return response.data;

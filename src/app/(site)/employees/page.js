@@ -154,7 +154,7 @@ export default function Employees() {
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc nhân viên</h2>
                     <div className="flex flex-col items-center my-4">
-                        <div className="mt-2 w-full">   
+                        <div className="mt-2 w-full">
                             <label className="mr-2">Tên nhân viên:</label>
                             <input
                                 type="text"
@@ -223,6 +223,7 @@ export default function Employees() {
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa nhân viên này không?"
                     usePagination={true}
+                    useAction={true}
                 />
             </div>
             <EmployeeForm
