@@ -192,6 +192,7 @@ export default function Categories() {
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa danh mục này không?"
                     usePagination={true}
+                    useAction={true}
                 />
             </div>
             <CategoryForm

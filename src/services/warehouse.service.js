@@ -1,9 +1,9 @@
 import API from "@/utils/axios";
 
 export const warehouseService = {
-    getAllWarehouses: async () => {
-        const response = await API.get("/warehouses");
-        return response;
+    getAllWarehouses: async (data) => {
+        const response = await API.post("/warehouses/GetData", data);
+        return response.data;
     },
     getWarehouseByID: async (id) => {
         const response = await API.get(`/warehouses/${id}`);

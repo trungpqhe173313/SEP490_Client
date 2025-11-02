@@ -308,6 +308,7 @@ export function ProductForm({
                                 onSelect={(item) => handleChangeDropdown(item)}
                                 onSearch={fetchSuppliers}
                                 getOptionLabel={(option) => option.supplierName}
+                                getOptionKey={(option) => option.supplierId}
                             />
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
@@ -323,6 +324,7 @@ export function ProductForm({
                                 onSelect={(item) => handleChangeDropdown(item)}
                                 onSearch={fetchCategories}
                                 getOptionLabel={(option) => option.categoryName}
+                                getOptionKey={(option) => option.categoryId}
                             />
                         </div>
                         {initialData && <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">

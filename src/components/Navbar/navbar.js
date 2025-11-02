@@ -89,6 +89,11 @@ const Navbar = () => {
           name: "Nhập kho",
           link: "/imports",
           role: "all"
+        },
+        {
+          name: "Xuất kho",
+          link: "/exports",
+          role: "all"
         }
       ],
     }

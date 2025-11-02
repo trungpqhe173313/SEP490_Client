@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Box, Typography, SvgIcon, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-function FailedModal({ isOpen, message, onClose }) {
+function FailedModal({ isOpen, message, onClose, subMessages }) {
     if (!isOpen) return null;
     const handleClose = () => onClose();
 
@@ -19,6 +19,11 @@ function FailedModal({ isOpen, message, onClose }) {
                 <Typography id="modal-failed-description" variant='subtitle1'>
                     {message}
                 </Typography>
+                {subMessages && subMessages.map((subMessage, index) => (
+                    <Typography key={index} variant='subtitle2'>
+                        {subMessage}
+                    </Typography>
+                ))}
                 <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
                     <Button
                         variant="contained"

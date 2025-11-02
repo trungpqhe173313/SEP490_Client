@@ -26,6 +26,7 @@ export default function TableCommon({
     handleDelete,
     messagePopupDelete,
     usePagination,
+    useAction,
     useDetail,
     handleFetchDetail
 }) {
@@ -107,9 +108,7 @@ export default function TableCommon({
                                     </TableSortLabel>
                                 </TableCell>
                             ))}
-                            <TableCell sx={{ color: "white" }} className="!text-center">
-                                Hành động
-                            </TableCell>
+                            {useAction && <TableCell sx={{ color: "white" }} className="!text-center">Hành động</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -127,13 +126,15 @@ export default function TableCommon({
                                             {getValueToDisplayOnTable(indexColumn, item)}
                                         </TableCell>
                                     ))}
-                                    <TableCell align="center" verticalalign="middle"> 
-                                        <Button sx={{backgroundColor:"#ffc107", margin:"5px", color:"black"}} onClick={() => handleEdit(item)}>Sửa</Button>
-                                        <Button sx={{backgroundColor:"red", margin:"5px", color:"white"}} onClick={() => {
-                                            setIsOpenPopupConfirmDelete(true);
-                                            setIdDeleting(item);
-                                        }}>Xóa</Button>
-                                    </TableCell>
+                                    {useAction && (
+                                        <TableCell align="center" verticalalign="middle">
+                                            <Button sx={{ backgroundColor: "#ffc107", margin: "5px", color: "black" }} onClick={() => handleEdit(item)}>Sửa</Button>
+                                            <Button sx={{ backgroundColor: "red", margin: "5px", color: "white" }} onClick={() => {
+                                                setIsOpenPopupConfirmDelete(true);
+                                                setIdDeleting(item);
+                                            }}>Xóa</Button>
+                                        </TableCell>
+                                    )}
                                 </TableRow>
                             ))
                         )}

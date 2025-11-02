@@ -141,6 +141,7 @@ export default function Warehouses() {
                     placeholderSearch="Tìm kho"
                     usePagination={true}
                     useSearch={true}
+                    useAction={true}
                 />
             </div>
             <WarehouseForm

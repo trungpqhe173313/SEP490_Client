@@ -1,7 +1,7 @@
 import { Autocomplete, TextField, CircularProgress } from '@mui/material';
 import React from 'react';
 
-export function AutocompleteCommon({ loading, value, onSelect, onSearch, options, disableClearable, error, getOptionLabel }) {
+export function AutocompleteCommon({ loading, value, onSelect, onSearch, options, disableClearable, error, getOptionLabel, getOptionKey }) {
 
     const onChange = (event, newValue) => {
         onSelect(newValue);
@@ -20,6 +20,7 @@ export function AutocompleteCommon({ loading, value, onSelect, onSearch, options
                 value={value}
                 onChange={(e, data) => onChange(e, data)}
                 getOptionLabel={getOptionLabel}
+                getOptionKey={getOptionKey}
                 renderInput={(params) => (
                     <TextField
                         {...params}
