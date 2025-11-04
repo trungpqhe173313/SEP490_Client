@@ -1,4 +1,5 @@
 import React from "react";
+import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 
 const Header = () => {
   return (
@@ -21,7 +22,9 @@ const Header = () => {
         <i className="fas fa-cog"></i> */}
 
         {/* Avatar */}
-        <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center cursor-pointer">
+          <AccessibleForwardIcon />
+        </div>
       </div>
     </div>
   );

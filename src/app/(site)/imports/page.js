@@ -3,6 +3,7 @@ import { importService } from "@/services/import.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
+import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
@@ -13,6 +14,13 @@ import FailedModal from "@/components/Modal/failedModal";
 import ImportResultModal from "@/components/Modal/importResultModal";
 
 export default function Imports() {
+    const router = useRouter();
+
+    const navigate = (path) => {
+        setLoading(true);
+        router.push(path);
+    };
+
     //Data state
     const [imports, setImports] = useState([]);
     const [editingImport, setEditingImport] = useState(null);
@@ -32,8 +40,10 @@ export default function Imports() {
     const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
 
     //Filter state
-    const [filterBatchId, setFilterBatchId] = useState(0);
-    const [filterBatchCode, setFilterBatchCode] = useState("");
+    const [filterStatus, setFilterStatus] = useState(null);
+    const [filterType, setFilterType] = useState("");
+    const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
+    const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
 
     //Pagination state
     const [pageIndex, setPageIndex] = useState(0);
@@ -45,54 +55,39 @@ export default function Imports() {
 
     const headerData = [
         {
-            key: "batchId",
-            label: "Mã lô",
-            customValue: (item) => item.batchId && <div>{item.batchId}</div>
-        },
-        {
-            key: "warehouseName",
-            label: "Tên nhà kho",
-            customValue: (item) => item.warehouseName && <div>{item.warehouseName}</div>
-        },
-        {
-            key: "productName",
-            label: "Tên sản phẩm",
-            customValue: (item) => item.productName && <div>{item.productName}</div>
-        },
-        {
             key: "transactionId",
             label: "Mã giao dịch",
             customValue: (item) => item.transactionId && <div>{item.transactionId}</div>
         },
         {
-            key: "batchCode",
-            label: "Code lô",
-            customValue: (item) => item.batchCode && <div>{item.batchCode}</div>
+            key: "customerId",
+            label: "Mã khách hàng",
+            customValue: (item) => item.customerId && <div>{item.customerId}</div>
         },
         {
-            key: "importDate",
-            label: "Ngày nhập",
-            customValue: (item) => item.importDate && <div>{new Date(item.importDate).toLocaleDateString('vi-VN')}</div>
+            key: "supplierId",
+            label: "Mã nhà cung cấp",
+            customValue: (item) => item.supplierId && <div>{item.supplierId}</div>
         },
         {
-            key: "expireDate",
-            label: "Ngày hết hạn",
-            customValue: (item) => item.expireDate && <div>{new Date(item.expireDate).toLocaleDateString('vi-VN')}</div>
+            key: "warehouseId",
+            label: "Mã nhà kho",
+            customValue: (item) => item.warehouseId && <div>{item.warehouseId}</div>
         },
         {
-            key: "quantityIn",
-            label: "Số lượng nhập",
-            customValue: (item) => item.quantityIn && <div>{item.quantityIn}</div>
-        },
-        {
-            key: "isActive",
+            key: "status",
             label: "Trạng thái",
-            customValue: (item) => item.isActive == 1 ? <div className="text-green-600">Đang hoạt động</div> : <div className="text-red-600">Dừng hoạt động</div>
+            customValue: (item) => item.status && <div>{item.status}</div>
+        },
+        {
+            key: "transactionDate",
+            label: "Ngày giao dịch",
+            customValue: (item) => item.transactionDate && <div>{new Date(item.transactionDate).toLocaleDateString('vi-VN')}</div>
         },
         {
             key: "note",
             label: "Ghi chú",
-            customValue: (item) => item.note && <div>{item.note}</div>
+            customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
         },
     ]
 
@@ -108,8 +103,10 @@ export default function Imports() {
         const body = {
             pageIndex: pageIndex + 1,
             pageSize: rowPerPage,
-            batchId: filterBatchId || 0,
-            batchCode: filterBatchCode
+            status: filterStatus || null,
+            type: filterType || null,
+            transactionFromDate: filterTransactionFromDate || null,
+            transactionToDate: filterTransactionToDate || null
         };
         const response = await importService.getAllImports(body);
         setImports(response.data.items);
@@ -117,10 +114,13 @@ export default function Imports() {
         setLoading(false);
     };
 
-
     useEffect(() => {
         fetchImports();
     }, [pageIndex, rowPerPage]);
+
+    const formatDateToInput = (dt) => {
+        return dt.toISOString().split('T')[0];
+    }
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -227,11 +227,11 @@ export default function Imports() {
                     <h1 className="text-2xl font-bold">Danh sách phiếu nhập</h1>
                 </div>
                 <div className="flex flex-col w-1/4 gap-2">
-                    <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Tạo phiếu nhập mới</button>
+                    <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => navigate("/imports/create")}>Tạo phiếu nhập mới</button>
 
                     <label
                         htmlFor="excel-upload"
-                        className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto text-center p-2"
+                        className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto text-center p-2 hover:bg-green-500"
                     >
                         Tải phiếu nhập lên
                     </label>
@@ -251,23 +251,49 @@ export default function Imports() {
             <div className="p-4 rounded-2xl bg-white h-auto w-full mb-4">
                 <h2 className="text-xl font-bold">Lọc phiếu nhập</h2>
                 <div className="flex items-center my-4 gap-4">
-                    <div className="mt-2 w-50%">
-                        <label className="mr-2">Mã lô:</label>
+                    <div className="mt-2 w-full">
+                        <label className="mr-2">Trạng thái:</label>
                         <input
                             type="number"
                             className="w-full p-2 border border-gray-300 rounded"
-                            value={filterBatchId}
-                            onChange={(e) => setFilterBatchId(e.target.value)}
+                            value={filterStatus || ""}
+                            onChange={(e) => setFilterStatus(e.target.value)}
                             onKeyDown={handleKeyDown}
                         />
                     </div>
-                    <div className="mt-2 w-50%">
-                        <label className="mr-2">Code lô:</label>
+                    <div className="mt-2 w-full">
+                        <label className="mr-2">Loại phiếu:</label>
                         <input
                             type="text"
                             className="w-full p-2 border border-gray-300 rounded"
-                            value={filterBatchCode}
-                            onChange={(e) => setFilterBatchCode(e.target.value)}
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                    </div>
+                    <div className="mt-2 w-full">
+                        <label className="mr-2">Giao dịch từ ngày:</label>
+                        <input
+                            type="date"
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={filterTransactionFromDate && formatDateToInput(filterTransactionFromDate)}
+                            onChange={(e) => {
+                                const date = new Date(e.target.value);
+                                setFilterTransactionFromDate(date);
+                            }}
+                            onKeyDown={handleKeyDown}
+                        />
+                    </div>
+                    <div className="mt-2 w-full">
+                        <label className="mr-2">Đến ngày:</label>
+                        <input
+                            type="date"
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={filterTransactionToDate && formatDateToInput(filterTransactionToDate)}
+                            onChange={(e) => {
+                                const date = new Date(e.target.value);
+                                setFilterTransactionToDate(date);
+                            }}
                             onKeyDown={handleKeyDown}
                         />
                     </div>
@@ -287,25 +313,26 @@ export default function Imports() {
             <TableCommon
                 headers={headerData}
                 tableData={imports}
-                defaultSortColumn="batchId"
+                defaultSortColumn="transactionId"
                 rowPerPage={rowPerPage}
                 pageIndex={pageIndex}
                 totalCount={totalCount}
                 rowPerPageOptions={[5, 10, 20]}
                 handleChangePage={handleChangePage}
                 handleChangeRowPerPage={handleChangeRowPerPage}
+                navigateDetail={(item) => navigate(`/imports/details/${item.transactionId}`)}
                 handleEdit={(item) => console.log(`Edit ${item}`)}
-                handleDelete={(item) => console.log(`Delete ID: ${item.batchId}`)}
+                handleDelete={(item) => console.log(`Delete ID: ${item.transactionId}`)}
                 messagePopupDelete="Bạn có muốn xóa phiếu nhập này không?"
                 usePagination={true}
                 useAction={true}
             />
-            <ImportForm
+            {/* <ImportForm
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
                 onConfirm={handleConfirm}
                 initialData={editingImport}
-            />
+            /> */}
             <ImportResultModal isOpen={modalImportOpen} message={modalImportMessage} data={modalImportData} onClose={() => setModalImportOpen(false)} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />

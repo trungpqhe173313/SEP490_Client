@@ -5,6 +5,12 @@ export const importService = {
         const response = await API.post('/stockinput/GetData', data);
         return response.data;
     },
+
+    getTransactionDetail: async (id) => {
+        const response = await API.get(`/stockinput/GetTransactionDetailByTransactionId/?id=${id}`);
+        return response.data;
+    },
+
     downloadTemplate: async () => {
         const response = await API.get('/stockinput/DownloadTemplate', {
             responseType: "blob",

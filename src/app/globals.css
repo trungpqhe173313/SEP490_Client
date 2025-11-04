@@ -21,20 +21,36 @@
   .scrollbar-hidden {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
-  } 
+  }
 
   .background-primary {
     background-color: #00a544;
+    color: #ffffff;
   }
 
   .background-hovered:hover {
     background-color: #008138;
+    color: #ffffff;
   }
 
   .background-selected {
     background-color: #016630;
+    color: #ffffff;
   }
 }
+
+button:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+/* Remove arrows for number input fields (optional enhancement) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 
 body {
   background: var(--background);

@@ -38,7 +38,6 @@ export function ImportForm({
                 batchCode: importItem.batchCode
             }));
             setImports(importData);
-            console.log(importData);
         } catch (error) {
             console.log(error);
         }
@@ -91,7 +90,7 @@ export function ImportForm({
         setError("");
     }, [initialData, isOpen]);
 
-    function formatDateToInput(dt) {
+    const formatDateToInput = (dt) => {
         return dt.toISOString().split('T')[0];
     }
 
