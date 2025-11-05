@@ -89,6 +89,11 @@ export default function Products() {
         setModalOpen(true);
     };
     const handleDelete = async (product) => {
+        if (product.isActive === false) {
+            setModalFailedMessage("Sản phẩm đã bị xóa từ trước");
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         await productService.deleteProduct(product.productId);
         fetchProducts();
@@ -124,7 +129,7 @@ export default function Products() {
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc sản phẩm</h2>
                     <div className="flex flex-col items-center my-4">
-                        <div>
+                        <div className="mt-2 w-full">
                             <label className="mr-2">Tên sản phẩm:</label>
                             <input
                                 type="text"

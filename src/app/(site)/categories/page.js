@@ -110,6 +110,11 @@ export default function Categories() {
     };
 
     const handleDelete = async (category) => {
+        if (category.isActive === false) {
+            setModalFailedMessage("Danh mục đã bị xóa từ trước");
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         await categoryService.deleteCategory(category.categoryId);
         fetchCategories();
@@ -146,7 +151,7 @@ export default function Categories() {
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0 w-full">
                     <h2 className="text-xl font-bold">Lọc danh mục</h2>
                     <div className="flex flex-col items-center my-4">
-                        <div>
+                        <div className="mt-2 w-full">
                             <label className="mr-2">Tên danh mục:</label>
                             <input
                                 type="text"

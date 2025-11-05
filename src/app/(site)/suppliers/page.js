@@ -130,6 +130,11 @@ export default function Suppliers() {
     };
 
     const handleDelete = async (supplier) => {
+        if (supplier.isActive === false) {
+            setModalFailedMessage("Nhà cung cấp đã bị xóa từ trước");
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         await supplierService.deleteSupplier(supplier.supplierId);
         fetchSuppliers();
@@ -166,7 +171,7 @@ export default function Suppliers() {
                     <h2 className="text-xl font-bold">Lọc nhà cung cấp</h2>
                     <div className="flex flex-col items-center my-4">
                         <div className="mt-2 w-full">   
-                            <label className="mr-2">Tên danh mục:</label>
+                            <label className="mr-2">Tên nhà cung cấp:</label>
                             <input
                                 type="text"
                                 className="w-full p-2 border border-gray-300 rounded"

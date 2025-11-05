@@ -118,6 +118,11 @@ export default function Customers() {
     };
 
     const handleDelete = async (customer) => {
+        if (customer.isActive === false) {
+            setModalFailedMessage("Khách hàng đã bị xóa từ trước");
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         await customerService.deleteCustomer(customer.userId);
         fetchCustomers();

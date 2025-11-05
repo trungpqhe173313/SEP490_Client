@@ -222,11 +222,11 @@ export default function Imports() {
 
     return (
         <div className="flex flex-col p-4">
-            <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
-                <div className="flex flex-col w-3/4 mr-4">
+            <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4 justify-between">
+                <div className="flex flex-col mr-4">
                     <h1 className="text-2xl font-bold">Danh sách phiếu nhập</h1>
                 </div>
-                <div className="flex flex-col w-1/4 gap-2">
+                <div className="flex flex-col gap-2">
                     <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => navigate("/imports/create")}>Tạo phiếu nhập mới</button>
 
                     <label
@@ -243,7 +243,7 @@ export default function Imports() {
                         onChange={handleExcelImport}
                     />
 
-                    <button className="block border bg-blue-500 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleDownloadTemplate()}>Tải xuống mẫu phiếu nhập</button>
+                    <button className="block border bg-blue-500 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => handleDownloadTemplate()}>Tải xuống mẫu phiếu nhập</button>
                 </div>
             </div>
 

@@ -118,6 +118,11 @@ export default function Employees() {
     };
 
     const handleDelete = async (employee) => {
+        if (employee.isActive === false) {
+            setModalFailedMessage("Nhân viên đã bị xóa từ trước");
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         await employeeService.deleteEmployee(employee.userId);
         fetchEmployees();
