@@ -8,19 +8,24 @@ export function AutocompleteCommon({ loading, value, onSelect, onSearch, options
     }
 
     const onChangeTextSearch = (event) => {
-        event.target.value.length > 3 && onSearch(event.target.value);
+        onSearch(event.target.value);
     }
 
     return (
-        <div>
+        <div className='flex flex-row'>
             <Autocomplete
+                size='small'
                 fullWidth
                 disableClearable={disableClearable}
                 options={options}
                 value={value}
-                onChange={(e, data) => onChange(e, data)}
+                onChange={onChange}
                 getOptionLabel={getOptionLabel}
                 getOptionKey={getOptionKey}
+                clearOnBlur
+                clearOnEscape
+                blurOnSelect
+                key={value ? value[getOptionKey] : 'empty'}
                 renderInput={(params) => (
                     <TextField
                         {...params}

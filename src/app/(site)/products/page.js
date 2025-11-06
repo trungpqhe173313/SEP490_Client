@@ -1,5 +1,7 @@
 "use client";
 import { productService } from "@/services/product.service";
+import { categoryService } from "@/services/category.service";
+import { supplierService } from "@/services/supplier.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
@@ -7,6 +9,7 @@ import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
+import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -25,6 +28,25 @@ export default function Products() {
 
     // Filter state
     const [filterProductName, setFilterProductName] = useState("");
+    const [filterCode, setFilterCode] = useState("");
+    const [filterSupplierId, setFilterSupplierId] = useState(null);
+    const [filterCategoryId, setFilterCategoryId] = useState(null);
+    const [filterisAvailable, setFilterisAvailable] = useState(null);
+    const [filterFromWeightPerUnit, setFilterFromWeightPerUnit] = useState(0);
+    const [filterToWeightPerUnit, setFilterToWeightPerUnit] = useState(0);
+    const [filterFromCreatedDate, setFilterFromCreatedDate] = useState("");
+    const [filterToCreatedDate, setFilterToCreatedDate] = useState("");
+
+    const [errorToCreatedDate, setErrorToCreatedDate] = useState("");
+    const [errorToWeightPerUnit, setErrorToWeightPerUnit] = useState("");
+
+    //Autocomplete
+    const [selectedSupplier, setSelectedSupplier] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [suppliers, setSuppliers] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [supplierLoading, setSupplierLoading] = useState(false);
+    const [categoryLoading, setCategoryLoading] = useState(false);
 
     // Pagination state
     const [pageIndex, setPageIndex] = useState(0);
@@ -60,7 +82,15 @@ export default function Products() {
         const body = {
             pageIndex: pageIndex + 1,
             pageSize: rowPerPage,
-            productName: filterProductName
+            productName: filterProductName,
+            code: filterCode,
+            supplierId: filterSupplierId,
+            categoryId: filterCategoryId,
+            isAvailable: filterisAvailable === "true" ? true : filterisAvailable === "false" ? false : null,
+            minWeightPerUnit: filterFromWeightPerUnit === 0 ? null : filterFromWeightPerUnit,
+            maxWeightPerUnit: filterToWeightPerUnit === 0 ? null : filterToWeightPerUnit,
+            createdFrom: filterFromCreatedDate || null,
+            createdTo: filterToCreatedDate || null
         };
         const response = await productService.getAllProducts(body);
         setProducts(response.data.items);
@@ -68,9 +98,62 @@ export default function Products() {
         setLoading(false);
     };
 
+    const fetchSuppliers = async (value) => {
+        try {
+            setSupplierLoading(true);
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                isAvailable: true,
+                supplierName: value
+            };
+            const response = await supplierService.getAllSuppliers(body);
+            const supplierData = response.data.items.map((supplier) => ({
+                supplierId: supplier.supplierId,
+                supplierName: supplier.supplierName
+            }));
+            setSuppliers(supplierData);
+        } catch (error) {
+            console.error("Error fetching suppliers:", error);
+        } finally {
+            setSupplierLoading(false);
+        }
+    }
+
+    const fetchCategories = async (value) => {
+        try {
+            setCategoryLoading(true);
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                isAvailable: true,
+                categoryName: value
+            };
+            const response = await categoryService.getAllCategories(body);
+            const categoryData = response.data.items.map((category) => ({
+                categoryId: category.categoryId,
+                categoryName: category.categoryName
+            }));
+            setCategories(categoryData);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        } finally {
+            setCategoryLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchSuppliers("");
+        fetchCategories("");
+    }, []);
+
     useEffect(() => {
         fetchProducts();
     }, [pageIndex, rowPerPage]);
+
+    const formatDateToInput = (dt) => {
+        return dt.toISOString().split('T')[0];
+    }
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -79,17 +162,72 @@ export default function Products() {
         }
     };
 
+    const handleChangeDropdown = (item, field) => {
+        if (item) {
+            if (item.supplierId) {
+                setSelectedSupplier(item);
+                setFilterSupplierId(item.supplierId);
+            } else if (item.categoryId) {
+                setSelectedCategory(item);
+                setFilterCategoryId(item.categoryId);
+            }
+        } else {
+            if (field === "supplierId") {
+                setSelectedSupplier(null);
+                setFilterSupplierId(null);
+            } else if (field === "categoryId") {
+                setSelectedCategory(null);
+                setFilterCategoryId(null);
+            }
+        }
+    };
+
+    const handleApplyFilter = () => {
+        if (filterFromWeightPerUnit < 0 || filterToWeightPerUnit < 0) {
+            setErrorToWeightPerUnit("Khối lượng phải lớn hơn 0");
+            return;
+        }
+        if (filterToCreatedDate < filterFromCreatedDate) {
+            setErrorToCreatedDate("Ngày tạo đến phải lớn hơn ngày tạo từ");
+            return;
+        }
+        if (filterToWeightPerUnit < filterFromWeightPerUnit) {
+            setErrorToWeightPerUnit("Khối lượng đến phải lớn hơn khối lượng từ");
+            return;
+        }
+        fetchProducts();
+    };
+
+    const handleClearFilter = () => {
+        setSelectedSupplier(null);
+        setSelectedCategory(null);
+        setFilterProductName("");
+        setFilterCode("");
+        setFilterSupplierId(null);
+        setFilterCategoryId(null);
+        setFilterisAvailable(null);
+        setFilterFromWeightPerUnit(0);
+        setFilterToWeightPerUnit(0);
+        setFilterFromCreatedDate("");
+        setFilterToCreatedDate("");
+        setErrorToCreatedDate("");
+        setErrorToWeightPerUnit("");
+        fetchProducts();
+    };
+
     // Modal handlers
     const handleCreate = () => {
         setEditingProduct(null);
         setModalOpen(true);
     };
+
     const handleEdit = (product) => {
         setEditingProduct(product);
         setModalOpen(true);
     };
+
     const handleDelete = async (product) => {
-        if (product.isActive === false) {
+        if (product.isAvailable === false) {
             setModalFailedMessage("Sản phẩm đã bị xóa từ trước");
             setModalFailedOpen(true);
             return;
@@ -101,6 +239,7 @@ export default function Products() {
         setModalSuccessOpen(true);
         setLoading(false);
     };
+
     const handleConfirm = async (productData) => {
         setLoading(true);
         try {
@@ -129,7 +268,7 @@ export default function Products() {
                 <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
                     <h2 className="text-xl font-bold">Lọc sản phẩm</h2>
                     <div className="flex flex-col items-center my-4">
-                        <div className="mt-2 w-full">
+                        <div className="my-2 w-full">
                             <label className="mr-2">Tên sản phẩm:</label>
                             <input
                                 type="text"
@@ -139,15 +278,117 @@ export default function Products() {
                                 onKeyDown={handleKeyDown}
                             />
                         </div>
+                        <div className="my-2 w-full">
+                            <label className="mr-2">Mã:</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterCode}
+                                onChange={(e) => setFilterCode(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                        <div className="my-2 w-full flex flex-row gap-2">
+                            <div>
+                                <label className="mr-2">Khối lượng từ</label>
+                                <input
+                                    type="number"
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                    value={filterFromWeightPerUnit || ""}
+                                    onChange={(e) => setFilterFromWeightPerUnit(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                />
+                            </div>
+                            <div>
+                                <label className="mr-2">Khối lượng đến</label>
+                                <input
+                                    type="number"
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                    value={filterToWeightPerUnit || ""}
+                                    onChange={(e) => setFilterToWeightPerUnit(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                />
+                            </div>
+                        </div>
+                        {errorToWeightPerUnit && <span className="text-red-500">{errorToWeightPerUnit}</span>}
+                        <div className="my-2 w-full">
+                            <label className="mr-2">Nhà cung cấp:</label>
+                            <AutocompleteCommon
+                                name="supplierId"
+                                value={selectedSupplier}
+                                loading={supplierLoading}
+                                options={suppliers}
+                                onSelect={(item) => handleChangeDropdown(item, "supplierId")}
+                                onSearch={fetchSuppliers}
+                                getOptionLabel={(option) => option.supplierName}
+                                getOptionKey={(option) => option.supplierId}
+                            />
+                        </div>
+                        <div className="my-2 w-full">
+                            <label className="mr-2">Danh mục:</label>
+                            <AutocompleteCommon
+                                name="categoryId"
+                                value={selectedCategory}
+                                loading={categoryLoading}
+                                options={categories}
+                                onSelect={(item) => handleChangeDropdown(item, "categoryId")}
+                                onSearch={fetchCategories}
+                                getOptionLabel={(option) => option.categoryName}
+                                getOptionKey={(option) => option.categoryId}
+                            />
+                        </div>
+                        <div className="my-2 w-full">
+                            <label className="mr-2">Trạng thái:</label>
+                            <select
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterisAvailable && filterisAvailable !== "null" ? filterisAvailable : "null"}
+                                onChange={(e) => setFilterisAvailable(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            >
+                                <option value="null">Tất cả</option>
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Dừng hoạt động</option>
+                            </select>
+                        </div>
+                        <div className="my-2 w-full flex flex-row gap-2">
+                            <div>
+                                <label className="mr-2">Ngày tạo từ</label>
+                                <input
+                                    type="date"
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                    value={filterFromCreatedDate && formatDateToInput(filterFromCreatedDate)}
+                                    onChange={(e) => {
+                                        const date = new Date(e.target.value);
+                                        setFilterFromCreatedDate(date);
+                                    }}
+                                    onKeyDown={handleKeyDown}
+                                />
+                            </div>
+                            <div>
+                                <label className="mr-2">Ngày tạo đến</label>
+                                <input
+                                    type="date"
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                    value={filterToCreatedDate && formatDateToInput(filterToCreatedDate)}
+                                    onChange={(e) => {
+                                        const date = new Date(e.target.value);
+                                        setFilterToCreatedDate(date);
+                                    }}
+                                    onKeyDown={handleKeyDown}
+                                />
+                            </div>
+                        </div>
+                        {errorToCreatedDate && <span className="text-red-500">{errorToCreatedDate}</span>}
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center gap-2">
                         <button
-                            className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
-                            onClick={() => fetchProducts()}
+                            className="px-4 py-2 background-primary text-white rounded cursor-pointer"
+                            onClick={() => handleApplyFilter()}
                             ref={buttonRef}
                         >
                             Lọc
                         </button>
+                        <button className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer" onClick={() => handleClearFilter()}>Xóa bộ lọc</button>
                     </div>
                 </div>
             </div>

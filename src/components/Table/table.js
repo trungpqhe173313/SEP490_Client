@@ -175,13 +175,13 @@ export default function TableCommon({
                                         ))}
                                         {useAction && (
                                             <TableCell align="center" verticalalign="middle">
-                                                <button className="bg-cyan-500 text-white px-2 py-1 rounded" onClick={() => navigateDetail(item)}>
+                                                <button className="bg-cyan-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => navigateDetail(item)}>
                                                     <AssignmentIcon />
                                                 </button>
-                                                <button className="bg-yellow-500 mx-2 my-2 text-white px-2 py-1 rounded" onClick={() => handleEdit(item)}>
+                                                <button className="bg-yellow-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => handleEdit(item)}>
                                                     <EditIcon />
                                                 </button>
-                                                <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => {
+                                                <button className="bg-red-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => {
                                                     setIsOpenPopupConfirmDelete(true);
                                                     setIdDeleting(item);
                                                 }}>

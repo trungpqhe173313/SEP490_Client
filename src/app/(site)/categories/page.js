@@ -144,6 +144,11 @@ export default function Categories() {
         }
     };
 
+    const handleClearFilter = () => {
+        setFilterCategoryName("");
+        fetchCategories();
+    };
+
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
             {/* Filter sidebar */}
@@ -162,13 +167,19 @@ export default function Categories() {
                             />
                         </div>
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center gap-2">
                         <button
-                            className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
+                            className="px-4 py-2 background-primary text-white rounded cursor-pointer"
                             onClick={() => fetchCategories()}
                             ref={buttonRef}
                         >
                             Lọc
+                        </button>
+                        <button
+                            className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
+                            onClick={handleClearFilter}
+                        >
+                            Xóa bộ lọc
                         </button>
                     </div>
                 </div>

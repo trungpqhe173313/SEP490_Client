@@ -7,7 +7,7 @@ export const importService = {
     },
 
     getTransactionDetail: async (id) => {
-        const response = await API.get(`/stockinput/GetTransactionDetailByTransactionId/?id=${id}`);
+        const response = await API.get(`/stockinput/GetDetail/${id}`);
         return response.data;
     },
 

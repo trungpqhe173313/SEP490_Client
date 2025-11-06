@@ -1,5 +1,7 @@
 "use client";
 import { importService } from "@/services/import.service";
+import { warehouseService } from "@/services/warehouse.service";
+import { supplierService } from "@/services/supplier.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
@@ -7,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
+import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 import { ImportForm } from "@/components/Form/importForm";
 
 import SuccessModal from "@/components/Modal/successModal";
@@ -40,15 +43,27 @@ export default function Imports() {
     const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
 
     //Filter state
+    const [filterSupplierId, setFilterSupplierId] = useState(null);
+    const [filterWarehouseId, setFilterWarehouseId] = useState(null);
     const [filterStatus, setFilterStatus] = useState(null);
     const [filterType, setFilterType] = useState("");
     const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
     const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
 
+    const [errorToTransactionDate, setErrorToTransactionDate] = useState("");
+
     //Pagination state
     const [pageIndex, setPageIndex] = useState(0);
-    const [rowPerPage, setRowPerPage] = useState(5);
+    const [rowPerPage, setRowPerPage] = useState(20);
     const [totalCount, setTotalCount] = useState(0);
+
+    //Autocomplete
+    const [selectedSupplier, setSelectedSupplier] = useState(null);
+    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+    const [suppliers, setSuppliers] = useState([]);
+    const [warehouses, setWarehouses] = useState([]);
+    const [supplierLoading, setSupplierLoading] = useState(false);
+    const [warehouseLoading, setWarehouseLoading] = useState(false);
 
     const { setLoading } = useLoading();
     const buttonRef = useRef(null);
@@ -60,24 +75,28 @@ export default function Imports() {
             customValue: (item) => item.transactionId && <div>{item.transactionId}</div>
         },
         {
-            key: "customerId",
-            label: "Mã khách hàng",
-            customValue: (item) => item.customerId && <div>{item.customerId}</div>
+            key: "type",
+            label: "Loại phiếu",
+            customValue: (item) => item.type && <div>{item.type === "Import" ? "Nhập kho" : "Chuyển kho"}</div>
         },
         {
-            key: "supplierId",
-            label: "Mã nhà cung cấp",
-            customValue: (item) => item.supplierId && <div>{item.supplierId}</div>
+            key: "supplierName",
+            label: "Nhà cung cấp",
+            customValue: (item) => item.supplierName && <div>{item.supplierName === "N/A" ? "Chuyển kho" : item.supplierName}</div>
         },
         {
-            key: "warehouseId",
-            label: "Mã nhà kho",
-            customValue: (item) => item.warehouseId && <div>{item.warehouseId}</div>
+            key: "warehouseName",
+            label: "Nhà kho",
+            customValue: (item) => item.warehouseName && <div>{item.warehouseName}</div>
         },
         {
             key: "status",
             label: "Trạng thái",
-            customValue: (item) => item.status && <div>{item.status}</div>
+            customValue: (item) => item.status && (
+                <div className={`${item.status === "Đã thanh toán" ? "text-green-600" : item.status === "Đang thanh toán" ? "text-yellow-600" : "text-red-600"}`}>
+                    {item.status}
+                </div>
+            )
         },
         {
             key: "transactionDate",
@@ -98,11 +117,61 @@ export default function Imports() {
         setPageIndex(0);
     };
 
+    const fetchSuppliers = async (value) => {
+        try {
+            setSupplierLoading(true);
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                isActive: true,
+                supplierName: value
+            };
+            const response = await supplierService.getAllSuppliers(body);
+            const supplierData = response.data.items.map((supplier) => ({
+                supplierId: supplier.supplierId,
+                supplierName: supplier.supplierName
+            }));
+            setSuppliers(supplierData);
+        } catch (error) {
+            console.error("Error fetching suppliers:", error);
+        } finally {
+            setSupplierLoading(false);
+        }
+    }
+
+    const fetchWarehouses = async (value) => {
+        try {
+            setWarehouseLoading(true);
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                warehouseName: value
+            };
+            const response = await warehouseService.getAllWarehouses(body);
+            const warehouseData = response.data.items.map((warehouse) => ({
+                warehouseId: warehouse.warehouseId,
+                warehouseName: warehouse.warehouseName
+            }));
+            setWarehouses(warehouseData);
+        } catch (error) {
+            console.error("Error fetching warehouses:", error);
+        } finally {
+            setWarehouseLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchSuppliers("");
+        fetchWarehouses("");
+    }, []);
+
     const fetchImports = async () => {
         setLoading(true);
         const body = {
             pageIndex: pageIndex + 1,
             pageSize: rowPerPage,
+            supplierId: filterSupplierId || null,
+            warehouseId: filterWarehouseId || null,
             status: filterStatus || null,
             type: filterType || null,
             transactionFromDate: filterTransactionFromDate || null,
@@ -129,31 +198,71 @@ export default function Imports() {
         }
     };
 
-    const handleCreate = () => {
-        setEditingImport(null);
-        setModalOpen(true);
-    };
-
-    const handleConfirm = async (importData) => {
-        setLoading(true);
-        try {
-            if (editingImport) {
-                await importService.updateImport(editingImport.importId, importData);
-                setModalSuccessMessage("Cập nhật phiếu nhập kho thành công");
-            } else {
-                await importService.createImport(importData);
-                setModalSuccessMessage("Tạo phiếu nhập kho thành công");
+    const handleChangeDropdown = (item, field) => {
+        if (item) {
+            if (item.supplierId) {
+                setSelectedSupplier(item);
+                setFilterSupplierId(item.supplierId);
+            } else if (item.warehouseId) {
+                setSelectedWarehouse(item);
+                setFilterWarehouseId(item.warehouseId);
             }
-            setModalSuccessOpen(true);
-            setModalOpen(false);
-            fetchImports();
-        } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
-            setModalFailedOpen(true);
-        } finally {
-            setLoading(false);
+        } else {
+            if (field === "supplierId") {
+                setSelectedSupplier(null);
+                setFilterSupplierId(null);
+            } else if (field === "warehouseId") {
+                setSelectedWarehouse(null);
+                setFilterWarehouseId(null);
+            }
         }
     };
+
+    const handleApplyFilter = () => {
+        if (filterTransactionFromDate > filterTransactionToDate) {
+            setErrorToTransactionDate("Ngày giao dịch đến phải lớn hơn ngày giao dịch từ");
+            return;
+        }
+        fetchImports();
+    };
+
+    const handleClearFilter = () => {
+        setFilterSupplierId(null);
+        setSelectedSupplier(null);
+        setFilterWarehouseId(null);
+        setSelectedWarehouse(null);
+        setFilterStatus(null);
+        setFilterType("");
+        setFilterTransactionFromDate("");
+        setFilterTransactionToDate("");
+        fetchImports();
+    };
+
+    // const handleCreate = () => {
+    //     setEditingImport(null);
+    //     setModalOpen(true);
+    // };
+
+    // const handleConfirm = async (importData) => {
+    //     setLoading(true);
+    //     try {
+    //         if (editingImport) {
+    //             await importService.updateImport(editingImport.importId, importData);
+    //             setModalSuccessMessage("Cập nhật phiếu nhập kho thành công");
+    //         } else {
+    //             await importService.createImport(importData);
+    //             setModalSuccessMessage("Tạo phiếu nhập kho thành công");
+    //         }
+    //         setModalSuccessOpen(true);
+    //         setModalOpen(false);
+    //         fetchImports();
+    //     } catch (error) {
+    //         setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+    //         setModalFailedOpen(true);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     const getFileNameFromDisposition = (disposition) => {
         if (!disposition) return "template.xlsx";
@@ -251,25 +360,60 @@ export default function Imports() {
             <div className="p-4 rounded-2xl bg-white h-auto w-full mb-4">
                 <h2 className="text-xl font-bold">Lọc phiếu nhập</h2>
                 <div className="flex items-center my-4 gap-4">
+                    <div className="mt-2 w-[24.25%]">
+                        <label className="mr-2">Nhà cung cấp:</label>
+                        <AutocompleteCommon
+                            name="supplierId"
+                            value={selectedSupplier}
+                            loading={supplierLoading}
+                            options={suppliers}
+                            onSelect={(item) => handleChangeDropdown(item, "supplierId")}
+                            onSearch={fetchSuppliers}
+                            getOptionLabel={(option) => option.supplierName}
+                            getOptionKey={(option) => option.supplierId}
+                        />
+                    </div>
+                    <div className="mt-2 w-[24.25%]">
+                        <label className="mr-2">Nhà kho:</label>
+                        <AutocompleteCommon
+                            name="warehouseId"
+                            value={selectedWarehouse}
+                            loading={warehouseLoading}
+                            options={warehouses}
+                            onSelect={(item) => handleChangeDropdown(item, "warehouseId")}
+                            onSearch={fetchWarehouses}
+                            getOptionLabel={(option) => option.warehouseName}
+                            getOptionKey={(option) => option.warehouseId}
+                        />
+                    </div>
+                </div>
+                <div className="flex items-center my-4 gap-4">
                     <div className="mt-2 w-full">
                         <label className="mr-2">Trạng thái:</label>
-                        <input
-                            type="number"
+                        <select
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterStatus || ""}
                             onChange={(e) => setFilterStatus(e.target.value)}
                             onKeyDown={handleKeyDown}
-                        />
+                        >
+                            <option value="">Tất cả</option>
+                            <option value={0}>Đã ngưng hoạt động</option>
+                            <option value={1}>Đã thanh toán</option>
+                            <option value={2}>Đang thanh toán</option>
+                        </select>
                     </div>
                     <div className="mt-2 w-full">
                         <label className="mr-2">Loại phiếu:</label>
-                        <input
-                            type="text"
+                        <select
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterType}
                             onChange={(e) => setFilterType(e.target.value)}
                             onKeyDown={handleKeyDown}
-                        />
+                        >
+                            <option value="">Tất cả</option>
+                            <option value="Import">Phiếu nhập kho</option>
+                            <option value="Transfer">Phiếu chuyển kho</option>
+                        </select>
                     </div>
                     <div className="mt-2 w-full">
                         <label className="mr-2">Giao dịch từ ngày:</label>
@@ -298,14 +442,23 @@ export default function Imports() {
                         />
                     </div>
                 </div>
-                <div className="flex justify-center">
-                    <button
-                        className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
-                        onClick={() => fetchImports()}
-                        ref={buttonRef}
-                    >
-                        Lọc
-                    </button>
+                <div className="flex flex-col justify-center">
+                    {errorToTransactionDate && <span className="text-red-500 text-center mb-2">{errorToTransactionDate}</span>}
+                    <div className="flex flex-row items-center justify-center gap-4">
+                        <button
+                            className="px-4 py-2 background-primary text-white rounded cursor-pointer"
+                            onClick={() => handleApplyFilter()}
+                            ref={buttonRef}
+                        >
+                            Lọc
+                        </button>
+                        <button
+                            className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
+                            onClick={() => handleClearFilter()}
+                        >
+                            Xóa bộ lọc
+                        </button>
+                    </div>
                 </div>
             </div>
 

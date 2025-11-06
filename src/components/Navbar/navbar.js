@@ -70,18 +70,18 @@ const Navbar = () => {
           role: "all",
           icon: <CategoryIcon />
         },
-        {
-          name: "Nguyên liệu",
-          link: "/materials",
-          role: "all",
-          icon: <ForestIcon />
-        },
-        {
-          name: "Bảng giá",
-          link: "/prices",
-          role: "all",
-          icon: <AccountBalanceWalletIcon />
-        }
+        // {
+        //   name: "Nguyên liệu",
+        //   link: "/materials",
+        //   role: "all",
+        //   icon: <ForestIcon />
+        // },
+        // {
+        //   name: "Bảng giá",
+        //   link: "/prices",
+        //   role: "all",
+        //   icon: <AccountBalanceWalletIcon />
+        // }
       ]
     },
     {
@@ -94,18 +94,18 @@ const Navbar = () => {
           role: "all",
           icon: <AccessibilityNewIcon />
         },
-        {
-          name: "Chấm công",
-          link: "/worklogs",
-          role: "all",
-          icon: <CalendarMonthIcon />
-        },
-        {
-          name: "Bảng lương",
-          link: "/salaries",
-          role: "all",
-          icon: <AddchartIcon />
-        }
+        // {
+        //   name: "Chấm công",
+        //   link: "/worklogs",
+        //   role: "all",
+        //   icon: <CalendarMonthIcon />
+        // },
+        // {
+        //   name: "Bảng lương",
+        //   link: "/salaries",
+        //   role: "all",
+        //   icon: <AddchartIcon />
+        // }
       ],
     },
     {
@@ -148,56 +148,56 @@ const Navbar = () => {
           role: "all",
           icon: <LaunchIcon />
         },
-        {
-          name: "Sản xuất",
-          link: "/productions",
-          role: "all",
-          icon: <FactoryIcon />
-        }
+        // {
+        //   name: "Sản xuất",
+        //   link: "/productions",
+        //   role: "all",
+        //   icon: <FactoryIcon />
+        // }
       ],
     },
-    {
-      label: "Giao dịch",
-      icon: <ShoppingCartIcon />,
-      subItems: [
-        {
-          name: "Thu",
-          link: "/incomes",
-          role: "all",
-          icon: <AttachMoneyIcon />
-        },
-        {
-          name: "Chi",
-          link: "/expenses",
-          role: "all",
-          icon: <MoneyOffIcon />
-        },
-        {
-          name: "Đơn hàng",
-          link: "/orders",
-          role: "all",
-          icon: <ShoppingBasketIcon />
-        }
-      ]
-    },
-    {
-      label: "Quản lý",
-      icon: <ManageAccountsIcon />,
-      subItems: [
-        {
-          name: "Thống kê",
-          link: "/dashboard",
-          role: "admin",
-          icon: <AlignHorizontalLeftIcon />
-        },
-        {
-          name: "Quản lý người dùng",
-          link: "/management/users",
-          role: "admin",
-          icon: <GroupsIcon />
-        }
-      ]
-    }
+    // {
+    //   label: "Giao dịch",
+    //   icon: <ShoppingCartIcon />,
+    //   subItems: [
+    //     {
+    //       name: "Thu",
+    //       link: "/incomes",
+    //       role: "all",
+    //       icon: <AttachMoneyIcon />
+    //     },
+    //     {
+    //       name: "Chi",
+    //       link: "/expenses",
+    //       role: "all",
+    //       icon: <MoneyOffIcon />
+    //     },
+    //     {
+    //       name: "Đơn hàng",
+    //       link: "/orders",
+    //       role: "all",
+    //       icon: <ShoppingBasketIcon />
+    //     }
+    //   ]
+    // },
+    // {
+    //   label: "Quản lý",
+    //   icon: <ManageAccountsIcon />,
+    //   subItems: [
+    //     {
+    //       name: "Thống kê",
+    //       link: "/dashboard",
+    //       role: "admin",
+    //       icon: <AlignHorizontalLeftIcon />
+    //     },
+    //     {
+    //       name: "Quản lý người dùng",
+    //       link: "/management/users",
+    //       role: "admin",
+    //       icon: <GroupsIcon />
+    //     }
+    //   ]
+    // }
   ];
 
   return (
