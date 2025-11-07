@@ -128,7 +128,15 @@ export default function UpdateExport({ params }) {
         if (existingProduct) {
             handleChangeCart(product.productId, "orderQuantity", existingProduct.orderQuantity + 1);
         } else {
-            setCart((prev) => [...prev, { ...product, orderQuantity: 1, unitPrice: product.averageCost || 0 }]);
+            setCart((prev) => {
+                const newProduct = { ...product, orderQuantity: 1, unitPrice: product.averageCost || 0 };
+                const updatedCart = [...prev, newProduct];
+                const newTotalPrice = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
+                setTimeout(() => {
+                    setTotalPrice(newTotalPrice);
+                }, 0);
+                return updatedCart;
+            });
         }
     };
 
@@ -143,16 +151,10 @@ export default function UpdateExport({ params }) {
                     ? { ...product, [field]: Number(value) || 0 }
                     : product
             );
-
-            const newTotalPrice = updatedCart.reduce(
-                (total, item) => total + (item.unitPrice * item.orderQuantity),
-                0
-            );
-
+            const newTotalPrice = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
             setTimeout(() => {
                 setTotalPrice(newTotalPrice);
             }, 0);
-
             return updatedCart;
         });
     };
