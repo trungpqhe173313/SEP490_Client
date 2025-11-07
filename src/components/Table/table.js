@@ -11,6 +11,9 @@ import {
     Button
 } from '@mui/material';
 import ConfirmModal from '@/components/Modal/confirmModal';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 export default function TableCommon({
     headers,
@@ -22,6 +25,7 @@ export default function TableCommon({
     rowPerPageOptions,
     handleChangePage,
     handleChangeRowPerPage,
+    navigateDetail = () => { },
     handleEdit,
     handleDelete,
     messagePopupDelete,
@@ -35,6 +39,15 @@ export default function TableCommon({
     const [data, setData] = useState(tableData);
     const [isOpenPopupConfirmDelete, setIsOpenPopupConfirmDelete] = useState(false);
     const [idDeleting, setIdDeleting] = useState('');
+    const [expandIndices, setExpandIndices] = useState([]);
+
+    const toggleExpand = (id) => {
+        if (expandIndices.includes(id)) {
+            setExpandIndices(expandIndices.filter((index) => index !== id));
+        } else {
+            setExpandIndices([...expandIndices, id]);
+        }
+    };
 
     // Update data when tableData changes
     useEffect(() => {
@@ -119,24 +132,66 @@ export default function TableCommon({
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            displayedData.map((item, index) => (
-                                <TableRow key={item.id || index} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
-                                    {headers.map((header, indexColumn) => (
-                                        <TableCell key={indexColumn} className="!text-center">
-                                            {getValueToDisplayOnTable(indexColumn, item)}
-                                        </TableCell>
-                                    ))}
-                                    {useAction && (
-                                        <TableCell align="center" verticalalign="middle">
-                                            <Button sx={{ backgroundColor: "#ffc107", margin: "5px", color: "black" }} onClick={() => handleEdit(item)}>Sửa</Button>
-                                            <Button sx={{ backgroundColor: "red", margin: "5px", color: "white" }} onClick={() => {
-                                                setIsOpenPopupConfirmDelete(true);
-                                                setIdDeleting(item);
-                                            }}>Xóa</Button>
-                                        </TableCell>
-                                    )}
-                                </TableRow>
-                            ))
+                            displayedData.map((item, index) =>
+                                useDetail ? (
+                                    <React.Fragment key={item.id || index}>
+                                        <TableRow key={item.id || index} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"} onClick={() => toggleExpand(index)}>
+                                            {headers.map((header, indexColumn) => (
+                                                <TableCell key={indexColumn} className="!text-center">
+                                                    {getValueToDisplayOnTable(indexColumn, item)}
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
+                                        {expandIndices.includes(index) && (
+                                            <TableRow>
+                                                <TableCell>
+                                                    Expand
+                                                </TableCell>
+                                                {useAction && (
+                                                    <TableCell align="center" verticalalign="middle">
+                                                        <button className="bg-cyan-500 text-white px-2 py-1 rounded" onClick={() => navigateDetail(item)}>
+                                                            <AssignmentIcon />
+                                                        </button>
+                                                        <button className="bg-yellow-500 mx-2 text-white px-2 py-1 rounded" onClick={() => handleEdit(item)}>
+                                                            <EditIcon />
+                                                        </button>
+                                                        <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => {
+                                                            setIsOpenPopupConfirmDelete(true);
+                                                            setIdDeleting(item);
+                                                        }}>
+                                                            <DeleteIcon />
+                                                        </button>
+                                                    </TableCell>
+                                                )}
+                                            </TableRow>
+                                        )}
+                                    </React.Fragment>
+                                ) : (
+                                    <TableRow key={item.id || index} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
+                                        {headers.map((header, indexColumn) => (
+                                            <TableCell key={indexColumn} className="!text-center">
+                                                {getValueToDisplayOnTable(indexColumn, item)}
+                                            </TableCell>
+                                        ))}
+                                        {useAction && (
+                                            <TableCell align="center" verticalalign="middle">
+                                                <button className="bg-cyan-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => navigateDetail(item)}>
+                                                    <AssignmentIcon />
+                                                </button>
+                                                <button className="bg-yellow-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => handleEdit(item)}>
+                                                    <EditIcon />
+                                                </button>
+                                                <button className="bg-red-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => {
+                                                    setIsOpenPopupConfirmDelete(true);
+                                                    setIdDeleting(item);
+                                                }}>
+                                                    <DeleteIcon />
+                                                </button>
+                                            </TableCell>
+                                        )}
+                                    </TableRow>
+                                )
+                            )
                         )}
                     </TableBody>
                 </Table>

@@ -26,7 +26,7 @@ export default function Customers() {
     // Filter state
     const [filterFullName, setFilterFullName] = useState("");
     const [filterEmail, setFilterEmail] = useState("");
-    const [filterIsActive, setFilterIsActive] = useState(true);
+    const [filterIsActive, setFilterIsActive] = useState(null);
 
     // Pagination state
     const [pageIndex, setPageIndex] = useState(0);
@@ -118,6 +118,11 @@ export default function Customers() {
     };
 
     const handleDelete = async (customer) => {
+        if (customer.isActive === false) {
+            setModalFailedMessage("Khách hàng đã bị xóa từ trước");
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         await customerService.deleteCustomer(customer.userId);
         fetchCustomers();
@@ -145,6 +150,13 @@ export default function Customers() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleClearFilter = () => {
+        setFilterFullName("");
+        setFilterEmail("");
+        setFilterIsActive(null);
+        fetchCustomers();
     };
 
     return (
@@ -178,7 +190,7 @@ export default function Customers() {
                             <label className="mr-2">Trạng thái:</label>
                             <select
                                 className="w-full p-2 border border-gray-300 rounded"
-                                value={filterIsActive}
+                                value={filterIsActive && filterIsActive !== "null" ? filterIsActive : "null"}
                                 onChange={(e) => setFilterIsActive(e.target.value)}
                                 onKeyDown={handleKeyDown}
                             >
@@ -188,13 +200,19 @@ export default function Customers() {
                             </select>
                         </div>
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center gap-2">
                         <button
-                            className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
+                            className="px-4 py-2 background-primary text-white rounded cursor-pointer"
                             onClick={() => fetchCustomers()}
                             ref={buttonRef}
                         >
                             Lọc
+                        </button>
+                        <button
+                            className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
+                            onClick={handleClearFilter}
+                        >
+                            Xóa bộ lọc
                         </button>
                     </div>
                 </div>

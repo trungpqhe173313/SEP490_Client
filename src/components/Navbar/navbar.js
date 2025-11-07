@@ -2,101 +2,202 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
 import { useState } from "react";
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import PeopleIcon from '@mui/icons-material/People';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import HomeIcon from '@mui/icons-material/Home';
+import AlignHorizontalLeftIcon from '@mui/icons-material/AlignHorizontalLeft';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import CategoryIcon from '@mui/icons-material/Category';
+import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
+import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
+import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import LaunchIcon from '@mui/icons-material/Launch';
+import FactoryIcon from '@mui/icons-material/Factory';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
+import GroupsIcon from '@mui/icons-material/Groups';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import AddchartIcon from '@mui/icons-material/Addchart';
+import ForestIcon from '@mui/icons-material/Forest';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+
 
 const Navbar = () => {
   const router = useRouter();
 
   const navigate = (path) => {
+    setLoading(true);
     router.push(path);
   };
 
   const [hovered, setHovered] = useState(null);
   const { setLoading } = useLoading();
 
-  const goTo = (path) => {
-    setLoading(true);
-    navigate(path);
-    if (path === "/") {
-      setTimeout(() => setLoading(false), 500);
-    }
-  };
-
   const navItems = [
     {
       label: "Tổng quan",
+      icon: <DashboardIcon />,
       subItems: [
         {
           name: "Trang chủ",
           link: "/",
-          role: "all"
-        },
-        {
-          name: "Thống kê",
-          link: "/dashboard",
-          role: "admin"
+          role: "all",
+          icon: <HomeIcon />
         }
-      ],
+      ]
     },
     {
       label: "Hàng hóa",
+      icon: <InventoryIcon />,
       subItems: [
         {
           name: "Sản phẩm",
           link: "/products",
-          role: "all"
+          role: "all",
+          icon: <ListAltIcon />
         },
         {
           name: "Danh mục",
           link: "/categories",
-          role: "all"
+          role: "all",
+          icon: <CategoryIcon />
         },
+        // {
+        //   name: "Nguyên liệu",
+        //   link: "/materials",
+        //   role: "all",
+        //   icon: <ForestIcon />
+        // },
+        // {
+        //   name: "Bảng giá",
+        //   link: "/prices",
+        //   role: "all",
+        //   icon: <AccountBalanceWalletIcon />
+        // }
       ]
     },
     {
       label: "Nhân sự",
+      icon: <AssignmentIcon />,
       subItems: [
         {
           name: "Nhân viên",
           link: "/employees",
-          role: "all"
-        }
+          role: "all",
+          icon: <AccessibilityNewIcon />
+        },
+        // {
+        //   name: "Chấm công",
+        //   link: "/worklogs",
+        //   role: "all",
+        //   icon: <CalendarMonthIcon />
+        // },
+        // {
+        //   name: "Bảng lương",
+        //   link: "/salaries",
+        //   role: "all",
+        //   icon: <AddchartIcon />
+        // }
       ],
     },
     {
       label: "Đối tác",
+      icon: <PeopleIcon />,
       subItems: [
         {
           name: "Khách hàng",
           link: "/customers",
-          role: "all"
+          role: "all",
+          icon: <EmojiPeopleIcon />
         },
         {
           name: "Nhà cung cấp",
           link: "/suppliers",
-          role: "all"
+          role: "all",
+          icon: <PermContactCalendarIcon />
         }
       ],
     },
     {
       label: "Kho",
+      icon: <WarehouseIcon />,
       subItems: [
         {
           name: "Kiểm kho",
           link: "/warehouses",
-          role: "all"
+          role: "all",
+          icon: <ContentPasteSearchIcon />
         },
         {
           name: "Nhập kho",
           link: "/imports",
-          role: "all"
+          role: "all",
+          icon: <AddShoppingCartIcon />
         },
         {
           name: "Xuất kho",
           link: "/exports",
-          role: "all"
-        }
+          role: "all",
+          icon: <LaunchIcon />
+        },
+        // {
+        //   name: "Sản xuất",
+        //   link: "/productions",
+        //   role: "all",
+        //   icon: <FactoryIcon />
+        // }
       ],
-    }
+    },
+    // {
+    //   label: "Giao dịch",
+    //   icon: <ShoppingCartIcon />,
+    //   subItems: [
+    //     {
+    //       name: "Thu",
+    //       link: "/incomes",
+    //       role: "all",
+    //       icon: <AttachMoneyIcon />
+    //     },
+    //     {
+    //       name: "Chi",
+    //       link: "/expenses",
+    //       role: "all",
+    //       icon: <MoneyOffIcon />
+    //     },
+    //     {
+    //       name: "Đơn hàng",
+    //       link: "/orders",
+    //       role: "all",
+    //       icon: <ShoppingBasketIcon />
+    //     }
+    //   ]
+    // },
+    // {
+    //   label: "Quản lý",
+    //   icon: <ManageAccountsIcon />,
+    //   subItems: [
+    //     {
+    //       name: "Thống kê",
+    //       link: "/dashboard",
+    //       role: "admin",
+    //       icon: <AlignHorizontalLeftIcon />
+    //     },
+    //     {
+    //       name: "Quản lý người dùng",
+    //       link: "/management/users",
+    //       role: "admin",
+    //       icon: <GroupsIcon />
+    //     }
+    //   ]
+    // }
   ];
 
   return (
@@ -104,23 +205,25 @@ const Navbar = () => {
       {navItems.map((item, index) => (
         <div
           key={index}
-          className="background-primary hover:bg-green-800 px-3 py-2 cursor-pointer relative"
+          className="background-primary hover:bg-green-800 px-3 py-2 cursor-pointer relative flex items-center gap-2"
           onMouseEnter={() => setHovered(index)}
           onMouseLeave={() => setHovered(null)}
         >
+          {item.icon}
           <span className="font-bold">{item.label}</span>
           {hovered === index && (
             <div
-              className={`top-0 absolute left-full background-selected text-white shadow-lg py-2 w-40 z-20 animate-fade-in`}
+              className={`top-0 absolute left-full background-selected text-white shadow-lg w-40 z-20 animate-fade-in`}
               onMouseEnter={() => setHovered(index)}
               onMouseLeave={() => setHovered(null)}
             >
               {item.subItems.map((sub) => (
                 <div
                   key={sub.name}
-                  className="px-4 py-2 hover:bg-green-600 cursor-pointer text-sm"
-                  onClick={() => goTo(sub.link)}
+                  className="px-4 py-2 hover:bg-green-600 cursor-pointer text-sm flex items-center gap-2"
+                  onClick={() => navigate(sub.link)}
                 >
+                  {sub.icon}
                   {sub.name}
                 </div>
               ))}
@@ -128,59 +231,6 @@ const Navbar = () => {
           )}
         </div>
       ))}
-
-      {/* Left side: Menu */}
-      {/* <span className={`${pathname === "/"
-        ? "background-selected background-hovered px-3 py-2 rounded cursor-pointer"
-        : "background-hovered px-3 py-2 rounded cursor-pointer"}`}
-        onClick={() => navigate("/")}>
-        Tổng quan
-      </span>
-      <span className={`${pathname === "/warehouses"
-        ? "background-selected background-hovered px-3 py-2 rounded cursor-pointer"
-        : "background-hovered px-3 py-2 rounded cursor-pointer"}`} onClick={() => goTo("/warehouses")}>
-        Nhà kho
-      </span>
-      <span className={`${pathname === "/products"
-        ? "background-selected background-hovered px-3 py-2 rounded cursor-pointer"
-        : "background-hovered px-3 py-2 rounded cursor-pointer"}`} onClick={() => goTo("/products")}>
-        Hàng hóa
-      </span>
-
-      <span className={`${pathname === "/customers"
-        ? "background-selected background-hovered px-3 py-2 rounded cursor-pointer"
-        : "background-hovered px-3 py-2 rounded cursor-pointer"}`} onClick={() => goTo("/customers")}>
-        Khách hàng
-      </span>
-      <span className={`${pathname === "/employees"
-        ? "background-selected background-hovered px-3 py-2 rounded cursor-pointer"
-        : "background-hovered px-3 py-2 rounded cursor-pointer"}`} onClick={() => goTo("/employees")}>
-        Nhân viên
-      </span>
-      <span className={`${pathname === "/categories"
-        ? "background-selected background-hovered px-3 py-2 rounded cursor-pointer"
-        : "background-hovered px-3 py-2 rounded cursor-pointer"}`} onClick={() => goTo("/categories")}>
-        Danh mục
-      </span>
-      <span className="background-selected px-3 py-2 rounded cursor-pointer">
-          Đơn hàng
-        </span>
-      <span className="relative background-hovered px-3 py-2 rounded cursor-pointer">
-          Báo cáo
-          <span className="absolute top-0 right-0 bg-red-500 text-xs px-1 rounded-full">
-            Mới
-          </span>
-        </span>
-      <span className={`${pathname === "/suppliers"
-        ? "background-selected background-hovered px-3 py-2 rounded cursor-pointer"
-        : "background-hovered px-3 py-2 rounded cursor-pointer"}`} onClick={() => goTo("/suppliers")}>
-        Nhà cung cấp
-      </span> */}
-
-      {/* Right side: Button */}
-      {/* <button className="bg-white text-green-600 font-semibold px-4 py-2 rounded shadow">
-        🛒 Bán hàng
-      </button> */}
     </div>
   );
 };

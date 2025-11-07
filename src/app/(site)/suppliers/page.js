@@ -28,7 +28,7 @@ export default function Suppliers() {
     const [filterSupplierName, setFilterSupplierName] = useState("");
     const [filterEmail, setFilterEmail] = useState("");
     const [filterPhone, setFilterPhone] = useState("");
-    const [filterIsActive, setFilterIsActive] = useState(true);
+    const [filterIsActive, setFilterIsActive] = useState(null);
 
     //pagination
     const [pageIndex, setPageIndex] = useState(0);
@@ -130,6 +130,11 @@ export default function Suppliers() {
     };
 
     const handleDelete = async (supplier) => {
+        if (supplier.isActive === false) {
+            setModalFailedMessage("Nhà cung cấp đã bị xóa từ trước");
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         await supplierService.deleteSupplier(supplier.supplierId);
         fetchSuppliers();
@@ -159,6 +164,14 @@ export default function Suppliers() {
         }
     };
 
+    const handleClearFilter = () => {
+        setFilterSupplierName("");
+        setFilterEmail("");
+        setFilterPhone("");
+        setFilterIsActive(null);
+        fetchSuppliers();
+    };
+
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
             <div className="col-span-1">
@@ -166,7 +179,7 @@ export default function Suppliers() {
                     <h2 className="text-xl font-bold">Lọc nhà cung cấp</h2>
                     <div className="flex flex-col items-center my-4">
                         <div className="mt-2 w-full">   
-                            <label className="mr-2">Tên danh mục:</label>
+                            <label className="mr-2">Tên nhà cung cấp:</label>
                             <input
                                 type="text"
                                 className="w-full p-2 border border-gray-300 rounded"
@@ -199,7 +212,7 @@ export default function Suppliers() {
                             <label className="mr-2">Trạng thái:</label>
                             <select
                                 className="w-full p-2 border border-gray-300 rounded"
-                                value={filterIsActive}
+                                value={filterIsActive && filterIsActive !== "null" ? filterIsActive : "null"}
                                 onChange={(e) => setFilterIsActive(e.target.value)}
                                 onKeyDown={handleKeyDown}
                             >
@@ -209,13 +222,19 @@ export default function Suppliers() {
                             </select>
                         </div>
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center gap-2">
                         <button
-                            className="px-4 py-2 background-primary text-white rounded mx-auto cursor-pointer"
+                            className="px-4 py-2 background-primary text-white rounded cursor-pointer"
                             onClick={() => fetchSuppliers()}
                             ref={buttonRef}
                         >
                             Lọc
+                        </button>
+                        <button
+                            className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
+                            onClick={handleClearFilter}
+                        >
+                            Xóa bộ lọc
                         </button>
                     </div>
                 </div>

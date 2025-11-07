@@ -77,7 +77,12 @@ export default function Warehouses() {
         setModalOpen(true);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (warehouse) => {
+        if (warehouse.isActive === false) {
+            setModalFailedMessage("Nhà kho đã bị xóa từ trước");
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         // await warehouseService.deleteWarehouse(id);
         // fetchWarehouses();
