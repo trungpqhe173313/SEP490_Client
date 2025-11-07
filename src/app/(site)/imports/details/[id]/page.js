@@ -92,6 +92,7 @@ export default function ImportDetail({ params }) {
                     <p className='my-2'>Mã giao dịch: {transaction.transactionId}</p>
                     <p className='my-2'>Ngày giao dịch: {new Date(transaction.transactionDate).toLocaleDateString('vi-VN')}</p>
                     <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
+                    <p className='my-2'>Trạng thái: {transaction.status}</p>
                 </div>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Nhà cung cấp</h1>

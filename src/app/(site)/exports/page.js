@@ -61,6 +61,23 @@ export default function Imports() {
   const { setLoading } = useLoading();
   const buttonRef = useRef(null);
 
+  const getStatus = (string) => {
+    switch (string) {
+      case "Đã kiểm":
+        return <div className="text-green-600">{string}</div>
+      case "Lên đơn":
+        return <div className="text-blue-600">{string}</div>
+      case "Đang kiểm":
+      case "Đang giao":
+      case "Nháp":
+        return <div className="text-yellow-600">{string}</div>
+      case "Đã ngưng hoạt động":
+        return <div className="text-black-600">{string}</div>
+      default:
+        return <div className="text-black">{string}</div>
+    }
+  }
+
   const headerData = [
     {
       key: "transactionId",
@@ -85,11 +102,7 @@ export default function Imports() {
     {
       key: "statusName",
       label: "Trạng thái",
-      customValue: (item) => item.statusName && (
-        <div className={`${item.statusName === "Hoàn thành" ? "text-green-600" : item.statusName === "Ngừng hoạt động" ? "text-red-600" : "text-yellow-600"}`}>
-          {item.statusName}
-        </div>
-      )
+      customValue: (item) => getStatus(item.statusName)
     },
     {
       key: "transactionDate",

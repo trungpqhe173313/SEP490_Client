@@ -35,6 +35,7 @@ export default function UpdateImport({ params }) {
     const [importData, setImportData] = useState(null);
     const today = new Date();
 
+    const [status, setStatus] = useState(null);
     const [expireDate, setExpireDate] = useState("");
     const [note, setNote] = useState("");
 
@@ -86,7 +87,6 @@ export default function UpdateImport({ params }) {
                 setRows(updatedProducts);
                 setFilteredRows(updatedProducts);
 
-                // Calculate initial total price
                 const initialTotal = updatedProducts.reduce(
                     (total, item) => total + (item.quantity * (item.unitPrice || 0)),
                     0
@@ -103,6 +103,7 @@ export default function UpdateImport({ params }) {
         await importService.getImportDetail(id)
             .then((response) => {
                 setImportData(response.data);
+                setStatus(response.data.status);
                 setExpireDate(new Date(response.data.list[0].expireDate));
                 setNote(response.data.list[0].note);
                 fetchProduct(response.data);
@@ -157,27 +158,28 @@ export default function UpdateImport({ params }) {
         }
         setLoading(true);
         const body = {
-            products: rows
+            listProductOrder: rows
                 .filter((r) => r.quantity !== 0 && r.unitPrice !== 0)
                 .map((r) => ({
                     productId: r.productId,
                     quantity: r.quantity,
                     unitPrice: r.unitPrice
                 })),
-            expireDate: expireDate,
+            status: parseInt(status),
+            // expireDate: expireDate,
             note: note
         }
-        console.log(body);
-        // await importService.updateImport(body)
-        //     .then((response) => {
-        //         setModalSuccessMessage("Cập nhật phiếu nhập kho thành công");
-        //         setModalSuccessOpen(true);
-        //     })
-        //     .catch((error) => {
-        //         setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
-        //         setModalFailedSubMessages(error.response.data.error.messages);
-        //         setModalFailedOpen(true);
-        //     });
+        await importService.updateImport(id, body)
+            .then((response) => {
+                setModalSuccessMessage("Cập nhật phiếu nhập kho thành công");
+                setModalSuccessOpen(true);
+            })
+            .catch((error) => {
+                console.log(error);
+                setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
+                setModalFailedOpen(true);
+            });
         setLoading(false);
     }
 
@@ -374,6 +376,7 @@ export default function UpdateImport({ params }) {
                     <input
                         type="date"
                         name="expireDate"
+                        disabled
                         value={expireDate && formatDateToInput(expireDate)}
                         onChange={(e) => {
                             const date = new Date(e.target.value);
@@ -382,6 +385,19 @@ export default function UpdateImport({ params }) {
                         className="w-full p-2 border border-gray-300 rounded-md"
                     />
                     {validExpireDateMessage && <span className="text-red-500">{validExpireDateMessage}</span>}
+                </div>
+                <div className="my-4">
+                    <label className="block text-md font-bold">Trạng thái</label>
+                    <select
+                        name="status"
+                        value={status || 5}
+                        onChange={(e) => setStatus(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                    > 
+                        {/* <option value={0}>Lên đơn</option> */}
+                        <option value={5}>Đang kiểm</option>
+                        <option value={6}>Đã kiểm</option>
+                    </select>
                 </div>
                 <div className="my-4">
                     <label className="block text-md font-bold">Ghi chú</label>

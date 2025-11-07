@@ -39,11 +39,11 @@ export const importService = {
         return response.data;
     },
     deleteImport: async (id) => {
-        const response = await API.delete(`/imports/DeleteImport/${id}`);
+        const response = await API.delete(`/stockinput/DeleteImportTransaction/${id}`);
         return response.data;
     },
     updateImport: async (id, data) => {
-        const response = await API.put(`/imports/UpdateImport/${id}`, data);
+        const response = await API.put(`/stockinput/UpdateImportTransaction/${id}`, data);
         return response.data;
     },
 }
