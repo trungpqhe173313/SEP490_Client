@@ -4,7 +4,7 @@ export const numberToVietnamese = (num) => {
   const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
   const digits = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
 
-  const readTriple = (number) => {
+  const readTriple = (number, fullReading) => {
     let hundred = Math.floor(number / 100);
     let ten = Math.floor((number % 100) / 10);
     let unit = number % 10;
@@ -13,7 +13,7 @@ export const numberToVietnamese = (num) => {
     if (hundred > 0) {
       result += digits[hundred] + ' trăm';
       if (ten === 0 && unit > 0) result += ' linh';
-    } else if (ten > 0 || unit > 0) {
+    } else if (fullReading && (ten > 0 || unit > 0)) {
       result += 'không trăm';
       if (ten === 0) result += ' linh';
     }
@@ -28,16 +28,20 @@ export const numberToVietnamese = (num) => {
       if (unit === 1) result += ' một';
       else if (unit === 5) result += ' lăm';
       else if (unit > 0) result += ' ' + digits[unit];
-    } else if (unit > 0) {
+    } else if (ten === 0 && unit > 0) {
       result += ' ' + digits[unit];
     }
 
     return result.trim();
   };
 
+  // Handle negative
   if (num < 0) return 'Âm ' + numberToVietnamese(-num);
+
+  // Handle zero
   if (num === 0) return 'Không đồng';
 
+  // Handle decimal
   if (!Number.isInteger(num)) {
     const [intPart, decimalPart] = num.toString().split('.');
     let result =
@@ -48,23 +52,25 @@ export const numberToVietnamese = (num) => {
     return result + ' đồng';
   }
 
-  let result = '';
-  let unitIndex = 0;
-
-  while (num > 0 && unitIndex < units.length) {
-    const triple = num % 1000;
-    if (triple > 0) {
-      const tripleText = readTriple(triple);
-      result = tripleText + ' ' + units[unitIndex] + ' ' + result;
-    }
+  // Split into groups of 3 digits
+  const groups = [];
+  while (num > 0) {
+    groups.push(num % 1000);
     num = Math.floor(num / 1000);
-    unitIndex++;
+  }
+
+  let result = '';
+  for (let i = groups.length - 1; i >= 0; i--) {
+    const group = groups[i];
+    const unitName = units[i];
+    const fullReading = i < groups.length - 1 && group < 100 && group > 0;
+    if (group > 0) {
+      result += readTriple(group, fullReading) + ' ' + unitName + ' ';
+    }
   }
 
   result = result.trim();
-  // Uppercase first letter
   result = result.charAt(0).toUpperCase() + result.slice(1);
-  // Add "đồng"
   result += ' đồng';
 
   return result;

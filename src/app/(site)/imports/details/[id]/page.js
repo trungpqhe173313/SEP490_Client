@@ -17,7 +17,7 @@ export default function ImportDetail({ params }) {
         try {
             if (!id) return;
             setLoading(true);
-            const res = await importService.getTransactionDetail(id);
+            const res = await importService.getImportDetail(id);
             setTransaction(res.data);
             setSupplier(res.data.supplier);
             setProducts(res.data.list);

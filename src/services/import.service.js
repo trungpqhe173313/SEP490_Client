@@ -6,7 +6,7 @@ export const importService = {
         return response.data;
     },
 
-    getTransactionDetail: async (id) => {
+    getImportDetail: async (id) => {
         const response = await API.get(`/stockinput/GetDetail/${id}`);
         return response.data;
     },

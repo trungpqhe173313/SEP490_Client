@@ -386,7 +386,7 @@ export default function Imports() {
         handleChangePage={handleChangePage}
         handleChangeRowPerPage={handleChangeRowPerPage}
         navigateDetail={(item) => navigate(`/exports/details/${item.transactionId}`)}
-        handleEdit={(item) => console.log(`Edit ${item}`)}
+        handleEdit={(item) => navigate(`/exports/update/${item.transactionId}`)}
         handleDelete={(item) => console.log(`Delete ID: ${item.transactionId}`)}
         messagePopupDelete="Bạn có muốn xóa phiếu xuất này không?"
         usePagination={true}
