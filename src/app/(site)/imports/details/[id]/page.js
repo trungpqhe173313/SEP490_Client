@@ -32,6 +32,27 @@ export default function ImportDetail({ params }) {
         setLoading(false)
     }, [])
 
+    const getStatus = (string) => {
+        switch (string) {
+            case 1:
+                return <p className="text-yellow-600">Nháp</p>
+            case 0:
+                return <p className="text-blue-600">Lên đơn</p>
+            case 2:
+                return <p className="text-yellow-600">Đang giao</p>
+            case 3:
+                return <p className="text-green-600">Đã giao</p>
+            case 4:
+                return <p className="text-red-600">Đã hủy</p>
+            case 5:
+                return <p className="text-yellow-600">Đang kiểm</p>
+            case 6:
+                return <p className="text-green-600">Đã kiểm</p>
+            default:
+                return <p className="text-black">{string}</p>
+        }
+    }
+
     const headerData = [
         {
             key: "productId",
@@ -92,7 +113,10 @@ export default function ImportDetail({ params }) {
                     <p className='my-2'>Mã giao dịch: {transaction.transactionId}</p>
                     <p className='my-2'>Ngày giao dịch: {new Date(transaction.transactionDate).toLocaleDateString('vi-VN')}</p>
                     <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
-                    <p className='my-2'>Trạng thái: {transaction.status}</p>
+                    <div className='my-2 flex flex-row gap-2'>
+                        <p>Trang thái: </p> 
+                        {getStatus(transaction.status)}
+                    </div>
                 </div>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Nhà cung cấp</h1>

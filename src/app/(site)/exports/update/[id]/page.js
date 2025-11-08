@@ -38,6 +38,7 @@ export default function UpdateExport({ params }) {
     const [exportData, setExportData] = useState(null);
 
     const [cart, setCart] = useState([]);
+    const [status, setStatus] = useState("");
     const [note, setNote] = useState("");
     const [totalPrice, setTotalPrice] = useState(0);
 
@@ -61,6 +62,7 @@ export default function UpdateExport({ params }) {
         setLoading(true);
         await exportService.getExportDetail(id).then((response) => {
             setExportData(response.data);
+            setStatus(response.data.status);
             setNote(response.data.list[0].note);
             fetchProducts(response.data.list);
         }).catch((error) => {
@@ -203,6 +205,7 @@ export default function UpdateExport({ params }) {
         const body = {
             note,
             listProductOrder: cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).map((p) => ({ productId: p.productId, quantity: p.orderQuantity, unitPrice: p.unitPrice })),
+            status: parseInt(status)
         };
         await exportService.updateExport(id, body)
             .then((response) => {
@@ -338,14 +341,31 @@ export default function UpdateExport({ params }) {
                         </Table>
                     </TableContainer>
                 </div>
-                <div className="w-full bg-white rounded-xl h-[10vh] flex flex-row items-center justify-between">
-                    <input
-                        type="text"
-                        placeholder="Ghi chú"
-                        value={note || ""}
-                        onChange={(e) => setNote(e.target.value)}
-                        className="p-2 border border-gray-300 rounded ml-4 bg-white w-[50%]"
-                    />
+                <div className="w-full bg-white rounded-xl h-auto p-4 flex flex-row items-center justify-between">
+                    <div className="w-3/5 flex flex-row gap-4">
+                        <textarea
+                            placeholder="Ghi chú"
+                            value={note || ""}
+                            onChange={(e) => setNote(e.target.value)}
+                            className="p-2 border border-gray-300 rounded bg-white w-full"
+                        />
+                        <div>
+                            <label className="block text-md font-bold">Trạng thái</label>
+                            <select
+                                name="status"
+                                value={status || 0}
+                                disabled={status === 4}
+                                onChange={(e) => setStatus(e.target.value)}
+                                className="w-auto p-2 border border-gray-300 rounded-md"
+                            >
+                                <option value={0}>Nháp</option>
+                                <option value={1}>Lên đơn</option>
+                                <option value={2}>Đang giao</option>
+                                <option value={3}>Đã giao</option>
+                                <option value={4}>Đã hủy</option>
+                            </select>
+                        </div>
+                    </div>
                     <div className="text-right mr-4">
                         <p>Tổng số lượng: {cart.length} sản phẩm</p>
                         <p className="text-xl font-bold">Tổng tiền hàng: {formatLargeNumber(totalPrice)} ₫</p>

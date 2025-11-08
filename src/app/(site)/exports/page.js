@@ -71,8 +71,9 @@ export default function Imports() {
       case "Đang giao":
       case "Nháp":
         return <div className="text-yellow-600">{string}</div>
+      case "Hủy":
       case "Đã ngưng hoạt động":
-        return <div className="text-black-600">{string}</div>
+        return <div className="text-red-600">{string}</div>
       default:
         return <div className="text-black">{string}</div>
     }
