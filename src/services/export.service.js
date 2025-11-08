@@ -9,8 +9,12 @@ export const exportService = {
         const response = await API.get(`/stockoutput/GetDetail/${id}`);
         return response.data;
     },  
-    createExport: async (data) => {
-        const response = await API.post('/stockoutput/CreateStockOutputs', data);
+    createExport: async (id, data) => {
+        const response = await API.post(`/stockoutput/CreateOrder/${id}`, data);
+        return response.data;
+    },
+    updateExport: async (id, data) => {
+        const response = await API.put(`/stockoutput/UpdateOrder/${id}`, data);
         return response.data;
     },
 };

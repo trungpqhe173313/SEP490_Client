@@ -32,7 +32,7 @@ export default function Suppliers() {
 
     //pagination
     const [pageIndex, setPageIndex] = useState(0);
-    const [rowPerPage, setRowPerPage] = useState(5);
+    const [rowPerPage, setRowPerPage] = useState(20);
     const [totalCount, setTotalCount] = useState(0);
 
     //loading

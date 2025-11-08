@@ -68,6 +68,21 @@ export default function Imports() {
     const { setLoading } = useLoading();
     const buttonRef = useRef(null);
 
+    const getStatus = (string) => {
+        switch (string) {
+            case "Đã kiểm":
+                return <div className="text-green-600">{string}</div>
+            case "Lên đơn":
+                return <div className="text-blue-600">{string}</div>
+            case "Đang kiểm":
+                return <div className="text-yellow-600">{string}</div>
+            case "Đã ngưng hoạt động":
+                return <div className="text-black-600">{string}</div>
+            default:
+                return <div className="text-black">Không rõ</div>
+        }
+    }
+
     const headerData = [
         {
             key: "transactionId",
@@ -92,11 +107,7 @@ export default function Imports() {
         {
             key: "status",
             label: "Trạng thái",
-            customValue: (item) => item.status && (
-                <div className={`${item.status === "Đã thanh toán" ? "text-green-600" : item.status === "Đang thanh toán" ? "text-yellow-600" : "text-red-600"}`}>
-                    {item.status}
-                </div>
-            )
+            customValue: (item) => getStatus(item.status)
         },
         {
             key: "transactionDate",
@@ -263,6 +274,20 @@ export default function Imports() {
     //         setLoading(false);
     //     }
     // };
+
+    const handleDelete = async (item) => {
+        if (item.status === "Đã ngưng hoạt động") {
+            setModalFailedMessage("Phiếu nhập kho đã bị xóa từ trước");
+            setModalFailedOpen(true);
+            return;
+        }
+        setLoading(true);
+        await importService.deleteImport(item.importId);
+        fetchProducts();
+        setModalSuccessMessage("Xoá phiếu nhập kho thành công");
+        setModalSuccessOpen(true);
+        setLoading(false);
+    };
 
     const getFileNameFromDisposition = (disposition) => {
         if (!disposition) return "template.xlsx";
@@ -474,8 +499,8 @@ export default function Imports() {
                 handleChangePage={handleChangePage}
                 handleChangeRowPerPage={handleChangeRowPerPage}
                 navigateDetail={(item) => navigate(`/imports/details/${item.transactionId}`)}
-                handleEdit={(item) => console.log(`Edit ${item}`)}
-                handleDelete={(item) => console.log(`Delete ID: ${item.transactionId}`)}
+                handleEdit={(item) => navigate(`/imports/update/${item.transactionId}`)}
+                handleDelete={(item) => handleDelete(item)}
                 messagePopupDelete="Bạn có muốn xóa phiếu nhập này không?"
                 usePagination={true}
                 useAction={true}

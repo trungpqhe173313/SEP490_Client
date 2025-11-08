@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { productService } from "@/services/product.service";
-import { customerService } from "@/services/customer.service";
 import { exportService } from "@/services/export.service";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
@@ -26,8 +25,9 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 
-export default function CreateExport() {
+export default function UpdateExport({ params }) {
     const router = useRouter();
+    const { id } = React.use(params);
     const { setLoading } = useLoading();
     const [products, setProducts] = useState([]);
 
@@ -35,12 +35,12 @@ export default function CreateExport() {
     const [productsForSearch, setProductsForSearch] = useState([]);
     const [productLoading, setProductLoading] = useState(false);
 
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
-    const [customers, setCustomers] = useState([]);
-    const [customerLoading, setCustomerLoading] = useState(false);
+    const [exportData, setExportData] = useState(null);
 
     const [cart, setCart] = useState([]);
+    const [status, setStatus] = useState("");
     const [note, setNote] = useState("");
+    const [totalPrice, setTotalPrice] = useState(0);
 
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
@@ -58,22 +58,51 @@ export default function CreateExport() {
         router.push(path);
     };
 
-    const fetchProducts = async () => {
-        try {
-            setLoading(true);
-            const body = {
-                pageIndex: 1,
-                pageSize: 1000,
-                productName: "",
-            }
-            const response = await productService.getProductAvailable(body);
-            setProducts(response.data.items);
-        } catch (error) {
+    const fetchExport = async () => {
+        setLoading(true);
+        await exportService.getExportDetail(id).then((response) => {
+            setExportData(response.data);
+            setStatus(response.data.status);
+            setNote(response.data.list[0].note);
+            fetchProducts(response.data.list);
+        }).catch((error) => {
             console.log(error);
-        } finally {
-            setLoading(false);
-        }
+        })
     };
+
+    const fetchProducts = async (exportData) => {
+        const body = { pageIndex: 1, pageSize: 1000, productName: "" };
+        await productService.getProductAvailable(body)
+            .then((response) => {
+                const cartItems = response.data.items.map((product) => {
+                    const exportProduct = exportData.find((p) => p.productId === product.productId);
+                    if (exportProduct) {
+                        return {
+                            ...product,
+                            orderQuantity: exportProduct.quantity,
+                            unitPrice: exportProduct.unitPrice
+                        };
+                    }
+                    return null;
+                }).filter(item => item !== null);
+
+                setCart(cartItems);
+                const total = cartItems.reduce((total, item) =>
+                    total + (item.unitPrice * item.orderQuantity), 0
+                );
+                setTotalPrice(total);
+                setProducts(response.data.items);
+                setProductsForSearch(response.data.items);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        console.log(cart);
+    }, [cart]);
 
     const searchProducts = async (name) => {
         try {
@@ -92,28 +121,8 @@ export default function CreateExport() {
         }
     }
 
-    const fetchCustomers = async (name) => {
-        try {
-            setCustomerLoading(true);
-            const body = {
-                pageIndex: 1,
-                pageSize: 1000,
-                fullName: name,
-            }
-            const response = await customerService.getAllCustomers(body);
-            setCustomers(response.data.items);
-            console.log(response.data.items);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setCustomerLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchProducts();
-        fetchCustomers("");
-        searchProducts("");
+        fetchExport();
     }, []);
 
     const handleAddCart = (product) => {
@@ -121,7 +130,15 @@ export default function CreateExport() {
         if (existingProduct) {
             handleChangeCart(product.productId, "orderQuantity", existingProduct.orderQuantity + 1);
         } else {
-            setCart((prev) => [...prev, { ...product, orderQuantity: 1, unitPrice: product.averageCost || 0 }]);
+            setCart((prev) => {
+                const newProduct = { ...product, orderQuantity: 1, unitPrice: product.averageCost || 0 };
+                const updatedCart = [...prev, newProduct];
+                const newTotalPrice = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
+                setTimeout(() => {
+                    setTotalPrice(newTotalPrice);
+                }, 0);
+                return updatedCart;
+            });
         }
     };
 
@@ -130,9 +147,18 @@ export default function CreateExport() {
     };
 
     const handleChangeCart = (id, field, value) => {
-        setCart((prev) =>
-            prev.map((product) => (product.productId === id ? { ...product, [field]: Number(value) || 0 } : product))
-        );
+        setCart((prev) => {
+            const updatedCart = prev.map((product) =>
+                product.productId === id
+                    ? { ...product, [field]: Number(value) || 0 }
+                    : product
+            );
+            const newTotalPrice = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
+            setTimeout(() => {
+                setTotalPrice(newTotalPrice);
+            }, 0);
+            return updatedCart;
+        });
     };
 
     const handleChangeDropdown = (item, field) => {
@@ -154,10 +180,6 @@ export default function CreateExport() {
     }
 
     const validateFields = () => {
-        if (selectedCustomer === null) {
-            setErrors("Khách hàng không được để trống");
-            return false;
-        }
         if (cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length === 0) {
             setErrors("Sản phẩm không được để trống");
             return false;
@@ -183,10 +205,11 @@ export default function CreateExport() {
         const body = {
             note,
             listProductOrder: cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).map((p) => ({ productId: p.productId, quantity: p.orderQuantity, unitPrice: p.unitPrice })),
+            status: parseInt(status)
         };
-        await exportService.createExport(selectedCustomer.userId, body)
+        await exportService.updateExport(id, body)
             .then((response) => {
-                setModalSuccessMessage("Tạo phiếu xuất kho thành công");
+                setModalSuccessMessage("Chỉnh sửa phiếu xuất kho thành công");
                 setModalSuccessOpen(true);
             })
             .catch((error) => {
@@ -196,8 +219,6 @@ export default function CreateExport() {
             });
         setLoading(false);
     }
-
-    const total = cart.reduce((sum, p) => sum + p.unitPrice * p.orderQuantity, 0);
 
     const indexOfLastProduct = currentPage * itemsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
@@ -234,7 +255,7 @@ export default function CreateExport() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {cart.length == 0 ? (
+                                {cart.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={6} align="center">
                                             <p className="my-10 text-xl">
@@ -296,8 +317,8 @@ export default function CreateExport() {
                                                         min: 0,
                                                         style: { width: 70, textAlign: "center", height: "10px" },
                                                     }}
-                                                    value={product.unitPrice}
                                                     error={product.unitPrice < 0}
+                                                    value={product.unitPrice}
                                                     onChange={(e) => handleChangeCart(product.productId, "unitPrice", e.target.value)}
                                                     variant="outlined"
                                                 />
@@ -320,17 +341,34 @@ export default function CreateExport() {
                         </Table>
                     </TableContainer>
                 </div>
-                <div className="w-full bg-white rounded-xl h-[10vh] flex flex-row items-center justify-between">
-                    <input
-                        type="text"
-                        placeholder="Ghi chú"
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        className="p-2 border border-gray-300 rounded ml-4 bg-white w-[50%]"
-                    />
+                <div className="w-full bg-white rounded-xl h-auto p-4 flex flex-row items-center justify-between">
+                    <div className="w-3/5 flex flex-row gap-4">
+                        <textarea
+                            placeholder="Ghi chú"
+                            value={note || ""}
+                            onChange={(e) => setNote(e.target.value)}
+                            className="p-2 border border-gray-300 rounded bg-white w-full"
+                        />
+                        <div>
+                            <label className="block text-md font-bold">Trạng thái</label>
+                            <select
+                                name="status"
+                                value={status || 0}
+                                disabled={status === 4}
+                                onChange={(e) => setStatus(e.target.value)}
+                                className="w-auto p-2 border border-gray-300 rounded-md"
+                            >
+                                <option value={0}>Nháp</option>
+                                <option value={1}>Lên đơn</option>
+                                <option value={2}>Đang giao</option>
+                                <option value={3}>Đã giao</option>
+                                <option value={4}>Đã hủy</option>
+                            </select>
+                        </div>
+                    </div>
                     <div className="text-right mr-4">
                         <p>Tổng số lượng: {cart.length} sản phẩm</p>
-                        <p className="text-xl font-bold">Tổng tiền hàng: {formatLargeNumber(total)} ₫</p>
+                        <p className="text-xl font-bold">Tổng tiền hàng: {formatLargeNumber(totalPrice)} ₫</p>
                     </div>
                 </div>
             </div>
@@ -340,15 +378,11 @@ export default function CreateExport() {
                     <div className="w-full flex flex-row items-center">
                         <div className="w-full mt-4">
                             <p className="text-xl font-bold">Khách hàng</p>
-                            <AutocompleteCommon
-                                name="customerId"
-                                value={selectedCustomer}
-                                loading={customerLoading}
-                                options={customers}
-                                onSelect={(item) => handleChangeDropdown(item, "customerId")}
-                                onSearch={fetchCustomers}
-                                getOptionLabel={(option) => option.fullName}
-                                getOptionKey={(option) => option.customerId}
+                            <input
+                                type="text"
+                                disabled
+                                value={exportData?.customer.fullName || ""}
+                                className="p-2 bg-white w-full border-1 border-gray-300 rounded"
                             />
                         </div>
 
@@ -396,7 +430,7 @@ export default function CreateExport() {
                     <button
                         className="background-primary background-hovered text-white text-2xl font-bold py-2 px-4 rounded"
                         onClick={() => handleSubmit()}>
-                        Thanh toán
+                        Hoàn thành chỉnh sửa
                     </button>
                 </div>
             </div>
