@@ -14,7 +14,7 @@ import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 
-export default function Imports() {
+export default function Exports() {
   const router = useRouter();
 
   const navigate = (path) => {
@@ -179,7 +179,7 @@ export default function Imports() {
       pageSize: rowPerPage,
       supplierId: filterSupplierId || null,
       warehouseId: filterWarehouseId || null,
-      status: filterStatus || null,
+      status: parseInt(filterStatus) || null,
       type: filterType || null,
       transactionFromDate: filterTransactionFromDate || null,
       transactionToDate: filterTransactionToDate || null
@@ -225,13 +225,24 @@ export default function Imports() {
     }
   };
 
-  const handleApplyFilter = () => {
-    if (filterTransactionFromDate > filterTransactionToDate) {
-      setErrorToTransactionDate("Ngày giao dịch đến phải lớn hơn ngày giao dịch từ");
-      return;
-    }
-    fetchExports();
-  };
+    useEffect(() => {
+        validateFields();
+    }, [filterTransactionFromDate, filterTransactionToDate]);
+
+    const validateFields = () => {
+        if (filterTransactionToDate && filterTransactionFromDate > filterTransactionToDate) {
+            setErrorToTransactionDate("Ngày giao dịch đến phải lớn hơn ngày giao dịch từ");
+            return false;
+        }
+        setErrorToTransactionDate("");
+        return true;
+    };
+
+    const handleApplyFilter = () => {
+        if (validateFields()) {
+            fetchExports();
+        }
+    };
 
   const handleClearFilter = () => {
     setFilterSupplierId(null);
@@ -323,9 +334,10 @@ export default function Imports() {
               onKeyDown={handleKeyDown}
             >
               <option value="">Tất cả</option>
-              <option value={0}>Đã ngưng hoạt động</option>
-              <option value={1}>Đã thanh toán</option>
-              <option value={2}>Đang thanh toán</option>
+              <option value={0}>Nháp</option>
+              <option value={1}>Lên đơn</option>
+              <option value={2}>Đang giao</option>
+              <option value={4}>Hủy</option>
             </select>
           </div>
           <div className="mt-2 w-full">

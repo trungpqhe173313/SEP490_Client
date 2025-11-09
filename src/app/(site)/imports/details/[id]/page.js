@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { importService } from '@/services/import.service';
 import { numberToVietnamese } from '@/lib/numberToVietnamese';
+import { convertKgToTon } from '@/lib/convertToTon';
 import { useLoading } from '@/context/LoadingContext';
 import TableCommon from "@/components/Table/table";
 
@@ -114,7 +115,7 @@ export default function ImportDetail({ params }) {
                     <p className='my-2'>Ngày giao dịch: {new Date(transaction.transactionDate).toLocaleDateString('vi-VN')}</p>
                     <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
                     <div className='my-2 flex flex-row gap-2'>
-                        <p>Trang thái: </p> 
+                        <p>Trạng thái: </p>
                         {getStatus(transaction.status)}
                     </div>
                 </div>
@@ -132,12 +133,27 @@ export default function ImportDetail({ params }) {
                     headers={headerData}
                     tableData={products}
                 />
+                <div className='h-14 relative flex flex-row items-center'>
+                    <h2 className='absolute left-[4.5%] transform -translate-x-1/2'>Tổng</h2>
+                    <h2 className='absolute right-[28.5%] transform -translate-x-1/2'>{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</h2>
+                    <h2 className='absolute right-[2.5%] transform -translate-x-1/2'>{formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0))}₫</h2>
+                </div>
             </div>
 
 
-            <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2 p-4'>
-                <h2 className='text-xl mb-4'>Tổng tiền: {formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0))}₫</h2>
-                <h2 className='text-xl mb-4'>Bằng chữ: {numberToVietnamese(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0))}</h2>
+            <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2 p-4 text-right flex flex-col items-end'>
+                <div className='text-xl flex flex-row justify-between w-1/3'>
+                    <h2 className='w-1/3 text-left'>Tổng khối lượng:</h2>
+                    <h2>{convertKgToTon(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))}</h2>
+                </div>
+                <div className='text-xl flex flex-row justify-between w-1/3'>
+                    <h2 className='w-1/3 text-left'>Tổng tiền:</h2>
+                    <h2>{formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0))}₫</h2>
+                </div>
+                <div className='text-xl flex flex-row justify-between w-1/3'>
+                    <h2 className='w-1/3 text-left'>Bằng chữ: </h2>
+                    <h2>{numberToVietnamese(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0))}</h2>
+                </div>
             </div>
         </div>
     )

@@ -43,7 +43,9 @@ export default function CreateImport() {
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     const [supplierLoading, setSupplierLoading] = useState(false);
 
-    const [expireDate, setExpireDate] = useState(today);
+    const [expireDate, setExpireDate] = useState(
+        new Date(Date.now() + 24 * 60 * 60 * 1000)
+    );
     const [note, setNote] = useState("");
 
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
@@ -118,28 +120,44 @@ export default function CreateImport() {
 
     const handleSearch = (searchTerm) => {
         const filteredRows = rows.filter(
-            (p) => searchTerm === "" || p.code.toLowerCase().includes(searchTerm.toLowerCase()) || p.name.toLowerCase().includes(searchTerm.toLowerCase())
+            (p) => searchTerm === "" || p.code.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setFilteredRows(filteredRows);
     };
+
+    useEffect(() => {
+        validateFields();
+    }, [selectedSupplier, selectedWarehouse, expireDate]);
 
     const validateFields = () => {
         if (!selectedSupplier) {
             setValidSupplierMessage("Vui lòng chọn nhà cung cấp");
             return false;
+        } else {
+            setValidSupplierMessage("");
         }
         if (!selectedWarehouse) {
             setValidWarehouseMessage("Vui lòng chọn kho");
             return false;
+        } else {
+            setValidWarehouseMessage("");
         }
         if (!expireDate) {
             setValidExpireDateMessage("Vui lòng nhập hạn sử dụng");
             return false;
+        } else {
+            setValidExpireDateMessage("");
         }
         if (expireDate < today) {
             setValidExpireDateMessage("Hạn sử dụng phải là tương lai");
             return false;
+        } else {
+            setValidExpireDateMessage("");
         }
+        return true;
+    }
+
+    const validateProducts = () => {
         if (rows.filter((r) => r.quantity > 0 && r.unitPrice > 0).length === 0) {
             setModalFailedMessage("Sản phẩm không được để trống");
             setModalFailedOpen(true);
@@ -198,7 +216,7 @@ export default function CreateImport() {
     }
 
     const handleSubmit = async () => {
-        if (!validateFields()) {
+        if (!validateFields() || !validateProducts()    ) {
             return;
         }
         setLoading(true);
@@ -286,7 +304,7 @@ export default function CreateImport() {
                                 <TableRow>
                                     <TableCell colSpan={6} align="center">
                                         <p className="my-10 text-xl">
-                                            Chưa có dữ liệu, xin hãy chọn nhà cung cấp trước
+                                            Không tìm thấy sản phẩm hoặc chưa chọn nhà cung cấp
                                         </p>
                                     </TableCell>
                                 </TableRow>
@@ -300,7 +318,7 @@ export default function CreateImport() {
                                                 size="small"
                                                 onClick={() => handleChangeProduct(r.productId, "quantity", r.quantity - 1)}
                                                 disabled={r.quantity <= 0}
-                                                sx={{ marginRight: "10px", border: "1px solid #ccc", height: "28px" }}
+                                                sx={{ border: "1px solid #ccc", height: "28px", width: "auto" }}
                                             >
                                                 <RemoveIcon fontSize="small" />
                                             </IconButton>
@@ -309,8 +327,9 @@ export default function CreateImport() {
                                                 size="small"
                                                 inputProps={{
                                                     min: 0,
-                                                    style: { width: 40, textAlign: "center", height: "10px" },
+                                                    style: { width: 30, textAlign: "center", height: 10 },
                                                 }}
+                                                sx={{ marginX: "5px" }}
                                                 value={r.quantity}
                                                 error={r.quantity < 0}
                                                 onChange={(e) => handleChangeProduct(r.productId, "quantity", e.target.value)}
@@ -319,7 +338,7 @@ export default function CreateImport() {
                                             <IconButton
                                                 size="small"
                                                 onClick={() => handleChangeProduct(r.productId, "quantity", r.quantity + 1)}
-                                                sx={{ marginLeft: "10px", border: "1px solid #ccc", height: "28px" }}
+                                                sx={{ border: "1px solid #ccc", height: "28px", width: "auto" }}
                                             >
                                                 <AddIcon fontSize="small" />
                                             </IconButton>

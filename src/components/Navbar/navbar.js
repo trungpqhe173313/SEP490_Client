@@ -17,6 +17,7 @@ import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
 import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import LaunchIcon from '@mui/icons-material/Launch';
+import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import FactoryIcon from '@mui/icons-material/Factory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
@@ -123,6 +124,12 @@ const Navbar = () => {
           link: "/suppliers",
           role: "all",
           icon: <PermContactCalendarIcon />
+        },
+        {
+          name: "Hợp đồng",
+          link: "/contracts",
+          role: "all",
+          icon: <NoteAltIcon />
         }
       ],
     },

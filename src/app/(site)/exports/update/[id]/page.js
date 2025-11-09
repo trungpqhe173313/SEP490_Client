@@ -51,7 +51,7 @@ export default function UpdateExport({ params }) {
     const [errors, setErrors] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 18;
+    const itemsPerPage = 14;
 
     const navigate = (path) => {
         setLoading(true);
@@ -107,13 +107,10 @@ export default function UpdateExport({ params }) {
     const searchProducts = async (name) => {
         try {
             setProductLoading(true);
-            const body = {
-                pageIndex: 1,
-                pageSize: 1000,
-                productName: name,
-            }
-            const response = await productService.getProductAvailable(body);
-            setProductsForSearch(response.data.items);
+            setProductsForSearch(products.filter((p) =>
+                p.code.toLowerCase().includes(name.toLowerCase()) ||
+                p.productName.toLowerCase().includes(name.toLowerCase())
+            ));
         } catch (error) {
             console.log(error);
         } finally {
@@ -238,7 +235,7 @@ export default function UpdateExport({ params }) {
                             options={productsForSearch}
                             onSelect={(item) => handleChangeDropdown(item, "productId")}
                             onSearch={searchProducts}
-                            getOptionLabel={(option) => option.productName}
+                            getOptionLabel={(option) => `${option.code} - ${option.productName}`}
                             getOptionKey={(option) => option.productId}
                         />
                     </div>
@@ -273,7 +270,7 @@ export default function UpdateExport({ params }) {
                                                     size="small"
                                                     onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity - 1)}
                                                     disabled={product.orderQuantity <= 0}
-                                                    sx={{ marginRight: "10px", border: "1px solid #ccc", height: "28px" }}
+                                                    sx={{ border: "1px solid #ccc", height: "28px" }}
                                                 >
                                                     <RemoveIcon fontSize="small" />
                                                 </IconButton>
@@ -283,9 +280,9 @@ export default function UpdateExport({ params }) {
                                                     inputProps={{
                                                         min: 0,
                                                         style: {
-                                                            width: 40,
+                                                            width: 30,
                                                             textAlign: "center",
-                                                            height: "10px",
+                                                            height: 10,
                                                             color: product.orderQuantity > product.quantity ? 'red' : 'inherit'
                                                         },
                                                     }}
@@ -299,12 +296,13 @@ export default function UpdateExport({ params }) {
                                                                 borderColor: product.orderQuantity > product.quantity ? 'red' : 'inherit',
                                                             },
                                                         },
+                                                        marginX: "5px",
                                                     }}
                                                 />
                                                 <IconButton
                                                     size="small"
                                                     onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity + 1)}
-                                                    sx={{ marginLeft: "10px", border: "1px solid #ccc", height: "28px" }}
+                                                    sx={{ border: "1px solid #ccc", height: "28px" }}
                                                 >
                                                     <AddIcon fontSize="small" />
                                                 </IconButton>

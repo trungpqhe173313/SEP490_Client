@@ -182,20 +182,32 @@ export default function Products() {
         }
     };
 
-    const handleApplyFilter = () => {
+    useEffect(() => {
+        validateFields();
+    }, [filterFromWeightPerUnit, filterToWeightPerUnit, filterFromCreatedDate, filterToCreatedDate]);
+
+    const validateFields = () => {
         if (filterFromWeightPerUnit < 0 || filterToWeightPerUnit < 0) {
             setErrorToWeightPerUnit("Khối lượng phải lớn hơn 0");
-            return;
+            return false;
         }
-        if (filterToCreatedDate < filterFromCreatedDate) {
+        if (filterToCreatedDate && filterToCreatedDate < filterFromCreatedDate) {
             setErrorToCreatedDate("Ngày tạo đến phải lớn hơn ngày tạo từ");
-            return;
+            return false;
         }
-        if (filterToWeightPerUnit < filterFromWeightPerUnit) {
+        if (parseInt(filterToWeightPerUnit) < parseInt(filterFromWeightPerUnit)) {
             setErrorToWeightPerUnit("Khối lượng đến phải lớn hơn khối lượng từ");
-            return;
+            return false;
         }
-        fetchProducts();
+        setErrorToCreatedDate("");
+        setErrorToWeightPerUnit("");
+        return true;
+    }
+
+    const handleApplyFilter = () => {
+        if (validateFields()) {
+            fetchProducts();
+        }
     };
 
     const handleClearFilter = () => {

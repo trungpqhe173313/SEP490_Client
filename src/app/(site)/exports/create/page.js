@@ -51,7 +51,7 @@ export default function CreateExport() {
     const [errors, setErrors] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 18;
+    const itemsPerPage = 14;
 
     const navigate = (path) => {
         setLoading(true);
@@ -68,6 +68,7 @@ export default function CreateExport() {
             }
             const response = await productService.getProductAvailable(body);
             setProducts(response.data.items);
+            setProductsForSearch(response.data.items);
         } catch (error) {
             console.log(error);
         } finally {
@@ -78,13 +79,10 @@ export default function CreateExport() {
     const searchProducts = async (name) => {
         try {
             setProductLoading(true);
-            const body = {
-                pageIndex: 1,
-                pageSize: 1000,
-                productName: name,
-            }
-            const response = await productService.getProductAvailable(body);
-            setProductsForSearch(response.data.items);
+            setProductsForSearch(products.filter((p) =>
+                p.code.toLowerCase().includes(name.toLowerCase()) ||
+                p.productName.toLowerCase().includes(name.toLowerCase())
+            ));
         } catch (error) {
             console.log(error);
         } finally {
@@ -102,7 +100,6 @@ export default function CreateExport() {
             }
             const response = await customerService.getAllCustomers(body);
             setCustomers(response.data.items);
-            console.log(response.data.items);
         } catch (error) {
             console.log(error);
         } finally {
@@ -153,11 +150,20 @@ export default function CreateExport() {
         return number.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
     }
 
-    const validateFields = () => {
+    useEffect(() => {
+        validateCustomer();
+    }, [selectedCustomer]);
+
+    const validateCustomer = () => {
         if (selectedCustomer === null) {
             setErrors("Khách hàng không được để trống");
             return false;
         }
+        setErrors("");
+        return true;
+    }
+
+    const validateFields = () => {
         if (cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length === 0) {
             setErrors("Sản phẩm không được để trống");
             return false;
@@ -178,7 +184,7 @@ export default function CreateExport() {
     }
 
     const handleSubmit = async () => {
-        if (!validateFields()) return;
+        if (!validateFields() || !validateCustomer()) return;
         setLoading(true);
         const body = {
             note,
@@ -205,8 +211,8 @@ export default function CreateExport() {
     const totalPages = Math.ceil(products.length / itemsPerPage);
 
     return (
-        <div className="grid grid-cols-10 gap-4 px-4">
-            <div className="col-span-6 mt-4 h-[90vh] justify-between flex flex-col">
+        <div className="grid grid-cols-10 gap-4 px-4 mt-4">
+            <div className="col-span-6 justify-between flex flex-col">
                 <div>
                     <div className="mb-4 p-4 bg-white rounded-xl">
                         <p className="text-xl font-bold">Tìm kiếm sản phẩm</p>
@@ -217,7 +223,7 @@ export default function CreateExport() {
                             options={productsForSearch}
                             onSelect={(item) => handleChangeDropdown(item, "productId")}
                             onSearch={searchProducts}
-                            getOptionLabel={(option) => option.productName}
+                            getOptionLabel={(option) => `${option.code} - ${option.productName}`}
                             getOptionKey={(option) => option.productId}
                         />
                     </div>
@@ -252,7 +258,7 @@ export default function CreateExport() {
                                                     size="small"
                                                     onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity - 1)}
                                                     disabled={product.orderQuantity <= 0}
-                                                    sx={{ marginRight: "10px", border: "1px solid #ccc", height: "28px" }}
+                                                    sx={{ border: "1px solid #ccc", height: "28px" }}
                                                 >
                                                     <RemoveIcon fontSize="small" />
                                                 </IconButton>
@@ -262,9 +268,9 @@ export default function CreateExport() {
                                                     inputProps={{
                                                         min: 0,
                                                         style: {
-                                                            width: 40,
+                                                            width: 30,
                                                             textAlign: "center",
-                                                            height: "10px",
+                                                            height: 10,
                                                             color: product.orderQuantity > product.quantity ? 'red' : 'inherit'
                                                         },
                                                     }}
@@ -278,12 +284,13 @@ export default function CreateExport() {
                                                                 borderColor: product.orderQuantity > product.quantity ? 'red' : 'inherit',
                                                             },
                                                         },
+                                                        marginX: '5px'
                                                     }}
                                                 />
                                                 <IconButton
                                                     size="small"
                                                     onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity + 1)}
-                                                    sx={{ marginLeft: "10px", border: "1px solid #ccc", height: "28px" }}
+                                                    sx={{ border: "1px solid #ccc", height: "28px" }}
                                                 >
                                                     <AddIcon fontSize="small" />
                                                 </IconButton>
@@ -320,7 +327,7 @@ export default function CreateExport() {
                         </Table>
                     </TableContainer>
                 </div>
-                <div className="w-full bg-white rounded-xl h-[10vh] flex flex-row items-center justify-between">
+                <div className="w-full bg-white rounded-xl h-auto p-4 flex flex-row items-center justify-between">
                     <input
                         type="text"
                         placeholder="Ghi chú"
@@ -335,7 +342,7 @@ export default function CreateExport() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl h-[90vh] col-span-4 mt-4 w-full flex flex-col items-center justify-between">
+            <div className="bg-white rounded-xl h-auto col-span-4 w-full flex flex-col items-center justify-between px-4">
                 <div>
                     <div className="w-full flex flex-row items-center">
                         <div className="w-full mt-4">
