@@ -116,25 +116,38 @@ export default function CreateExport() {
     const handleAddCart = (product) => {
         const existingProduct = cart.find((p) => p.productId === product.productId);
         if (existingProduct) {
-            handleChangeCart(product.productId, "orderQuantity", existingProduct.orderQuantity + 1);
+            const updatedCart = cart.map((p) =>
+                p.productId === product.productId ? { ...p, orderQuantity: (p.orderQuantity || 0) + 1 } : p
+            );
+            setCart(updatedCart);
+            validateFields(updatedCart, selectedCustomer);
         } else {
-            setCart((prev) => [...prev, { ...product, orderQuantity: 1, unitPrice: product.averageCost || 0 }]);
+            const newProduct = { ...product, orderQuantity: 1, unitPrice: product.averageCost || 0 };
+            const updatedCart = [...cart, newProduct];
+            setCart(updatedCart);
+            validateFields(updatedCart, selectedCustomer);
         }
     };
 
     const handleRemoveCart = (productId) => {
-        setCart((prev) => prev.filter((p) => p.productId !== productId));
+        const updatedCart = cart.filter((p) => p.productId !== productId);
+        setCart(updatedCart);
+        validateFields(updatedCart, selectedCustomer);
     };
 
     const handleChangeCart = (id, field, value) => {
-        setCart((prev) =>
-            prev.map((product) => (product.productId === id ? { ...product, [field]: Number(value) || 0 } : product))
+        const numericValue = field === "orderQuantity" || field === "unitPrice" ? (Number(value) || 0) : value;
+        const updatedCart = cart.map((product) =>
+            product.productId === id ? { ...product, [field]: numericValue } : product
         );
+        setCart(updatedCart);
+        validateFields(updatedCart, selectedCustomer);
     };
 
     const handleChangeDropdown = (item, field) => {
         if (field === "customerId") {
             setSelectedCustomer(item);
+            validateFields(cart, item);
         }
         if (field === "productId") {
             if (item) {
@@ -145,46 +158,44 @@ export default function CreateExport() {
             }
         }
     };
+
     const formatLargeNumber = (number) => {
         if (number === null) return 0;
         return number.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
     }
 
-    useEffect(() => {
-        validateCustomer();
-    }, [selectedCustomer]);
+    const removeLeadingZero = (number) => {
+        if (number === null) return 0;
+        return number.toString().replace(/^0+/, '');
+    }
 
-    const validateCustomer = () => {
-        if (selectedCustomer === null) {
+    const validateFields = (cartArg = cart, selectedCustomerArg = selectedCustomer) => {
+        if (selectedCustomerArg === null) {
             setErrors("Khách hàng không được để trống");
+            return false;
+        }
+        if (cartArg.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length === 0) {
+            setErrors("Sản phẩm không được để trống");
+            return false;
+        }
+        if (cartArg.find((p) => p.orderQuantity > p.quantity)) {
+            setErrors("Sản phẩm đặt hàng đang lớn hơn sản phẩm trong kho");
+            return false;
+        }
+        if (cartArg.find((p) => p.orderQuantity < 0)) {
+            setErrors("Số lượng sản phẩm không thể là số âm");
+            return false;
+        }
+        if (cartArg.find((p) => p.unitPrice < 0)) {
+            setErrors("Giá sản phẩm không thể là số âm");
             return false;
         }
         setErrors("");
         return true;
     }
 
-    const validateFields = () => {
-        if (cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length === 0) {
-            setErrors("Sản phẩm không được để trống");
-            return false;
-        }
-        if (cart.find((p) => p.orderQuantity > p.quantity)) {
-            setErrors("Sản phẩm đặt hàng đang lớn hơn sản phẩm trong kho");
-            return false;
-        }
-        if (cart.find((p) => p.orderQuantity < 0)) {
-            setErrors("Số lượng sản phẩm không thể là số âm");
-            return false;
-        }
-        if (cart.find((p) => p.unitPrice < 0)) {
-            setErrors("Giá sản phẩm không thể là số âm");
-            return false;
-        }
-        return true;
-    }
-
     const handleSubmit = async () => {
-        if (!validateFields() || !validateCustomer()) return;
+        if (!validateFields()) return;
         setLoading(true);
         const body = {
             note,
@@ -266,15 +277,14 @@ export default function CreateExport() {
                                                     type="number"
                                                     size="small"
                                                     inputProps={{
-                                                        min: 0,
                                                         style: {
-                                                            width: 30,
+                                                            width: 50,
                                                             textAlign: "center",
                                                             height: 10,
                                                             color: product.orderQuantity > product.quantity ? 'red' : 'inherit'
                                                         },
                                                     }}
-                                                    value={product.orderQuantity}
+                                                    value={removeLeadingZero(product.orderQuantity)}
                                                     onChange={(e) => handleChangeCart(product.productId, "orderQuantity", e.target.value)}
                                                     variant="outlined"
                                                     error={product.orderQuantity > product.quantity || product.orderQuantity < 0}
@@ -300,10 +310,9 @@ export default function CreateExport() {
                                                     type="number"
                                                     size="small"
                                                     inputProps={{
-                                                        min: 0,
                                                         style: { width: 70, textAlign: "center", height: "10px" },
                                                     }}
-                                                    value={product.unitPrice}
+                                                    value={removeLeadingZero(product.unitPrice)}
                                                     error={product.unitPrice < 0}
                                                     onChange={(e) => handleChangeCart(product.productId, "unitPrice", e.target.value)}
                                                     variant="outlined"

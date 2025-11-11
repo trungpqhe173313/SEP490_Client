@@ -125,11 +125,16 @@ export default function UpdateExport({ params }) {
     const handleAddCart = (product) => {
         const existingProduct = cart.find((p) => p.productId === product.productId);
         if (existingProduct) {
-            handleChangeCart(product.productId, "orderQuantity", existingProduct.orderQuantity + 1);
+            const updatedCart = cart.map((p) =>
+                p.productId === product.productId ? { ...p, orderQuantity: (p.orderQuantity || 0) + 1 } : p
+            );
+            setCart(updatedCart);
+            validateFields(updatedCart);
         } else {
             setCart((prev) => {
                 const newProduct = { ...product, orderQuantity: 1, unitPrice: product.averageCost || 0 };
                 const updatedCart = [...prev, newProduct];
+                validateFields(updatedCart);
                 const newTotalPrice = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
                 setTimeout(() => {
                     setTotalPrice(newTotalPrice);
@@ -140,7 +145,9 @@ export default function UpdateExport({ params }) {
     };
 
     const handleRemoveCart = (productId) => {
-        setCart((prev) => prev.filter((p) => p.productId !== productId));
+        const updatedCart = cart.filter((p) => p.productId !== productId);
+        setCart(updatedCart);
+        validateFields(updatedCart);
     };
 
     const handleChangeCart = (id, field, value) => {
@@ -150,6 +157,7 @@ export default function UpdateExport({ params }) {
                     ? { ...product, [field]: Number(value) || 0 }
                     : product
             );
+            validateFields(updatedCart);
             const newTotalPrice = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
             setTimeout(() => {
                 setTotalPrice(newTotalPrice);
@@ -159,9 +167,6 @@ export default function UpdateExport({ params }) {
     };
 
     const handleChangeDropdown = (item, field) => {
-        if (field === "customerId") {
-            setSelectedCustomer(item);
-        }
         if (field === "productId") {
             if (item) {
                 handleAddCart(item);
@@ -171,28 +176,35 @@ export default function UpdateExport({ params }) {
             }
         }
     };
+
     const formatLargeNumber = (number) => {
         if (number === null) return 0;
         return number.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
     }
 
-    const validateFields = () => {
-        if (cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length === 0) {
+    const removeLeadingZero = (number) => {
+        if (number === null) return 0;
+        return number.toString().replace(/^0+/, '');
+    }
+
+    const validateFields = (cartArg = cart) => {
+        if (cartArg.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length === 0) {
             setErrors("Sản phẩm không được để trống");
             return false;
         }
-        if (cart.find((p) => p.orderQuantity > p.quantity)) {
+        if (cartArg.find((p) => p.orderQuantity > p.quantity)) {
             setErrors("Sản phẩm đặt hàng đang lớn hơn sản phẩm trong kho");
             return false;
         }
-        if (cart.find((p) => p.orderQuantity < 0)) {
+        if (cartArg.find((p) => p.orderQuantity < 0)) {
             setErrors("Số lượng sản phẩm không thể là số âm");
             return false;
         }
-        if (cart.find((p) => p.unitPrice < 0)) {
+        if (cartArg.find((p) => p.unitPrice < 0)) {
             setErrors("Giá sản phẩm không thể là số âm");
             return false;
         }
+        setErrors("");
         return true;
     }
 
@@ -280,13 +292,13 @@ export default function UpdateExport({ params }) {
                                                     inputProps={{
                                                         min: 0,
                                                         style: {
-                                                            width: 30,
+                                                            width: 50,
                                                             textAlign: "center",
                                                             height: 10,
                                                             color: product.orderQuantity > product.quantity ? 'red' : 'inherit'
                                                         },
                                                     }}
-                                                    value={product.orderQuantity}
+                                                    value={removeLeadingZero(product.orderQuantity)}
                                                     onChange={(e) => handleChangeCart(product.productId, "orderQuantity", e.target.value)}
                                                     variant="outlined"
                                                     error={product.orderQuantity > product.quantity || product.orderQuantity < 0}
@@ -316,7 +328,7 @@ export default function UpdateExport({ params }) {
                                                         style: { width: 70, textAlign: "center", height: "10px" },
                                                     }}
                                                     error={product.unitPrice < 0}
-                                                    value={product.unitPrice}
+                                                    value={removeLeadingZero(product.unitPrice)}
                                                     onChange={(e) => handleChangeCart(product.productId, "unitPrice", e.target.value)}
                                                     variant="outlined"
                                                 />

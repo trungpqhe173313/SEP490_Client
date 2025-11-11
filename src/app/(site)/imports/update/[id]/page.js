@@ -67,6 +67,11 @@ export default function UpdateImport({ params }) {
         return dt.toISOString().split('T')[0];
     }
 
+    const removeLeadingZero = (number) => {
+        if (number === null) return 0;
+        return number.toString().replace(/^0+/, '');
+    }
+
     const fetchProduct = (data) => {
         const body = { pageIndex: 1, pageSize: 1000, isActive: true, productName: "", supplierId: data.supplier.supplierId };
         productService
@@ -84,7 +89,7 @@ export default function UpdateImport({ params }) {
                     };
                 });
 
-                setRows(updatedProducts);
+                setRows(updatedProducts.filter((p) => p.quantity > 0 && p.unitPrice > 0));
                 setFilteredRows(updatedProducts.filter((p) => p.quantity > 0 && p.unitPrice > 0));
 
                 const initialTotal = updatedProducts.reduce(
@@ -195,7 +200,6 @@ export default function UpdateImport({ params }) {
     const handleChangeProduct = (id, field, value) => {
         const newValue = Number(value) || 0;
 
-        // Update rows first
         const updatedRows = rows.map(r =>
             r.productId === id ? { ...r, [field]: newValue } : r
         );
@@ -203,7 +207,6 @@ export default function UpdateImport({ params }) {
         setRows(updatedRows);
         setFilteredRows(updatedRows.map(r => ({ ...r })));
 
-        // Calculate total price after state update
         const newTotalPrice = updatedRows.reduce(
             (total, item) => total + (item.quantity * (item.unitPrice || 0)),
             0
@@ -299,7 +302,7 @@ export default function UpdateImport({ params }) {
                                                 size="small"
                                                 inputProps={{
                                                     min: 0,
-                                                    style: { width: 30, textAlign: "center", height: 10 },
+                                                    style: { width: 50, textAlign: "center", height: 10 },
                                                 }}
                                                 sx={{ marginX: "5px" }}
                                                 value={r.quantity}
@@ -324,7 +327,7 @@ export default function UpdateImport({ params }) {
                                                     style: { width: 70, textAlign: "center", height: "10px" },
                                                 }}
                                                 error={r.unitPrice < 0}
-                                                value={r.unitPrice || 0}
+                                                value={removeLeadingZero(r.unitPrice)}
                                                 onChange={(e) => handleChangeProduct(r.productId, "unitPrice", e.target.value)}
                                                 variant="outlined"
                                             />
@@ -337,7 +340,7 @@ export default function UpdateImport({ params }) {
                                                     min: 0,
                                                     style: { width: 70, textAlign: "center", height: "10px" },
                                                 }}
-                                                value={r.discount || 0}
+                                                value={removeLeadingZero(r.discount)}
                                                 error={r.discount > r.unitPrice || r.discount < 0}
                                                 onChange={(e) =>
                                                     handleChangeProduct(r.productId, "discount", e.target.value)

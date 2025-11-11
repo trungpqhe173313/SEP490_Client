@@ -118,6 +118,11 @@ export default function CreateImport() {
         return dt.toISOString().split('T')[0];
     }
 
+    const removeLeadingZero = (number) => {
+        if (number === null) return 0;
+        return number.toString().replace(/^0+/, '');
+    }
+
     const handleSearch = (searchTerm) => {
         const filteredRows = rows.filter(
             (p) => searchTerm === "" || p.code.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -327,7 +332,7 @@ export default function CreateImport() {
                                                 size="small"
                                                 inputProps={{
                                                     min: 0,
-                                                    style: { width: 30, textAlign: "center", height: 10 },
+                                                    style: { width: 50, textAlign: "center", height: 10 },
                                                 }}
                                                 sx={{ marginX: "5px" }}
                                                 value={r.quantity}
@@ -351,7 +356,7 @@ export default function CreateImport() {
                                                     min: 0,
                                                     style: { width: 70, textAlign: "center", height: "10px" },
                                                 }}
-                                                value={r.unitPrice}
+                                                value={removeLeadingZero(r.unitPrice)}
                                                 error={r.unitPrice < 0}
                                                 onChange={(e) => handleChangeProduct(r.productId, "unitPrice", e.target.value)}
                                                 variant="outlined"
@@ -365,7 +370,7 @@ export default function CreateImport() {
                                                     min: 0,
                                                     style: { width: 70, textAlign: "center", height: "10px" },
                                                 }}
-                                                value={r.discount}
+                                                value={removeLeadingZero(r.discount)}
                                                 error={r.discount < 0 || r.discount > r.unitPrice}
                                                 onChange={(e) =>
                                                     handleChangeProduct(r.productId, "discount", e.target.value)
