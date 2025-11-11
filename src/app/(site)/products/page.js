@@ -182,20 +182,32 @@ export default function Products() {
         }
     };
 
-    const handleApplyFilter = () => {
+    useEffect(() => {
+        validateFields();
+    }, [filterFromWeightPerUnit, filterToWeightPerUnit, filterFromCreatedDate, filterToCreatedDate]);
+
+    const validateFields = () => {
         if (filterFromWeightPerUnit < 0 || filterToWeightPerUnit < 0) {
             setErrorToWeightPerUnit("Khối lượng phải lớn hơn 0");
-            return;
+            return false;
         }
-        if (filterToCreatedDate < filterFromCreatedDate) {
+        if (filterToCreatedDate && filterToCreatedDate < filterFromCreatedDate) {
             setErrorToCreatedDate("Ngày tạo đến phải lớn hơn ngày tạo từ");
-            return;
+            return false;
         }
-        if (filterToWeightPerUnit < filterFromWeightPerUnit) {
+        if (parseInt(filterToWeightPerUnit) < parseInt(filterFromWeightPerUnit)) {
             setErrorToWeightPerUnit("Khối lượng đến phải lớn hơn khối lượng từ");
-            return;
+            return false;
         }
-        fetchProducts();
+        setErrorToCreatedDate("");
+        setErrorToWeightPerUnit("");
+        return true;
+    }
+
+    const handleApplyFilter = () => {
+        if (validateFields()) {
+            fetchProducts();
+        }
     };
 
     const handleClearFilter = () => {
@@ -265,7 +277,7 @@ export default function Products() {
         <div className="grid grid-cols-4 p-8 gap-4">
             {/* Filter sidebar */}
             <div className="col-span-1">
-                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
+                <div className="p-4 rounded-2xl bg-white h-auto sticky top-0">
                     <h2 className="text-xl font-bold">Lọc sản phẩm</h2>
                     <div className="flex flex-col items-center my-4">
                         <div className="my-2 w-full">
@@ -288,8 +300,8 @@ export default function Products() {
                                 onKeyDown={handleKeyDown}
                             />
                         </div>
-                        <div className="my-2 w-full flex flex-row gap-2">
-                            <div>
+                        <div className="my-2 w-full grid grid-cols-2 gap-2">
+                            <div className="col-span-1">
                                 <label className="mr-2">Khối lượng từ</label>
                                 <input
                                     type="number"
@@ -299,7 +311,7 @@ export default function Products() {
                                     onKeyDown={handleKeyDown}
                                 />
                             </div>
-                            <div>
+                            <div className="col-span-1">
                                 <label className="mr-2">Khối lượng đến</label>
                                 <input
                                     type="number"
@@ -350,8 +362,8 @@ export default function Products() {
                                 <option value="false">Dừng hoạt động</option>
                             </select>
                         </div>
-                        <div className="my-2 w-full flex flex-row gap-2">
-                            <div>
+                        <div className="my-2 w-full grid grid-cols-2 gap-2">
+                            <div className="col-span-1">
                                 <label className="mr-2">Ngày tạo từ</label>
                                 <input
                                     type="date"
@@ -364,7 +376,7 @@ export default function Products() {
                                     onKeyDown={handleKeyDown}
                                 />
                             </div>
-                            <div>
+                            <div className="col-span-1">
                                 <label className="mr-2">Ngày tạo đến</label>
                                 <input
                                     type="date"

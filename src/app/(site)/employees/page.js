@@ -163,7 +163,7 @@ export default function Employees() {
         <div className="grid grid-cols-4 p-8 gap-4">
             {/* Filter sidebar */}
             <div className="col-span-1">
-                <div className="p-4 rounded-2xl bg-white h-auto max-h-screen sticky top-0">
+                <div className="p-4 rounded-2xl bg-white h-auto sticky top-0">
                     <h2 className="text-xl font-bold">Lọc nhân viên</h2>
                     <div className="flex flex-col items-center my-4">
                         <div className="mt-2 w-full">

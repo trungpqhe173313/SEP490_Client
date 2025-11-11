@@ -67,6 +67,11 @@ export default function UpdateImport({ params }) {
         return dt.toISOString().split('T')[0];
     }
 
+    const removeLeadingZero = (number) => {
+        if (number === null) return 0;
+        return number.toString().replace(/^0+/, '');
+    }
+
     const fetchProduct = (data) => {
         const body = { pageIndex: 1, pageSize: 1000, isActive: true, productName: "", supplierId: data.supplier.supplierId };
         productService
@@ -84,8 +89,8 @@ export default function UpdateImport({ params }) {
                     };
                 });
 
-                setRows(updatedProducts);
-                setFilteredRows(updatedProducts);
+                setRows(updatedProducts.filter((p) => p.quantity > 0 && p.unitPrice > 0));
+                setFilteredRows(updatedProducts.filter((p) => p.quantity > 0 && p.unitPrice > 0));
 
                 const initialTotal = updatedProducts.reduce(
                     (total, item) => total + (item.quantity * (item.unitPrice || 0)),
@@ -115,6 +120,10 @@ export default function UpdateImport({ params }) {
         setLoading(false);
     }
 
+    useEffect(() => {
+        validateFields();
+    }, [expireDate]);
+
     const validateFields = () => {
         if (!expireDate) {
             setValidExpireDateMessage("Vui lòng nhập hạn sử dụng");
@@ -124,6 +133,11 @@ export default function UpdateImport({ params }) {
             setValidExpireDateMessage("Hạn sử dụng phải là tương lai");
             return false;
         }
+        setValidExpireDateMessage("");
+        return true;
+    }
+
+    const validateProducts = () => {
         if (rows.filter((r) => r.quantity > 0 && r.unitPrice > 0).length === 0) {
             setModalFailedMessage("Sản phẩm không được để trống");
             setModalFailedOpen(true);
@@ -153,7 +167,7 @@ export default function UpdateImport({ params }) {
     }
 
     const handleSubmit = async () => {
-        if (!validateFields()) {
+        if (!validateFields() || !validateProducts()) {
             return;
         }
         setLoading(true);
@@ -186,7 +200,6 @@ export default function UpdateImport({ params }) {
     const handleChangeProduct = (id, field, value) => {
         const newValue = Number(value) || 0;
 
-        // Update rows first
         const updatedRows = rows.map(r =>
             r.productId === id ? { ...r, [field]: newValue } : r
         );
@@ -194,7 +207,6 @@ export default function UpdateImport({ params }) {
         setRows(updatedRows);
         setFilteredRows(updatedRows.map(r => ({ ...r })));
 
-        // Calculate total price after state update
         const newTotalPrice = updatedRows.reduce(
             (total, item) => total + (item.quantity * (item.unitPrice || 0)),
             0
@@ -213,9 +225,9 @@ export default function UpdateImport({ params }) {
 
     const handleSearch = (searchTerm) => {
         const filteredRows = rows.filter(
-            (p) => searchTerm === "" || p.code.toLowerCase().includes(searchTerm.toLowerCase()) || p.name.toLowerCase().includes(searchTerm.toLowerCase())
+            (p) => searchTerm === "" || p.code.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase()) && p.quantity > 0 && p.unitPrice > 0
         );
-        setFilteredRows(filteredRows);
+        setFilteredRows(filteredRows.filter((r) => r.quantity !== 0 && r.unitPrice !== 0));
     };
 
     useEffect(() => {
@@ -267,7 +279,7 @@ export default function UpdateImport({ params }) {
                                 <TableRow>
                                     <TableCell colSpan={6} align="center">
                                         <p className="my-10 text-xl">
-                                            Chưa có dữ liệu, xin hãy chọn nhà cung cấp trước
+                                            Không tìm thấy sản phẩm hoặc chưa chọn nhà cung cấp
                                         </p>
                                     </TableCell>
                                 </TableRow>
@@ -281,7 +293,7 @@ export default function UpdateImport({ params }) {
                                                 size="small"
                                                 onClick={() => handleChangeProduct(r.productId, "quantity", r.quantity - 1)}
                                                 disabled={r.quantity <= 0}
-                                                sx={{ marginRight: "10px", border: "1px solid #ccc", height: "28px" }}
+                                                sx={{ border: "1px solid #ccc", height: "28px", width: "auto" }}
                                             >
                                                 <RemoveIcon fontSize="small" />
                                             </IconButton>
@@ -290,8 +302,9 @@ export default function UpdateImport({ params }) {
                                                 size="small"
                                                 inputProps={{
                                                     min: 0,
-                                                    style: { width: 40, textAlign: "center", height: "10px" },
+                                                    style: { width: 50, textAlign: "center", height: 10 },
                                                 }}
+                                                sx={{ marginX: "5px" }}
                                                 value={r.quantity}
                                                 error={r.quantity < 0}
                                                 onChange={(e) => handleChangeProduct(r.productId, "quantity", e.target.value)}
@@ -300,7 +313,7 @@ export default function UpdateImport({ params }) {
                                             <IconButton
                                                 size="small"
                                                 onClick={() => handleChangeProduct(r.productId, "quantity", r.quantity + 1)}
-                                                sx={{ marginLeft: "10px", border: "1px solid #ccc", height: "28px" }}
+                                                sx={{ border: "1px solid #ccc", height: "28px", width: "auto" }}
                                             >
                                                 <AddIcon fontSize="small" />
                                             </IconButton>
@@ -314,7 +327,7 @@ export default function UpdateImport({ params }) {
                                                     style: { width: 70, textAlign: "center", height: "10px" },
                                                 }}
                                                 error={r.unitPrice < 0}
-                                                value={r.unitPrice || 0}
+                                                value={removeLeadingZero(r.unitPrice)}
                                                 onChange={(e) => handleChangeProduct(r.productId, "unitPrice", e.target.value)}
                                                 variant="outlined"
                                             />
@@ -327,7 +340,7 @@ export default function UpdateImport({ params }) {
                                                     min: 0,
                                                     style: { width: 70, textAlign: "center", height: "10px" },
                                                 }}
-                                                value={r.discount || 0}
+                                                value={removeLeadingZero(r.discount)}
                                                 error={r.discount > r.unitPrice || r.discount < 0}
                                                 onChange={(e) =>
                                                     handleChangeProduct(r.productId, "discount", e.target.value)
@@ -393,7 +406,7 @@ export default function UpdateImport({ params }) {
                         value={status || 5}
                         onChange={(e) => setStatus(e.target.value)}
                         className="w-full p-2 border border-gray-300 rounded-md"
-                    > 
+                    >
                         {/* <option value={0}>Lên đơn</option> */}
                         <option value={5}>Đang kiểm</option>
                         <option value={6}>Đã kiểm</option>
