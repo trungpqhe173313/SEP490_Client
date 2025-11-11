@@ -31,7 +31,7 @@ export function AutocompleteCommon({ loading, value, onSelect, onSearch, options
                         {...params}
                         onChange={onChangeTextSearch}
                         error={error}
-                        className='bg-white'
+                        sx={{ zIndex: 0, backgroundColor: 'white' }}
                     />
                 )}
             />

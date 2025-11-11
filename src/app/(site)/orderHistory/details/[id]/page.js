@@ -115,9 +115,9 @@ export default function ExportDetail({ params }) {
                 </div>
                 <div className='col-span-2 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Chi tiết khách hàng</h1>
-                    <p className='my-2'>Tên khách hàng: {customer.customerName}</p>
+                    <p className='my-2'>Tên khách hàng: {customer.fullName}</p>
                     <p className='my-2'>Email: {customer.email}</p>
-                    <p className='my-2'>Số điện thoại: {customer.phoneNumber}</p>
+                    <p className='my-2'>Số điện thoại: {customer.phone}</p>
                 </div>
             </div>
 

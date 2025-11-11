@@ -37,6 +37,18 @@
     background-color: #016630;
     color: #ffffff;
   }
+
+  .striped-table {
+    border: solid 1px #d9d9d9;
+  }
+
+  .striped-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  .striped-table tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
 }
 
 button:hover {
