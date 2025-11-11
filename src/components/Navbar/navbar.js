@@ -163,30 +163,30 @@ const Navbar = () => {
         // }
       ],
     },
-    // {
-    //   label: "Giao dịch",
-    //   icon: <ShoppingCartIcon />,
-    //   subItems: [
-    //     {
-    //       name: "Thu",
-    //       link: "/incomes",
-    //       role: "all",
-    //       icon: <AttachMoneyIcon />
-    //     },
-    //     {
-    //       name: "Chi",
-    //       link: "/expenses",
-    //       role: "all",
-    //       icon: <MoneyOffIcon />
-    //     },
-    //     {
-    //       name: "Đơn hàng",
-    //       link: "/orders",
-    //       role: "all",
-    //       icon: <ShoppingBasketIcon />
-    //     }
-    //   ]
-    // },
+    {
+      label: "Giao dịch",
+      icon: <ShoppingCartIcon />,
+      subItems: [
+        // {
+        //   name: "Thu",
+        //   link: "/incomes",
+        //   role: "all",
+        //   icon: <AttachMoneyIcon />
+        // },
+        // {
+        //   name: "Chi",
+        //   link: "/expenses",
+        //   role: "all",
+        //   icon: <MoneyOffIcon />
+        // },
+        {
+          name: "Lịch sử đơn hàng",
+          link: "/orderHistory",
+          role: "all",
+          icon: <ShoppingBasketIcon />
+        }
+      ]
+    },
     // {
     //   label: "Quản lý",
     //   icon: <ManageAccountsIcon />,

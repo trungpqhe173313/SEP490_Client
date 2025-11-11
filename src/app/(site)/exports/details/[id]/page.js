@@ -132,8 +132,8 @@ export default function ExportDetail({ params }) {
                 />
                 <div className='h-14 relative flex flex-row items-center'>
                     <h2 className='absolute left-[4.5%] transform -translate-x-1/2'>Tổng</h2>
-                    <h2 className='absolute right-[28.5%] transform -translate-x-1/2'>{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</h2>
-                    <h2 className='absolute right-[2.5%] transform -translate-x-1/2'>{formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0))}₫</h2>
+                    <h2 className='absolute right-[29%] transform -translate-x-1/2'>{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</h2>
+                    <h2 className='absolute right-[3.5%] transform -translate-x-1/2'>{formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0))}₫</h2>
                 </div>
             </div>
 

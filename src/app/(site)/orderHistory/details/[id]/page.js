@@ -1,26 +1,42 @@
 'use client';
 import React, { useState, useEffect } from 'react'
-import { importService } from '@/services/import.service';
+import { customerOrderService } from '@/services/customerOrder.service';
 import { numberToVietnamese } from '@/lib/numberToVietnamese';
 import { convertKgToTon } from '@/lib/convertToTon';
 import { useLoading } from '@/context/LoadingContext';
 import TableCommon from "@/components/Table/table";
 
-export default function ImportDetail({ params }) {
+export default function ExportDetail({ params }) {
     const { setLoading } = useLoading();
     const { id } = React.use(params);
 
     const [transaction, setTransaction] = useState({});
-    const [supplier, setSupplier] = useState({});
+    const [customer, setCustomer] = useState({});
     const [products, setProducts] = useState([]);
+
+    const getStatus = (string) => {
+        switch (string) {
+            case 0:
+                return <p className="text-yellow-600">Nháp</p>
+            case 1:
+                return <p className="text-blue-600">Lên đơn</p>
+            case 2:
+                return <p className="text-yellow-600">Đang giao</p>
+            case 3:
+                return <p className="text-green-600">Đã giao</p>
+            case 4:
+                return <p className="text-red-600">Đã hủy</p>
+            default:
+                return <p className="text-black">{string}</p>
+        }
+    }
 
     const fetchTransaction = async (id) => {
         try {
-            if (!id) return;
             setLoading(true);
-            const res = await importService.getImportDetail(id);
+            const res = await customerOrderService.getCustomerOrderById(id);
             setTransaction(res.data);
-            setSupplier(res.data.supplier);
+            setCustomer(res.data.customer);
             setProducts(res.data.list);
             setLoading(false);
         } catch (error) {
@@ -30,29 +46,7 @@ export default function ImportDetail({ params }) {
 
     useEffect(() => {
         fetchTransaction(id);
-        setLoading(false)
     }, [])
-
-    const getStatus = (string) => {
-        switch (string) {
-            case 1:
-                return <p className="text-yellow-600">Nháp</p>
-            case 0:
-                return <p className="text-blue-600">Lên đơn</p>
-            case 2:
-                return <p className="text-yellow-600">Đang giao</p>
-            case 3:
-                return <p className="text-green-600">Đã giao</p>
-            case 4:
-                return <p className="text-red-600">Đã hủy</p>
-            case 5:
-                return <p className="text-yellow-600">Đang kiểm</p>
-            case 6:
-                return <p className="text-green-600">Đã kiểm</p>
-            default:
-                return <p className="text-black">{string}</p>
-        }
-    }
 
     const headerData = [
         {
@@ -110,7 +104,7 @@ export default function ImportDetail({ params }) {
         <div className='flex flex-col gap-4 w-full'>
             <div className='grid grid-cols-3 p-4 gap-4 w-full h-50'>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
-                    <h1 className='text-xl font-bold'>Chi tiết phiếu nhập</h1>
+                    <h1 className='text-xl font-bold'>Chi tiết phiếu xuất</h1>
                     <p className='my-2'>Mã giao dịch: {transaction.transactionId}</p>
                     <p className='my-2'>Ngày giao dịch: {new Date(transaction.transactionDate).toLocaleDateString('vi-VN')}</p>
                     <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
@@ -119,11 +113,11 @@ export default function ImportDetail({ params }) {
                         {getStatus(transaction.status)}
                     </div>
                 </div>
-                <div className='col-span-1 rounded-xl bg-white p-4'>
-                    <h1 className='text-xl font-bold'>Nhà cung cấp</h1>
-                    <p className='my-2'>Tên nhà cung cấp: {supplier.supplierName}</p>
-                    <p className='my-2'>Email nhà cung cấp: {supplier.email}</p>
-                    <p className='my-2'>Số điện thoại: {supplier.phone}</p>
+                <div className='col-span-2 rounded-xl bg-white p-4'>
+                    <h1 className='text-xl font-bold'>Chi tiết khách hàng</h1>
+                    <p className='my-2'>Tên khách hàng: {customer.customerName}</p>
+                    <p className='my-2'>Email: {customer.email}</p>
+                    <p className='my-2'>Số điện thoại: {customer.phoneNumber}</p>
                 </div>
             </div>
 
@@ -141,7 +135,7 @@ export default function ImportDetail({ params }) {
             </div>
 
 
-            <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2 p-4 text-right flex flex-col items-end'>
+            <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2 p-4 text-right flex flex-col items-end gap-4'>
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h2 className='w-1/3 text-left'>Tổng khối lượng:</h2>
                     <h2>{convertKgToTon(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))}</h2>
