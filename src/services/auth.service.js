@@ -14,7 +14,43 @@ class AuthService {
     }
   }
 
-  // Store authentication data
+  // Request OTP for password reset
+  async requestPasswordReset(email) {
+    try {
+      const response = await API.post("/Account/forgot-password", { email });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Verify OTP to retrieve reset token
+  async verifyOtp({ email, otpCode }) {
+    try {
+      const response = await API.post("/Account/verify-otp", {
+        email,
+        otpCode
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Confirm OTP token and set new password
+  async resetPassword({ resetToken, newPassword }) {
+    try {
+      const response = await API.post("/Account/reset-password", {
+        resetToken,
+        newPassword
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+    // Store authentication data
   storeAuthData(authData) {
     localStorage.setItem("accessToken", authData.accessToken);
     localStorage.setItem("refreshToken", authData.refreshToken);

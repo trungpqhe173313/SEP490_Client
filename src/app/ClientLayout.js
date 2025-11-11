@@ -4,7 +4,7 @@ import Header from "@/components/Header/header";
 import Footer from "@/components/Footer/footer";
 import Navbar from "@/components/Navbar/navbar";
 
-const blacklistPathnames = ["/404", "/login"];
+const blacklistPathnames = ["/404", "/login", "/forgot-password", "/verify-otp", "/reset-password"];
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();

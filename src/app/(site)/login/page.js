@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header/header";
+import Link from "next/link";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import AuthService from "@/services/auth.service";
@@ -55,13 +55,22 @@ export default function LoginPage() {
           router.push("/");
         }, 1500);
       } else {
-        setModalMessage(response.error || "Đăng nhập thất bại");
+        // Handle case when API returns success: false
+        const errorMessage = response?.error?.message || 
+                            (typeof response?.error === 'string' ? response.error : null) ||
+                            response?.message ||
+                            "Đăng nhập thất bại";
+        setModalMessage(errorMessage);
         setShowFailedModal(true);
       }
     } catch (error) {
       console.error("Login error:", error);
-      const errorMessage = error.response?.data?.error || 
-                          error.response?.data?.message || 
+      // Handle error response from API
+      const errorData = error.response?.data;
+      const errorMessage = errorData?.error?.message || 
+                          (typeof errorData?.error === 'string' ? errorData.error : null) ||
+                          errorData?.message ||
+                          error.message ||
                           "Có lỗi xảy ra khi đăng nhập";
       setModalMessage(errorMessage);
       setShowFailedModal(true);
@@ -72,7 +81,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col">
-
       <Image
         src="/backgroud.jpg" 
         alt="Background"
@@ -83,65 +91,67 @@ export default function LoginPage() {
       {/* <header className="bg-white py-4 px-8 shadow-sm">
         <h1 className="text-xl font-bold">Ricehub</h1>
       </header> */}
-      <Header/>
       <main className="flex-1 flex items-center justify-center px-4">
-        <form onSubmit={handleSubmit} className="bg-white bg-opacity-95 rounded-2xl shadow-lg p-8 w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-center mb-6">Đăng nhập</h2>
+        <form onSubmit={handleSubmit} className="bg-white bg-opacity-90 backdrop-blur-sm rounded-3xl shadow-xl p-10 w-full max-w-md">
+          {/* Title with serif font */}
+          <h2 className="text-3xl font-serif text-center mb-8 text-black">Đăng nhập</h2>
 
-          <div className="mb-5">
-            <label className="block font-medium mb-2">Tên tài khoản</label>
+          {/* Username Field */}
+          <div className="mb-6">
+            <label className="block font-medium mb-3 text-black">Tên tài khoản</label>
             <div className="relative">
-              <User className="absolute left-3 top-3 text-gray-400" size={18} />
+              <User className="absolute left-0 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleInputChange}
                 placeholder="Nhập tên tài khoản"
-                className="w-full border-b border-gray-300 pl-9 pb-2 focus:outline-none focus:border-gray-600"
+                className="w-full border-0 border-b-2 border-gray-300 pl-8 pb-3 bg-transparent focus:outline-none focus:border-gray-600 placeholder:text-gray-400 text-black"
                 disabled={isLoading}
               />
             </div>
           </div>
 
-          <div className="mb-3">
-            <label className="block font-medium mb-2">Mật khẩu</label>
+          {/* Password Field */}
+          <div className="mb-4">
+            <label className="block font-medium mb-3 text-black">Mật khẩu</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
+              <Lock className="absolute left-0 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Nhập mật khẩu"
-                className="w-full border-b border-gray-300 pl-9 pr-9 pb-2 focus:outline-none focus:border-gray-600"
+                className="w-full border-0 border-b-2 border-gray-300 pl-8 pr-8 pb-3 bg-transparent focus:outline-none focus:border-gray-600 placeholder:text-gray-400 text-black"
                 disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-gray-400"
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 disabled={isLoading}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
 
           {/* Links */}
-          <div className="flex justify-between text-sm text-gray-500 mt-2 mb-6">
-            <a href="#" className="hover:underline">
+          <div className="flex justify-between text-sm mt-3 mb-8">
+            <Link href="/forgot-password" className="text-black hover:underline">
               Quên mật khẩu ?
-            </a>
-            <a href="#" className="hover:underline">
+            </Link>
+            <Link href="#" className="text-black hover:underline">
               Chưa có tài khoản?
-            </a>
+            </Link>
           </div>
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button 
             type="submit"
-            className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-gray-800 text-white py-4 rounded-lg font-semibold uppercase tracking-wide shadow-lg hover:bg-gray-900 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
             disabled={isLoading}
           >
             {isLoading ? "ĐANG ĐĂNG NHẬP..." : "ĐĂNG NHẬP"}
