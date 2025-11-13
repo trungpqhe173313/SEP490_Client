@@ -2,6 +2,7 @@
 import { importService } from "@/services/import.service";
 import { warehouseService } from "@/services/warehouse.service";
 import { supplierService } from "@/services/supplier.service";
+import { useLogin } from "@/context/LoginContext";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
@@ -10,26 +11,20 @@ import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
-import { ImportForm } from "@/components/Form/importForm";
-
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import ImportResultModal from "@/components/Modal/importResultModal";
+import Loader from "@/components/Loader/loader";
 
 export default function Imports() {
     const router = useRouter();
 
     const navigate = (path) => {
-        setLoading(true);
         router.push(path);
     };
 
     //Data state
     const [imports, setImports] = useState([]);
-    const [editingImport, setEditingImport] = useState(null);
-
-    //Modal state
-    const [modalOpen, setModalOpen] = useState(false);
 
     const [modalImportOpen, setModalImportOpen] = useState(false);
     const [modalImportMessage, setModalImportMessage] = useState("");
@@ -65,8 +60,11 @@ export default function Imports() {
     const [supplierLoading, setSupplierLoading] = useState(false);
     const [warehouseLoading, setWarehouseLoading] = useState(false);
 
+    const pageRole = ["Manager"];
     const { setLoading } = useLoading();
+    const { isLogin, user } = useLogin();
     const buttonRef = useRef(null);
+    const [pageReady, setPageReady] = useState(false);
 
     const getStatus = (string) => {
         switch (string) {
@@ -172,31 +170,48 @@ export default function Imports() {
     }
 
     useEffect(() => {
+        if (!pageReady) return;
         fetchSuppliers("");
         fetchWarehouses("");
-    }, []);
+    }, [pageReady]);
 
     const fetchImports = async () => {
         setLoading(true);
-        const body = {
-            pageIndex: pageIndex + 1,
-            pageSize: rowPerPage,
-            supplierId: filterSupplierId || null,
-            warehouseId: filterWarehouseId || null,
-            status: parseInt(filterStatus) || null,
-            type: filterType || null,
-            transactionFromDate: filterTransactionFromDate || null,
-            transactionToDate: filterTransactionToDate || null
-        };
-        const response = await importService.getAllImports(body);
-        setImports(response.data.items);
-        setTotalCount(response.data.totalCount);
-        setLoading(false);
+        try {
+            const body = {
+                pageIndex: pageIndex + 1,
+                pageSize: rowPerPage,
+                supplierId: filterSupplierId || null,
+                warehouseId: filterWarehouseId || null,
+                status: parseInt(filterStatus) || null,
+                type: filterType || null,
+                transactionFromDate: filterTransactionFromDate || null,
+                transactionToDate: filterTransactionToDate || null
+            };
+            const response = await importService.getAllImports(body);
+            setImports(response.data.items);
+            setTotalCount(response.data.totalCount);
+        } catch (error) {
+            console.error("Error fetching imports:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
+
+    useEffect(() => {
+        if (!pageReady) return;
         fetchImports();
-    }, [pageIndex, rowPerPage]);
+    }, [pageIndex, rowPerPage, pageReady]);
 
     const formatDateToInput = (dt) => {
         return dt.toISOString().split('T')[0];
@@ -244,6 +259,7 @@ export default function Imports() {
 
     const handleApplyFilter = () => {
         if (validateFields()) {
+            setPageIndex(0);
             fetchImports();
         }
     };
@@ -257,34 +273,9 @@ export default function Imports() {
         setFilterType("");
         setFilterTransactionFromDate("");
         setFilterTransactionToDate("");
-        fetchImports();
+        setErrorToTransactionDate("");
+        setPageIndex(0);
     };
-
-    // const handleCreate = () => {
-    //     setEditingImport(null);
-    //     setModalOpen(true);
-    // };
-
-    // const handleConfirm = async (importData) => {
-    //     setLoading(true);
-    //     try {
-    //         if (editingImport) {
-    //             await importService.updateImport(editingImport.importId, importData);
-    //             setModalSuccessMessage("Cập nhật phiếu nhập kho thành công");
-    //         } else {
-    //             await importService.createImport(importData);
-    //             setModalSuccessMessage("Tạo phiếu nhập kho thành công");
-    //         }
-    //         setModalSuccessOpen(true);
-    //         setModalOpen(false);
-    //         fetchImports();
-    //     } catch (error) {
-    //         setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
-    //         setModalFailedOpen(true);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
 
     const handleDelete = async (item) => {
         if (item.status === "Đã ngưng hoạt động") {
@@ -293,11 +284,18 @@ export default function Imports() {
             return;
         }
         setLoading(true);
-        await importService.deleteImport(item.importId);
-        fetchProducts();
-        setModalSuccessMessage("Xoá phiếu nhập kho thành công");
-        setModalSuccessOpen(true);
-        setLoading(false);
+        try {
+            await importService.deleteImport(item.importId);
+            fetchImports();
+            setModalSuccessMessage("Xoá phiếu nhập kho thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            console.log(error);
+            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const getFileNameFromDisposition = (disposition) => {
@@ -364,6 +362,9 @@ export default function Imports() {
 
 
 
+    if (!pageReady) {
+        return <Loader />;
+    }
 
     return (
         <div className="flex flex-col p-4">

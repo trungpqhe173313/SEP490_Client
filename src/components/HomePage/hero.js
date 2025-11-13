@@ -12,7 +12,7 @@ const Hero = () => {
           alt="Modern warehouse with inventory management"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-green-600/40" />
+        <div className="absolute inset-0 bg-gray-600/80" />
       </div>
       {/* Content */}
       <div className="relative z-10 px-4 py-8 max-w-5xl mx-auto text-center">

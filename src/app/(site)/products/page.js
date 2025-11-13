@@ -6,6 +6,8 @@ import { supplierService } from "@/services/supplier.service";
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
 import { useRef } from "react";
+import { useLogin } from "@/context/LoginContext";
+import { useRouter } from "next/navigation";
 
 import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
@@ -13,6 +15,7 @@ import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
+import Loader from "@/components/Loader/loader";
 
 export default function Products() {
     // Data state
@@ -55,7 +58,10 @@ export default function Products() {
 
     // Loading state
     const { setLoading } = useLoading();
+    const { isLogin, user } = useLogin();
+    const router = useRouter();
     const buttonRef = useRef(null);
+    const [pageReady, setPageReady] = useState(false);
 
     // Table headers
     const headerData = [
@@ -79,23 +85,28 @@ export default function Products() {
     // Fetch products
     const fetchProducts = async () => {
         setLoading(true);
-        const body = {
-            pageIndex: pageIndex + 1,
-            pageSize: rowPerPage,
-            productName: filterProductName,
-            code: filterCode,
-            supplierId: filterSupplierId,
-            categoryId: filterCategoryId,
-            isAvailable: filterisAvailable === "true" ? true : filterisAvailable === "false" ? false : null,
-            minWeightPerUnit: filterFromWeightPerUnit === 0 ? null : filterFromWeightPerUnit,
-            maxWeightPerUnit: filterToWeightPerUnit === 0 ? null : filterToWeightPerUnit,
-            createdFrom: filterFromCreatedDate || null,
-            createdTo: filterToCreatedDate || null
-        };
-        const response = await productService.getAllProducts(body);
-        setProducts(response.data.items);
-        setTotalCount(response.data.totalCount);
-        setLoading(false);
+        try {
+            const body = {
+                pageIndex: pageIndex + 1,
+                pageSize: rowPerPage,
+                productName: filterProductName,
+                code: filterCode,
+                supplierId: filterSupplierId,
+                categoryId: filterCategoryId,
+                isAvailable: filterisAvailable === "true" ? true : filterisAvailable === "false" ? false : null,
+                minWeightPerUnit: filterFromWeightPerUnit === 0 ? null : filterFromWeightPerUnit,
+                maxWeightPerUnit: filterToWeightPerUnit === 0 ? null : filterToWeightPerUnit,
+                createdFrom: filterFromCreatedDate || null,
+                createdTo: filterToCreatedDate || null
+            };
+            const response = await product.getAllProducts(body);
+            setProducts(response.data.items);
+            setTotalCount(response.data.totalCount);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const fetchSuppliers = async (value) => {
@@ -143,13 +154,25 @@ export default function Products() {
     }
 
     useEffect(() => {
+        if (!pageReady) return;
         fetchSuppliers("");
         fetchCategories("");
-    }, []);
+    }, [pageReady]);
 
     useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
+
+    useEffect(() => {
+        if (!pageReady) return;
         fetchProducts();
-    }, [pageIndex, rowPerPage]);
+    }, [pageIndex, rowPerPage, pageReady]);
 
     const formatDateToInput = (dt) => {
         return dt.toISOString().split('T')[0];
@@ -206,6 +229,7 @@ export default function Products() {
 
     const handleApplyFilter = () => {
         if (validateFields()) {
+            setPageIndex(0);
             fetchProducts();
         }
     };
@@ -224,7 +248,7 @@ export default function Products() {
         setFilterToCreatedDate("");
         setErrorToCreatedDate("");
         setErrorToWeightPerUnit("");
-        fetchProducts();
+        setPageIndex(0);
     };
 
     // Modal handlers
@@ -245,11 +269,18 @@ export default function Products() {
             return;
         }
         setLoading(true);
-        await productService.deleteProduct(product.productId);
-        fetchProducts();
-        setModalSuccessMessage("Xoá sản phẩm thành công");
-        setModalSuccessOpen(true);
-        setLoading(false);
+        try {
+            await product.deleteProduct(product.productId);
+            fetchProducts();
+            setModalSuccessMessage("Xoá sản phẩm thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleConfirm = async (productData) => {
@@ -272,6 +303,12 @@ export default function Products() {
             setLoading(false);
         }
     };
+
+    const pageRole = ["Manager"];
+
+    if (!pageReady) {
+        return <Loader />;
+    }
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">

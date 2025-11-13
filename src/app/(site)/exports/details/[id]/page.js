@@ -5,14 +5,33 @@ import { numberToVietnamese } from '@/lib/numberToVietnamese';
 import { convertKgToTon } from '@/lib/convertToTon';
 import { useLoading } from '@/context/LoadingContext';
 import TableCommon from "@/components/Table/table";
+import { useLogin } from "@/context/LoginContext";
+import { useRouter } from "next/navigation";
+import Loader from "@/components/Loader/loader";
+
 
 export default function ExportDetail({ params }) {
     const { setLoading } = useLoading();
     const { id } = React.use(params);
+    const router = useRouter();
+    const { isLogin, user } = useLogin();
 
     const [transaction, setTransaction] = useState({});
     const [customer, setCustomer] = useState({});
     const [products, setProducts] = useState([]);
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
+
+    // Check authorization
+    useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
 
     const getStatus = (string) => {
         switch (string) {
@@ -31,22 +50,25 @@ export default function ExportDetail({ params }) {
         }
     }
 
-    const fetchTransaction = async (id) => {
+    const fetchTransaction = async () => {
         try {
+            if (!id) return;
             setLoading(true);
             const res = await exportService.getExportDetail(id);
             setTransaction(res.data);
             setCustomer(res.data.customer);
             setProducts(res.data.list);
-            setLoading(false);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 
     useEffect(() => {
-        fetchTransaction(id);
-    }, [])
+        if (!pageReady) return;
+        fetchTransaction();
+    }, [pageReady])
 
     const headerData = [
         {
@@ -99,6 +121,8 @@ export default function ExportDetail({ params }) {
     const formatLargeNumber = (number) => {
         return number.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
     }
+
+    if (!pageReady) return <Loader />;
 
     return (
         <div className='flex flex-col gap-4 w-full'>

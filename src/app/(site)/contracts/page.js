@@ -5,12 +5,14 @@ import { supplierService } from "@/services/supplier.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
+import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
 import { ContractForm } from "@/components/Form/contractForm";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
+import Loader from "@/components/Loader/loader";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -19,13 +21,14 @@ export default function Contracts() {
     const router = useRouter();
 
     const navigate = (path) => {
-        setLoading(true);
         router.push(path);
     };
 
     //Data state
     const [contracts, setContracts] = useState([]);
     const [editingContract, setEditingContract] = useState(null);
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
 
     //Modal state
     const [modalOpen, setModalOpen] = useState(false);
@@ -57,7 +60,19 @@ export default function Contracts() {
 
     //Loading state
     const { setLoading } = useLoading();
+    const { isLogin, user } = useLogin();
     const buttonRef = useRef(null);
+
+    // Check authorization
+    useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
 
     //Table headers
     const headerData = [
@@ -164,13 +179,15 @@ export default function Contracts() {
     }
 
     useEffect(() => {
+        if (!pageReady) return;
         fetchContracts();
-    }, [pageIndex, rowPerPage]);
+    }, [pageIndex, rowPerPage, pageReady]);
 
     useEffect(() => {
+        if (!pageReady) return;
         fetchSuppliers("");
         fetchCustomers("");
-    }, []);
+    }, [pageReady]);
 
     const formatDateToInput = (dt) => {
         return dt.toISOString().split('T')[0];
@@ -217,6 +234,7 @@ export default function Contracts() {
 
     const handleApplyFilter = () => {
         if (validateFields()) {
+            setPageIndex(0);
             fetchContracts();
         }
     };
@@ -226,9 +244,10 @@ export default function Contracts() {
         setSelectedCustomer(null);
         setFilterSupplierId(null);
         setFilterCustomerId(null);
-        setFilterFromDate(null);
-        setFilterToDate(null);
-        fetchContracts();
+        setFilterFromDate("");
+        setFilterToDate("");
+        setErrorToDate("");
+        setPageIndex(0);
     }
 
     //modal handlers
@@ -249,11 +268,16 @@ export default function Contracts() {
             return;
         }
         setLoading(true);
-        await contractService.deleteContract(contract.contractId);
-        fetchContracts();
-        setModalSuccessMessage("Xóa hợp đồng thành công");
-        setModalSuccessOpen(true);
-        setLoading(false);
+        try {
+            await contractService.deleteContract(contract.contractId);
+            fetchContracts();
+            setModalSuccessMessage("Xóa hợp đồng thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            console.error("Error deleting contract:", error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const handleConfirm = async (contractData) => {
@@ -277,6 +301,11 @@ export default function Contracts() {
         }
     };
 
+    // Show loading while checking authorization
+    if (!pageReady) {
+        return <Loader />;
+    }
+
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
             {/* Filter sidebar */}
@@ -284,7 +313,7 @@ export default function Contracts() {
                 <div className="p-4 rounded-2xl bg-white h-auto sticky top-0">
                     <h2 className="text-xl font-bold">Lọc hợp đồng</h2>
                     <div className="flex flex-col items-center my-4">
-                       <div className="my-2 w-full">
+                        <div className="my-2 w-full">
                             <label className="mr-2">Nhà cung cấp:</label>
                             <AutocompleteCommon
                                 name="supplierId"

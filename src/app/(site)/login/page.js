@@ -7,6 +7,7 @@ import Link from "next/link";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import AuthService from "@/services/auth.service";
+import { useLogin } from "@/context/LoginContext";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +20,7 @@ export default function LoginPage() {
   const [showFailedModal, setShowFailedModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const router = useRouter();
+  const { refreshUserInfo } = useLogin();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -30,7 +32,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!formData.username.trim() || !formData.password.trim()) {
       setModalMessage("Vui lòng nhập đầy đủ thông tin đăng nhập");
@@ -46,20 +48,23 @@ export default function LoginPage() {
       if (response.success) {
         // Store authentication data using service
         AuthService.storeAuthData(response.data);
-        
+
+        // Refresh user info in context
+        refreshUserInfo();
+
         setModalMessage("Đăng nhập thành công!");
         setShowSuccessModal(true);
-        
+
         // Redirect after a short delay
-        setTimeout(() => {
-          router.push("/");
-        }, 1500);
+        // setTimeout(() => {
+        //   router.push("/");
+        // }, 1500);
       } else {
         // Handle case when API returns success: false
-        const errorMessage = response?.error?.message || 
-                            (typeof response?.error === 'string' ? response.error : null) ||
-                            response?.message ||
-                            "Đăng nhập thất bại";
+        const errorMessage = response?.error?.message ||
+          (typeof response?.error === 'string' ? response.error : null) ||
+          response?.message ||
+          "Đăng nhập thất bại";
         setModalMessage(errorMessage);
         setShowFailedModal(true);
       }
@@ -67,11 +72,11 @@ export default function LoginPage() {
       console.error("Login error:", error);
       // Handle error response from API
       const errorData = error.response?.data;
-      const errorMessage = errorData?.error?.message || 
-                          (typeof errorData?.error === 'string' ? errorData.error : null) ||
-                          errorData?.message ||
-                          error.message ||
-                          "Có lỗi xảy ra khi đăng nhập";
+      const errorMessage = errorData?.error?.message ||
+        (typeof errorData?.error === 'string' ? errorData.error : null) ||
+        errorData?.message ||
+        error.message ||
+        "Có lỗi xảy ra khi đăng nhập";
       setModalMessage(errorMessage);
       setShowFailedModal(true);
     } finally {
@@ -82,7 +87,7 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen flex flex-col">
       <Image
-        src="/backgroud.jpg" 
+        src="/backgroud.jpg"
         alt="Background"
         fill
         priority
@@ -149,7 +154,7 @@ export default function LoginPage() {
           </div>
 
           {/* Submit Button */}
-          <button 
+          <button
             type="submit"
             className="w-full bg-gray-800 text-white py-4 rounded-lg font-semibold uppercase tracking-wide shadow-lg hover:bg-gray-900 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
             disabled={isLoading}
@@ -160,13 +165,13 @@ export default function LoginPage() {
       </main>
 
       {/* Modals */}
-      <SuccessModal 
+      <SuccessModal
         isOpen={showSuccessModal}
         message={modalMessage}
-        onClose={() => setShowSuccessModal(false)}
+        onClose={() => { setShowSuccessModal(false), router.push("/") }}
       />
-      
-      <FailedModal 
+
+      <FailedModal
         isOpen={showFailedModal}
         message={modalMessage}
         onClose={() => setShowFailedModal(false)}

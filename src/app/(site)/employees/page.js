@@ -1,15 +1,15 @@
 "use client";
 import { employeeService } from "@/services/employee.service";
-
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
 import { useRef } from "react";
-
 import TableCommon from "@/components/Table/table";
 import { EmployeeForm } from "@/components/Form/employeeForm";
-
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
+import { useLogin } from "@/context/LoginContext";
+import { useRouter } from "next/navigation";
+import Loader from "@/components/Loader/loader";
 
 export default function Employees() {
     // Data state
@@ -33,8 +33,12 @@ export default function Employees() {
     const [rowPerPage, setRowPerPage] = useState(20);
     const [totalCount, setTotalCount] = useState(0);
 
+    const pageRole = ["Manager"];
     const { setLoading } = useLoading();
+    const { isLogin, user } = useLogin();
+    const router = useRouter();
     const buttonRef = useRef(null);
+    const [pageReady, setPageReady] = useState(false);
 
     const headerData = [
         {
@@ -78,26 +82,43 @@ export default function Employees() {
 
     const fetchEmployees = async () => {
         setLoading(true);
-        const body = {
-            pageIndex: pageIndex + 1,
-            pageSize: rowPerPage,
-            isActive: filterIsActive === "true" ? true : filterIsActive === "false" ? false : null
+        try {
+            const body = {
+                pageIndex: pageIndex + 1,
+                pageSize: rowPerPage,
+                isActive: filterIsActive === "true" ? true : filterIsActive === "false" ? false : null
+            }
+            if (filterFullName) {
+                body.fullName = filterFullName;
+            }
+            if (filterEmail) {
+                body.email = filterEmail;
+            }
+            const response = await employeeService.getAllEmployees(body);
+            setEmployees(response.data.items);
+            setTotalCount(response.data.totalCount);
+            setLoading(false);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+        } finally {
+            setLoading(false);
         }
-        if (filterFullName) {
-            body.fullName = filterFullName;
-        }
-        if (filterEmail) {
-            body.email = filterEmail;
-        }
-        const response = await employeeService.getAllEmployees(body);
-        setEmployees(response.data.items);
-        setTotalCount(response.data.totalCount);
-        setLoading(false);
     };
 
     useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
+
+    useEffect(() => {
+        if (!pageReady) return;
         fetchEmployees();
-    }, [pageIndex, rowPerPage]);
+    }, [pageIndex, rowPerPage, pageReady]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -124,11 +145,16 @@ export default function Employees() {
             return;
         }
         setLoading(true);
-        await employeeService.deleteEmployee(employee.userId);
-        fetchEmployees();
-        setModalSuccessMessage("Xoá nhân viên thành công");
-        setModalSuccessOpen(true);
-        setLoading(false);
+        try {
+            await employeeService.deleteEmployee(employee.userId);
+            fetchEmployees();
+            setModalSuccessMessage("Xoá nhân viên thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            console.error("Error deleting employee:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleConfirm = async (employeeData) => {
@@ -156,8 +182,12 @@ export default function Employees() {
         setFilterFullName("");
         setFilterEmail("");
         setFilterIsActive(null);
-        fetchEmployees();
+        setPageIndex(0);
     };
+
+    if (!pageReady) {
+        return <Loader />;
+    }
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
@@ -203,7 +233,10 @@ export default function Employees() {
                     <div className="flex justify-center gap-2">
                         <button
                             className="px-4 py-2 background-primary text-white rounded cursor-pointer"
-                            onClick={() => fetchEmployees()}
+                            onClick={() => {
+                                setPageIndex(0);
+                                fetchEmployees();
+                            }}
                             ref={buttonRef}
                         >
                             Lọc

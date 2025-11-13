@@ -3,10 +3,13 @@ import { categoryService } from "@/services/category.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
+import { useLogin } from "@/context/LoginContext";
+import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
 import { CategoryForm } from "@/components/Form/categoryForm";
+import Loader from "@/components/Loader/loader";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -15,6 +18,8 @@ export default function Categories() {
     //Data state
     const [categories, setCategories] = useState([]);
     const [editingCategory, setEditingCategory] = useState(null);
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
 
     //Modal state
     const [modalOpen, setModalOpen] = useState(false);
@@ -32,7 +37,20 @@ export default function Categories() {
     const [totalCount, setTotalCount] = useState(0);
 
     const { setLoading } = useLoading();
+    const { isLogin, user } = useLogin();
+    const router = useRouter();
     const buttonRef = useRef(null);
+
+    // Check authorization
+    useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
 
     const headerData = [
         {
@@ -76,20 +94,26 @@ export default function Categories() {
 
     const fetchCategories = async () => {
         setLoading(true);
-        const body = {
-            pageIndex: pageIndex + 1,
-            pageSize: rowPerPage,
-            categoryName: filterCategoryName
+        try {
+            const body = {
+                pageIndex: pageIndex + 1,
+                pageSize: rowPerPage,
+                categoryName: filterCategoryName
+            }
+            const response = await categoryService.getAllCategories(body);
+            setCategories(response.data.items);
+            setTotalCount(response.data.totalCount);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        } finally {
+            setLoading(false);
         }
-        const response = await categoryService.getAllCategories(body);
-        setCategories(response.data.items);
-        setTotalCount(response.data.totalCount);
-        setLoading(false);
     };
 
     useEffect(() => {
+        if (!pageReady) return;
         fetchCategories();
-    }, [pageIndex, rowPerPage]);
+    }, [pageIndex, rowPerPage, pageReady]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -116,11 +140,18 @@ export default function Categories() {
             return;
         }
         setLoading(true);
-        await categoryService.deleteCategory(category.categoryId);
-        fetchCategories();
-        setModalSuccessMessage("Xoá danh mục thành công");
-        setModalSuccessOpen(true);
-        setLoading(false);
+        try {
+            await categoryService.deleteCategory(category.categoryId);
+            setModalSuccessMessage("Xoá danh mục thành công");
+            setModalSuccessOpen(true);
+            fetchCategories();
+        } catch (error) {
+            console.error("Error deleting category:", error);
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleConfirm = async (categoryData) => {
@@ -146,8 +177,13 @@ export default function Categories() {
 
     const handleClearFilter = () => {
         setFilterCategoryName("");
-        fetchCategories();
+        setPageIndex(0);
     };
+
+    // Show loading while checking authorization
+    if (!pageReady) {
+        return <Loader />;
+    }
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
@@ -170,7 +206,10 @@ export default function Categories() {
                     <div className="flex justify-center gap-2">
                         <button
                             className="px-4 py-2 background-primary text-white rounded cursor-pointer"
-                            onClick={() => fetchCategories()}
+                            onClick={() => {
+                                setPageIndex(0);
+                                fetchCategories();
+                            }}
                             ref={buttonRef}
                         >
                             Lọc

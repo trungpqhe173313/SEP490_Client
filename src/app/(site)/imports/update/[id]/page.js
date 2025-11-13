@@ -25,11 +25,14 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useLogin } from "@/context/LoginContext";
+import Loader from "@/components/Loader/loader";
 
 export default function UpdateImport({ params }) {
     const router = useRouter();
     const { setLoading } = useLoading();
     const { id } = React.use(params);
+    const { isLogin, user } = useLogin();
     const [rows, setRows] = useState([]);
     const [filteredRows, setFilteredRows] = useState(rows);
     const [importData, setImportData] = useState(null);
@@ -50,9 +53,21 @@ export default function UpdateImport({ params }) {
     const [searchTerm, setSearchTerm] = useState("");
 
     const [validExpireDateMessage, setValidExpireDateMessage] = useState("");
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
+
+    // Check authorization
+    useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
 
     const navigate = (path) => {
-        setLoading(true);
         router.push(path);
     };
 
@@ -103,8 +118,9 @@ export default function UpdateImport({ params }) {
             });
     };
 
-    const fetchImport = async (id) => {
+    const fetchImport = async () => {
         setLoading(true);
+        if (!id) return;
         await importService.getImportDetail(id)
             .then((response) => {
                 setImportData(response.data);
@@ -235,8 +251,13 @@ export default function UpdateImport({ params }) {
     }, [searchTerm]);
 
     useEffect(() => {
-        fetchImport(id);
-    }, []);
+        if (!pageReady) return;
+        fetchImport();
+    }, [pageReady]);
+
+    if (!pageReady) { 
+        return <Loader />
+    };
 
     return (
         <div className="p-4 bg-gray-50 h-auto flex gap-6 grid grid-cols-4">

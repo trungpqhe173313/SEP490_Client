@@ -97,10 +97,16 @@ export function ContractForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if ((!form.userId && !form.supplierId) || !form.image || !form.pdf) {
+    if (!initialData && (!form.supplierId && !form.userId)) {
       setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
       return;
     }
+
+    if (!form.image) {
+      setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
+      return;
+    }
+
     setError("");
     onConfirm(form);
     onClose();
@@ -161,25 +167,15 @@ export function ContractForm({
     }
   };
 
-  const handleFileChange = (name, file) => {
+  const handleFileChange = (file) => {
     if (!file) return;
-
-    // Validate file type
-    if (name === "image") {
-      const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-      if (!allowedImageTypes.includes(file.type)) {
-        setError("Chỉ chấp nhận định dạng ảnh: JPG, PNG, GIF, WEBP");
-        return;
-      }
-    } else if (name === "pdf") {
-      if (file.type !== "application/pdf") {
-        setError("Chỉ chấp nhận định dạng PDF");
-        return;
-      }
+    const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!allowedImageTypes.includes(file.type)) {
+      setError("Chỉ chấp nhận định dạng ảnh: JPG, PNG, GIF, WEBP");
+      return;
     }
-
     setError("");
-    handleChange(name, file);
+    handleChange('image', file);
   };
 
   return (
@@ -257,7 +253,7 @@ export function ContractForm({
                 id="image"
                 type="file"
                 accept="image/jpeg,image/png,image/gif,image/webp"
-                onChange={(e) => handleFileChange("image", e.target.files?.[0])}
+                onChange={(e) => handleFileChange(e.target.files?.[0])}
                 hidden
               />
               {form.image && (
@@ -266,56 +262,6 @@ export function ContractForm({
                 </div>
               )}
             </div>
-
-            <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
-              <div className="grid grid-cols-1">
-                <label className="block text-md font-bold">File</label>
-                <p className="text-xs text-gray-500">Chọn file PDF hợp đồng</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <label
-                  htmlFor="pdf"
-                  className="px-3 py-2 rounded-md background-primary text-white cursor-pointer"
-                >
-                  Chọn file PDF
-                </label>
-                {form.pdf && <button
-                  type="button"
-                  onClick={() => handleChange("pdf", null)}
-                  className="px-3 py-2 rounded-md bg-red-600 text-white cursor-pointer"
-                >
-                  Xóa file
-                </button>}
-              </div>
-              <input
-                id="pdf"
-                type="file"
-                hidden
-                accept="application/pdf"
-                onChange={(e) => handleFileChange("pdf", e.target.files?.[0])}
-              />
-              {form.pdf && (
-                <div className="mt-2 text-sm text-green-600">
-                  File được chọn: {form.pdf.name}
-                </div>
-              )}
-            </div>
-            {initialData && <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
-              <div className="grid grid-cols-1">
-                <label className="block text-md font-bold">Trạng thái</label>
-                <p className="text-xs text-gray-500">Nhập trạng thái hợp đồng</p>
-              </div>
-              <select
-                name="isActive"
-                value={form.isActive ? "true" : "false"}
-                onChange={(e) => handleChange("isActive", e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded px-3 py-2"
-              >
-                <option value="true">Đang hoạt động</option>
-                <option value="false">Đã ngừng hoạt động</option>
-              </select>
-            </div>
-            }
             {error && <div className="text-red-600 text-md text-right">{error}</div>}
             <div className="flex justify-end gap-2 pt-2">
               <button

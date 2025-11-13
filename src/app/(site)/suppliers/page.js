@@ -1,5 +1,7 @@
 "use client";
 import { supplierService } from "@/services/supplier.service";
+import { useLogin } from "@/context/LoginContext";
+import { useRouter } from "next/navigation";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
@@ -10,7 +12,7 @@ import { SupplierForm } from "@/components/Form/supplierForm";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
-
+import Loader from "@/components/Loader";
 
 export default function Suppliers() {
     //object
@@ -37,7 +39,10 @@ export default function Suppliers() {
 
     //loading
     const { setLoading } = useLoading();
+    const { isLogin, user } = useLogin();
+    const router = useRouter();
     const buttonRef = useRef(null);
+    const [pageReady, setPageReady] = useState(false);
 
     const headerData = [
         {
@@ -109,8 +114,19 @@ export default function Suppliers() {
     };
 
     useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
+
+    useEffect(() => {
+        if (!pageReady) return;
         fetchSuppliers();
-    }, [pageIndex, rowPerPage]);
+    }, [pageIndex, rowPerPage, pageReady]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -136,11 +152,18 @@ export default function Suppliers() {
             return;
         }
         setLoading(true);
-        await supplierService.deleteSupplier(supplier.supplierId);
-        fetchSuppliers();
-        setModalSuccessMessage("Xoá nhà cung cấp thành công");
-        setModalSuccessOpen(true);
-        setLoading(false);
+        try {
+            await supplierService.deleteSupplier(supplier.supplierId);
+            fetchSuppliers();
+            setModalSuccessMessage("Xoá nhà cung cấp thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            console.error("Error deleting supplier:", error);
+            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleConfirm = async (supplierData) => {
@@ -169,8 +192,12 @@ export default function Suppliers() {
         setFilterEmail("");
         setFilterPhone("");
         setFilterIsActive(null);
-        fetchSuppliers();
+        setPageIndex(0);
     };
+
+    if (!pageReady) {
+        return <Loader />;
+    }
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
@@ -225,7 +252,10 @@ export default function Suppliers() {
                     <div className="flex justify-center gap-2">
                         <button
                             className="px-4 py-2 background-primary text-white rounded cursor-pointer"
-                            onClick={() => fetchSuppliers()}
+                            onClick={() => {
+                                setPageIndex(0);
+                                fetchSuppliers();
+                            }}
                             ref={buttonRef}
                         >
                             Lọc

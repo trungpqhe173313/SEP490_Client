@@ -3,10 +3,13 @@ import { customerService } from "@/services/customer.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
+import { useLogin } from "@/context/LoginContext";
+import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
 import { CustomerForm } from "@/components/Form/customerForm";
+import Loader from "@/components/Loader/loader";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -15,6 +18,8 @@ export default function Customers() {
     // Data state
     const [customers, setCustomers] = useState([]);
     const [editingCustomer, setEditingCustomer] = useState(null);
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
 
     // Modal state
     const [modalOpen, setModalOpen] = useState(false);
@@ -34,7 +39,20 @@ export default function Customers() {
     const [totalCount, setTotalCount] = useState(0);
 
     const { setLoading } = useLoading();
+    const { isLogin, user } = useLogin();
+    const router = useRouter();
     const buttonRef = useRef(null);
+
+    // Check authorization
+    useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
 
     const headerData = [
         {
@@ -78,26 +96,32 @@ export default function Customers() {
 
     const fetchCustomers = async () => {
         setLoading(true);
-        const body = {
-            pageIndex: pageIndex + 1,
-            pageSize: rowPerPage,
-            isActive: filterIsActive === "true" ? true : filterIsActive === "false" ? false : null
+        try {
+            const body = {
+                pageIndex: pageIndex + 1,
+                pageSize: rowPerPage,
+                isActive: filterIsActive === "true" ? true : filterIsActive === "false" ? false : null
+            }
+            if (filterFullName) {
+                body.fullName = filterFullName;
+            }
+            if (filterEmail) {
+                body.email = filterEmail;
+            }
+            const response = await customerService.getAllCustomers(body);
+            setCustomers(response.data.items);
+            setTotalCount(response.data.totalCount);
+        } catch (error) {
+            console.error("Error fetching customers:", error);
+        } finally {
+            setLoading(false);
         }
-        if (filterFullName) {
-            body.fullName = filterFullName;
-        }
-        if (filterEmail) {
-            body.email = filterEmail;
-        }
-        const response = await customerService.getAllCustomers(body);
-        setCustomers(response.data.items);
-        setTotalCount(response.data.totalCount);
-        setLoading(false);
     };
 
     useEffect(() => {
+        if (!pageReady) return;
         fetchCustomers();
-    }, [pageIndex, rowPerPage]);
+    }, [pageIndex, rowPerPage, pageReady]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -124,11 +148,18 @@ export default function Customers() {
             return;
         }
         setLoading(true);
-        await customerService.deleteCustomer(customer.userId);
-        fetchCustomers();
-        setModalSuccessMessage("Xoá khách hàng thành công");
-        setModalSuccessOpen(true);
-        setLoading(false);
+        try {
+            await customerService.deleteCustomer(customer.userId);
+            fetchCustomers();
+            setModalSuccessMessage("Xoá khách hàng thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            console.error("Error deleting customer:", error);
+            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleConfirm = async (customerData) => {
@@ -156,8 +187,12 @@ export default function Customers() {
         setFilterFullName("");
         setFilterEmail("");
         setFilterIsActive(null);
-        fetchCustomers();
+        setPageIndex(0);
     };
+
+    if (!pageReady) {
+        return <Loader />;
+    }
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
@@ -203,7 +238,10 @@ export default function Customers() {
                     <div className="flex justify-center gap-2">
                         <button
                             className="px-4 py-2 background-primary text-white rounded cursor-pointer"
-                            onClick={() => fetchCustomers()}
+                            onClick={() => { 
+                                setPageIndex(0); 
+                                fetchCustomers(); 
+                            }}
                             ref={buttonRef}
                         >
                             Lọc

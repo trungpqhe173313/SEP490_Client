@@ -7,18 +7,20 @@ import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import { useLogin } from "@/context/LoginContext";
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
+import Loader from "@/components/Loader/loader";
 
 export default function Exports() {
   const router = useRouter();
+  const { isLogin, user } = useLogin();
 
   const navigate = (path) => {
-    setLoading(true);
     router.push(path);
   };
 
@@ -60,6 +62,19 @@ export default function Exports() {
 
   const { setLoading } = useLoading();
   const buttonRef = useRef(null);
+  const [pageReady, setPageReady] = useState(false);
+
+  const pageRole = ["Manager"];
+
+  useEffect(() => {
+    if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+      setPageReady(true);
+    } else if (!isLogin) {
+      router.push("/login");
+    } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+      router.push("/");
+    }
+  }, [isLogin, user, router]);
 
   const getStatus = (string) => {
     switch (string) {
@@ -168,31 +183,38 @@ export default function Exports() {
   }
 
   useEffect(() => {
+    if (!pageReady) return;
     fetchSuppliers("");
     fetchWarehouses("");
-  }, []);
+  }, [pageReady]);
 
   const fetchExports = async () => {
     setLoading(true);
-    const body = {
-      pageIndex: pageIndex + 1,
-      pageSize: rowPerPage,
-      supplierId: filterSupplierId || null,
-      warehouseId: filterWarehouseId || null,
-      status: parseInt(filterStatus) || null,
-      type: filterType || null,
-      transactionFromDate: filterTransactionFromDate || null,
-      transactionToDate: filterTransactionToDate || null
-    };
-    const response = await exportService.getAllExports(body);
-    setExports(response.data.items);
-    setTotalCount(response.data.totalCount);
-    setLoading(false);
+    try {
+      const body = {
+        pageIndex: pageIndex + 1,
+        pageSize: rowPerPage,
+        supplierId: filterSupplierId || null,
+        warehouseId: filterWarehouseId || null,
+        status: parseInt(filterStatus) || null,
+        type: filterType || null,
+        transactionFromDate: filterTransactionFromDate || null,
+        transactionToDate: filterTransactionToDate || null
+      };
+      const response = await exportService.getAllExports(body);
+      setExports(response.data.items);
+      setTotalCount(response.data.totalCount);
+    } catch (error) {
+      console.error("Error fetching exports:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
+    if (!pageReady) return;
     fetchExports();
-  }, [pageIndex, rowPerPage]);
+  }, [pageIndex, rowPerPage, pageReady]);
 
   const formatDateToInput = (dt) => {
     return dt.toISOString().split('T')[0];
@@ -225,24 +247,25 @@ export default function Exports() {
     }
   };
 
-    useEffect(() => {
-        validateFields();
-    }, [filterTransactionFromDate, filterTransactionToDate]);
+  useEffect(() => {
+    validateFields();
+  }, [filterTransactionFromDate, filterTransactionToDate]);
 
-    const validateFields = () => {
-        if (filterTransactionToDate && filterTransactionFromDate > filterTransactionToDate) {
-            setErrorToTransactionDate("Ngày giao dịch đến phải lớn hơn ngày giao dịch từ");
-            return false;
-        }
-        setErrorToTransactionDate("");
-        return true;
-    };
+  const validateFields = () => {
+    if (filterTransactionToDate && filterTransactionFromDate > filterTransactionToDate) {
+      setErrorToTransactionDate("Ngày giao dịch đến phải lớn hơn ngày giao dịch từ");
+      return false;
+    }
+    setErrorToTransactionDate("");
+    return true;
+  };
 
-    const handleApplyFilter = () => {
-        if (validateFields()) {
-            fetchExports();
-        }
-    };
+  const handleApplyFilter = () => {
+    if (validateFields()) {
+      setPageIndex(0);
+      fetchExports();
+    }
+  };
 
   const handleClearFilter = () => {
     setFilterSupplierId(null);
@@ -253,34 +276,13 @@ export default function Exports() {
     setFilterType("");
     setFilterTransactionFromDate("");
     setFilterTransactionToDate("");
-    fetchExports();
+    setErrorToTransactionDate("");
+    setPageIndex(0);
   };
 
-  // const handleCreate = () => {
-  //     setEditingImport(null);
-  //     setModalOpen(true);
-  // };
-
-  // const handleConfirm = async (importData) => {
-  //     setLoading(true);
-  //     try {
-  //         if (editingImport) {
-  //             await importService.updateImport(editingImport.importId, importData);
-  //             setModalSuccessMessage("Cập nhật phiếu xuất kho thành công");
-  //         } else {
-  //             await importService.createImport(importData);
-  //             setModalSuccessMessage("Tạo phiếu xuất kho thành công");
-  //         }
-  //         setModalSuccessOpen(true);
-  //         setModalOpen(false);
-  //         fetchImports();
-  //     } catch (error) {
-  //         setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
-  //         setModalFailedOpen(true);
-  //     } finally {
-  //         setLoading(false);
-  //     }
-  // };
+  if (!pageReady) {
+    return <Loader />;
+  }
 
   return (
     <div className="flex flex-col p-4">

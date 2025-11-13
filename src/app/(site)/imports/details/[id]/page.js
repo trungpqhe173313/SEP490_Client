@@ -5,16 +5,35 @@ import { numberToVietnamese } from '@/lib/numberToVietnamese';
 import { convertKgToTon } from '@/lib/convertToTon';
 import { useLoading } from '@/context/LoadingContext';
 import TableCommon from "@/components/Table/table";
+import { useLogin } from "@/context/LoginContext";
+import { useRouter } from "next/navigation";
+import Loader from "@/components/Loader/loader";
+
 
 export default function ImportDetail({ params }) {
     const { setLoading } = useLoading();
     const { id } = React.use(params);
+    const router = useRouter();
+    const { isLogin, user } = useLogin();
 
     const [transaction, setTransaction] = useState({});
     const [supplier, setSupplier] = useState({});
     const [products, setProducts] = useState([]);
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
 
-    const fetchTransaction = async (id) => {
+    // Check authorization
+    useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
+
+    const fetchTransaction = async () => {
         try {
             if (!id) return;
             setLoading(true);
@@ -22,16 +41,17 @@ export default function ImportDetail({ params }) {
             setTransaction(res.data);
             setSupplier(res.data.supplier);
             setProducts(res.data.list);
-            setLoading(false);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 
     useEffect(() => {
-        fetchTransaction(id);
-        setLoading(false)
-    }, [])
+        if (!pageReady) return;
+        fetchTransaction();
+    }, [pageReady])
 
     const getStatus = (string) => {
         switch (string) {
@@ -105,6 +125,8 @@ export default function ImportDetail({ params }) {
     const formatLargeNumber = (number) => {
         return number.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
     }
+
+    if (!pageReady) return <Loader />;
 
     return (
         <div className='flex flex-col gap-4 w-full'>

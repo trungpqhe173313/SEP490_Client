@@ -28,10 +28,13 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useLogin } from "@/context/LoginContext";
+import Loader from "@/components/Loader/loader";
 
 export default function CreateImport() {
     const router = useRouter();
     const { setLoading } = useLoading();
+    const { isLogin, user } = useLogin();
     const [rows, setRows] = useState([]);
     const [filteredRows, setFilteredRows] = useState(rows);
     const today = new Date();
@@ -61,6 +64,20 @@ export default function CreateImport() {
     const [validWarehouseMessage, setValidWarehouseMessage] = useState("");
     const [validSupplierMessage, setValidSupplierMessage] = useState("");
     const [validExpireDateMessage, setValidExpireDateMessage] = useState("");
+
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
+
+    // Check authorization
+    useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
 
     const total = rows.reduce(
         (sum, r) => sum + (r.unitPrice - r.discount) * r.quantity,
@@ -111,7 +128,6 @@ export default function CreateImport() {
     }
 
     const navigate = (path) => {
-        setLoading(true);
         router.push(path);
     };
     const formatDateToInput = (dt) => {
@@ -221,7 +237,7 @@ export default function CreateImport() {
     }
 
     const handleSubmit = async () => {
-        if (!validateFields() || !validateProducts()    ) {
+        if (!validateFields() || !validateProducts()) {
             return;
         }
         setLoading(true);
@@ -267,6 +283,8 @@ export default function CreateImport() {
         fetchProduct(selectedSupplier.supplierId);
         setLoading(false);
     }, [selectedSupplier]);
+
+    if (!pageReady) return <Loader/>
 
     return (
         <div className="p-4 bg-gray-50 h-auto flex gap-6 grid grid-cols-4">

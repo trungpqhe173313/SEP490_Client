@@ -24,10 +24,13 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
+import { useLogin } from "@/context/LoginContext";
+import Loader from "@/components/Loader/loader";
 
 export default function UpdateExport({ params }) {
     const router = useRouter();
     const { id } = React.use(params);
+    const { isLogin, user } = useLogin();
     const { setLoading } = useLoading();
     const [products, setProducts] = useState([]);
 
@@ -52,14 +55,27 @@ export default function UpdateExport({ params }) {
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 14;
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
+
+    // Check authorization
+    useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
 
     const navigate = (path) => {
-        setLoading(true);
         router.push(path);
     };
 
     const fetchExport = async () => {
         setLoading(true);
+        if (!id) return;
         await exportService.getExportDetail(id).then((response) => {
             setExportData(response.data);
             setStatus(response.data.status);
@@ -100,10 +116,6 @@ export default function UpdateExport({ params }) {
         setLoading(false);
     };
 
-    useEffect(() => {
-        console.log(cart);
-    }, [cart]);
-
     const searchProducts = async (name) => {
         try {
             setProductLoading(true);
@@ -119,8 +131,9 @@ export default function UpdateExport({ params }) {
     }
 
     useEffect(() => {
+        if (!pageReady) return;
         fetchExport();
-    }, []);
+    }, [pageReady]);
 
     const handleAddCart = (product) => {
         const existingProduct = cart.find((p) => p.productId === product.productId);
@@ -233,6 +246,10 @@ export default function UpdateExport({ params }) {
     const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
     const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
     const totalPages = Math.ceil(products.length / itemsPerPage);
+
+    if (!pageReady) {
+        return <Loader />
+    }
 
     return (
         <div className="grid grid-cols-10 gap-4 px-4">

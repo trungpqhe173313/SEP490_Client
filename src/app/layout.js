@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
 import { LoadingProvider } from "@/context/LoadingContext";
+import { LoginProvider } from "@/context/LoginContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +27,11 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LoadingProvider>
-          <ClientLayout>{children}</ClientLayout>
-        </LoadingProvider>
+        <LoginProvider>
+          <LoadingProvider>
+            <ClientLayout>{children}</ClientLayout>
+          </LoadingProvider>
+        </LoginProvider>
       </body>
     </html>
   );

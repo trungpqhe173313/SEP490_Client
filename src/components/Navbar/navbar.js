@@ -1,7 +1,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useLoading } from "@/context/LoadingContext";
 import { useState } from "react";
+import { useLogin } from "@/context/LoginContext";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -33,14 +33,20 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const Navbar = () => {
   const router = useRouter();
+  const { user } = useLogin();
 
   const navigate = (path) => {
-    setLoading(true);
     router.push(path);
   };
 
   const [hovered, setHovered] = useState(null);
-  const { setLoading } = useLoading();
+
+  const isShown = (role) => {
+    if (role.includes("All")) {
+      return true;
+    }
+    return user?.roles?.some((r) => role.includes(r));
+  };
 
   const navItems = [
     {
@@ -50,7 +56,7 @@ const Navbar = () => {
         {
           name: "Trang chủ",
           link: "/",
-          role: "all",
+          role: ["All", "Manager", "Admin"],
           icon: <HomeIcon />
         }
       ]
@@ -62,13 +68,13 @@ const Navbar = () => {
         {
           name: "Sản phẩm",
           link: "/products",
-          role: "all",
+          role: ["Manager"],
           icon: <ListAltIcon />
         },
         {
           name: "Danh mục",
           link: "/categories",
-          role: "all",
+          role: ["Manager"],
           icon: <CategoryIcon />
         },
         // {
@@ -92,7 +98,7 @@ const Navbar = () => {
         {
           name: "Nhân viên",
           link: "/employees",
-          role: "all",
+          role: ["Manager"],
           icon: <AccessibilityNewIcon />
         },
         // {
@@ -116,19 +122,19 @@ const Navbar = () => {
         {
           name: "Khách hàng",
           link: "/customers",
-          role: "all",
+          role: ["Manager"],
           icon: <EmojiPeopleIcon />
         },
         {
           name: "Nhà cung cấp",
           link: "/suppliers",
-          role: "all",
+          role: ["Manager"],
           icon: <PermContactCalendarIcon />
         },
         {
           name: "Hợp đồng",
           link: "/contracts",
-          role: "all",
+          role: ["Manager"],
           icon: <NoteAltIcon />
         }
       ],
@@ -140,19 +146,19 @@ const Navbar = () => {
         {
           name: "Kiểm kho",
           link: "/warehouses",
-          role: "all",
+          role: ["Manager"],
           icon: <ContentPasteSearchIcon />
         },
         {
           name: "Nhập kho",
           link: "/imports",
-          role: "all",
+          role: ["Manager"],
           icon: <AddShoppingCartIcon />
         },
         {
           name: "Xuất kho",
           link: "/exports",
-          role: "all",
+          role: ["Manager"],
           icon: <LaunchIcon />
         },
         // {
@@ -181,8 +187,8 @@ const Navbar = () => {
         // },
         {
           name: "Lịch sử đơn hàng",
-          link: "/orderHistory",
-          role: "all",
+          link: "/order-history",
+          role: ["Customer"],
           icon: <ShoppingBasketIcon />
         }
       ]
@@ -208,36 +214,46 @@ const Navbar = () => {
   ];
 
   return (
-    <div className="fixed left-0 top-12 w-50 h-screen background-primary text-white flex flex-col gap-2 py-4 pl-4">
-      {navItems.map((item, index) => (
-        <div
-          key={index}
-          className="background-primary hover:bg-green-800 px-3 py-2 cursor-pointer relative flex items-center gap-2"
-          onMouseEnter={() => setHovered(index)}
-          onMouseLeave={() => setHovered(null)}
-        >
-          {item.icon}
-          <span className="font-bold">{item.label}</span>
-          {hovered === index && (
-            <div
-              className={`top-0 absolute left-full background-selected text-white shadow-lg w-40 z-20 animate-fade-in`}
-              onMouseEnter={() => setHovered(index)}
-              onMouseLeave={() => setHovered(null)}
-            >
-              {item.subItems.map((sub) => (
-                <div
-                  key={sub.name}
-                  className="px-4 py-2 hover:bg-green-600 cursor-pointer text-sm flex items-center gap-2"
-                  onClick={() => navigate(sub.link)}
-                >
-                  {sub.icon}
-                  {sub.name}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
+    <div className="fixed left-0 top-15 w-50 h-screen background-primary text-white flex flex-col">
+      {navItems.map((item, index) => {
+        // Filter subItems based on role and check if any remain
+        const visibleSubItems = item.subItems.filter((sub) => isShown(sub.role));
+        
+        // Hide the main item if no sub-items are visible
+        if (visibleSubItems.length === 0) {
+          return null;
+        }
+
+        return (
+          <div
+            key={index}
+            className="background-primary hover:bg-green-800 p-4 cursor-pointer relative flex items-center gap-2"
+            onMouseEnter={() => setHovered(index)}
+            onMouseLeave={() => setHovered(null)}
+          >
+            {item.icon}
+            <span className="font-bold">{item.label}</span>
+            {hovered === index && (
+              <div
+                className={`top-0 absolute left-full background-selected text-white shadow-lg w-40 z-20 animate-fade-in`}
+                onMouseEnter={() => setHovered(index)}
+                onMouseLeave={() => setHovered(null)}
+              >
+                {visibleSubItems.map((sub) => (
+                  <div
+                    key={sub.name}
+                    className="p-4 hover:bg-green-600 cursor-pointer text-sm flex items-center gap-2"
+                    onClick={() => navigate(sub.link)}
+                  >
+                    {sub.icon}
+                    {sub.name}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

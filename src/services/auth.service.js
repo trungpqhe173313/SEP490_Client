@@ -82,10 +82,11 @@ class AuthService {
 
   // Logout function
   logout() {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userInfo");
-    localStorage.removeItem("token");
+    localStorage.clear();
+    // localStorage.removeItem("accessToken");
+    // localStorage.removeItem("refreshToken");
+    // localStorage.removeItem("userInfo");
+    // localStorage.removeItem("token");
   }
 
   // Refresh token function (if needed in the future)

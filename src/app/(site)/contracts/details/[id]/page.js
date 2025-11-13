@@ -2,38 +2,60 @@
 import React, { useState, useEffect } from 'react';
 import { contractService } from '@/services/contract.service';
 import { useLoading } from '@/context/LoadingContext';
+import { useLogin } from "@/context/LoginContext";
+import { useRouter } from "next/navigation";
+import Loader from "@/components/Loader/loader";
 
 export default function ContractDetails({ params }) {
     const { id } = React.use(params);
     const { setLoading } = useLoading();
+    const router = useRouter();
+    const { isLogin, user } = useLogin();
 
     const [contract, setContract] = useState({});
     const [customer, setCustomer] = useState(null);
     const [supplier, setSupplier] = useState(null);
     const [showImage, setShowImage] = useState(false);
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
+
+    // Check authorization
+    useEffect(() => {
+        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else if (!isLogin) {
+            router.push("/login");
+        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            router.push("/");
+        }
+    }, [isLogin, user, router]);
 
     useEffect(() => {
+        if (!pageReady) return;
         fetchContract();
-    }, [])
+    }, [pageReady])
 
     const fetchContract = async () => {
         try {
+            if (!id) return;
             setLoading(true);
             const res = await contractService.getContractByID(id);
             setContract(res.data);
-            res.data.customer ? setCustomer(res.data.customer) : setSupplier(res.data.supplier);
-            setLoading(false);
+            res.data.customer.userId !== null && setCustomer(res.data.customer);
+            res.data.supplier.supplierId !== null && setSupplier(res.data.supplier);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
-    }
-    
-    const handlePDF = (url) => {
-        window.open(url, "_blank");
     }
 
     const toggleImage = () => {
         setShowImage(!showImage);
+    }
+
+    if (!pageReady) {
+        return <Loader />;
     }
 
     return (
@@ -94,22 +116,16 @@ export default function ContractDetails({ params }) {
                             </React.Fragment>
                         }
                         <tr>
-                            <td className="p-4">PDF hợp đồng</td>
-                            <td className="p-4 w-8/10">
-                                <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => handlePDF(contract?.pdf)}>Xem hợp đồng</button>
-                            </td>
-                        </tr>
-                        <tr>
                             <td className="p-4">Ảnh hợp đồng</td>
                             <td className="p-4 w-8/10">
-                                <button className='background-primary text-white px-4 py-2 rounded-md' onClick={toggleImage}>{showImage ? "Đóng ảnh" : "Xem ảnh" }</button>
+                                <button className='background-primary text-white px-4 py-2 rounded-md' onClick={toggleImage}>{showImage ? "Đóng ảnh" : "Xem ảnh"}</button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
                 {showImage &&
                     <div className='w-full bg-white p-4 rounded-xl'>
-                        <img src={contract?.image} className='h-screen w-auto mx-auto' alt="" />
+                        <img src={contract?.image} className='h-screen w-auto mx-auto border-1 border-black rounded-xl' alt="Ảnh hợp đồng" />
                     </div>
                 }
             </div>
