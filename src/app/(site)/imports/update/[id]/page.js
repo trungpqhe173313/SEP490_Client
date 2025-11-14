@@ -93,7 +93,7 @@ export default function UpdateImport({ params }) {
     }
 
     const removeLeadingZero = (number) => {
-        if (number === null) return 0;
+        if (number === null || isNaN(number)) return 0;
         return number.toString().replace(/^0+/, '');
     }
 
