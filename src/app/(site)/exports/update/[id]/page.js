@@ -236,6 +236,7 @@ export default function UpdateExport({ params }) {
         setLoading(true);
         const body = {
             note,
+            totalCost: totalPrice,
             listProductOrder: cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).map((p) => ({ productId: p.productId, quantity: p.orderQuantity, unitPrice: p.unitPrice })),
             status: parseInt(status)
         };

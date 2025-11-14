@@ -224,6 +224,7 @@ export default function CreateExport() {
         setLoading(true);
         const body = {
             note,
+            totalCost: total,
             listProductOrder: cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).map((p) => ({ productId: p.productId, quantity: p.orderQuantity, unitPrice: p.unitPrice })),
         };
         await exportService.createExport(selectedCustomer.userId, body)

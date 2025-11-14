@@ -261,6 +261,7 @@ export default function CreateImport() {
                     quantity: r.quantity,
                     unitPrice: r.unitPrice
                 })),
+            totalCost: total,
             expireDate: expireDate,
             note: note
         }

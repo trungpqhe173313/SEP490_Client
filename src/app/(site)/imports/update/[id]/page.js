@@ -206,7 +206,8 @@ export default function UpdateImport({ params }) {
                     unitPrice: r.unitPrice
                 })),
             status: parseInt(status),
-            // expireDate: expireDate,
+            expireDate: expireDate,
+            totalCost: totalPrice,
             note: note
         }
         await importService.updateImport(id, body)
