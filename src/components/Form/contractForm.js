@@ -70,7 +70,6 @@ export function ContractForm({
         userId: null,
         supplierId: null,
         image: "",
-        pdf: "",
       });
     }
     setError("");
@@ -178,6 +177,8 @@ export function ContractForm({
     handleChange('image', file);
   };
 
+  const formatImageURL = (url) => typeof url === 'string' ? url : URL.createObjectURL(url);
+
   return (
     <Modal open={isOpen} onClose={onClose}>
       <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -258,7 +259,7 @@ export function ContractForm({
               />
               {form.image && (
                 <div className="mt-2">
-                  <img src={URL.createObjectURL(form.image)} alt="Preview" className="w-full h-auto" />
+                  <img src={formatImageURL(form.image)} alt="Preview" className="w-full h-auto" />
                 </div>
               )}
             </div>

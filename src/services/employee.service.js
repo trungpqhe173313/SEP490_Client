@@ -10,11 +10,19 @@ export const employeeService = {
         return response.data;
     },
     createEmployee: async (data) => {
-        const response = await API.post('/employees/CreateEmployee', data);
+        const response = await API.post('/employees/CreateEmployee', data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return response.data;
     },
     updateEmployee: async (id, data) => {
-        const response = await API.put(`/employees/UpdateEmployee/${id}`, data);
+        const response = await API.put(`/employees/UpdateEmployee/${id}`, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return response.data;
     },
     deleteEmployee: async (id) => {

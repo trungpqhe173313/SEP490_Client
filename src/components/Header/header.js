@@ -10,7 +10,7 @@ const Header = () => {
   const router = useRouter();
   const [toggle, setToggle] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const { isLogin, user, refreshUserInfo } = useLogin();
+  const { isLogin, user } = useLogin();
 
 
   const handleLogOut = () => {
@@ -26,7 +26,7 @@ const Header = () => {
 
       <div className="flex items-center gap-4 text-sm text-gray-600">
         {isLogin &&
-          <p>Xin chào, {user.username}</p>
+          <p>Xin chào, {user.fullName}</p>
         }
         {isLogin == true ? (
           <div

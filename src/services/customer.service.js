@@ -10,11 +10,19 @@ export const customerService = {
         return response.data;
     },
     createCustomer: async (data) => {
-        const response = await API.post('/customers/CreateCustomer', data);
+        const response = await API.post('/customers/CreateCustomer', data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return response.data;
     },
     updateCustomer: async (id, data) => {
-        const response = await API.put(`/customers/UpdateCustomer/${id}`, data);
+        const response = await API.put(`/customers/UpdateCustomer/${id}`, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return response.data;
     },
     deleteCustomer: async (id) => {

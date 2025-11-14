@@ -40,7 +40,7 @@ export function SupplierForm({
                 supplierName: initialData.supplierName || "",
                 email: initialData.email || "",
                 phone: initialData.phone || "",
-                isActive: initialData.isActive || true,
+                isActive: initialData.isActive ?? true,
             });
         } else {
             setForm({

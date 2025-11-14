@@ -94,7 +94,7 @@ export function ProductForm({
         if (initialData) {
             setForm({
                 productName: initialData.productName || "",
-                imageURL: initialData.imageURL || "https://picsum.photos/200",
+                imageURL: initialData.imageURL || "",
                 code: initialData.code || "",
                 weightPerUnit: initialData.weightPerUnit || "",
                 description: initialData.description || "",
@@ -110,7 +110,7 @@ export function ProductForm({
         } else {
             setForm({
                 productName: "",
-                imageURL: "https://picsum.photos/200",
+                imageURL: "",
                 code: "",
                 weightPerUnit: "",
                 description: "",
@@ -216,6 +216,19 @@ export function ProductForm({
         onClose();
     };
 
+    const handleFileChange = (file) => {
+        if (!file) return;
+        const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+        if (!allowedImageTypes.includes(file.type)) {
+            setError("Chỉ chấp nhận định dạng ảnh: JPG, PNG, GIF, WEBP");
+            return;
+        }
+        setError("");
+        handleChange('imageURL', file);
+    };
+
+    const formatImageUrl = (url) => typeof url === 'string' ? url : URL.createObjectURL(url);
+
     return (
         <Modal
             open={isOpen}
@@ -237,6 +250,39 @@ export function ProductForm({
                     </div>
 
                     <form onSubmit={handleSubmit} ref={formRef} onInput={clearOnInput} className="space-y-4 p-8">
+                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
+                            <div className="grid grid-cols-1">
+                                <label className="block text-md font-bold">Hình ảnh</label>
+                                <p className="text-xs text-gray-500">Chọn hình ảnh cho sản phẩm (JPG, PNG, GIF, WEBP)</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <label
+                                    htmlFor="image"
+                                    className="px-3 py-2 rounded-md background-primary text-white cursor-pointer"
+                                >
+                                    Chọn hình ảnh
+                                </label>
+                                {form.image && <button
+                                    type="button"
+                                    className="px-3 py-2 rounded-md bg-red-600 text-white cursor-pointer"
+                                    onClick={() => handleChange("image", "")}
+                                >
+                                    Xóa hình ảnh
+                                </button>}
+                            </div>
+                            <input
+                                id="image"
+                                type="file"
+                                accept="image/jpeg,image/png,image/gif,image/webp"
+                                onChange={(e) => handleFileChange(e.target.files?.[0])}
+                                hidden
+                            />
+                            {form.image && (
+                                <div className="mt-2 flex justify-center">
+                                    <img src={formatImageUrl(form.imageURL)} alt="Preview" className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
+                                </div>
+                            )}
+                        </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
                                 <label className="block text-md font-bold">Tên sản phẩm</label>

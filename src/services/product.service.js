@@ -14,11 +14,19 @@ export const productService = {
         return response.data;
     },
     createProduct: async (data) => {
-        const response = await API.post('/products/CreateProduct', data);
+        const response = await API.post('/products/CreateProduct', data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return response.data;
     },
     updateProduct: async (id, data) => {
-        const response = await API.put(`/products/UpdateProduct/${id}`, data);
+        const response = await API.put(`/products/UpdateProduct/${id}`, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return response.data;
     },
     deleteProduct: async (id) => {
