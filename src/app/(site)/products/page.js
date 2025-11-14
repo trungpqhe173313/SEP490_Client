@@ -57,8 +57,8 @@ export default function Products() {
     const [totalCount, setTotalCount] = useState(0);
 
     // Loading state
-    const { setLoading } = useLoading();
-    const { isLogin, user } = useLogin();
+    const { loading, setLoading } = useLoading();
+    const { isLogin, user, refreshUserInfo } = useLogin();
     const router = useRouter();
     const buttonRef = useRef(null);
     const [pageReady, setPageReady] = useState(false);
@@ -99,7 +99,7 @@ export default function Products() {
                 createdFrom: filterFromCreatedDate || null,
                 createdTo: filterToCreatedDate || null
             };
-            const response = await product.getAllProducts(body);
+            const response = await productService.getAllProducts(body);
             setProducts(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
@@ -160,14 +160,24 @@ export default function Products() {
     }, [pageReady]);
 
     useEffect(() => {
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+        refreshUserInfo();
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
+        
+    }, [isLogin, user, loading]);
 
     useEffect(() => {
         if (!pageReady) return;
@@ -270,7 +280,7 @@ export default function Products() {
         }
         setLoading(true);
         try {
-            await product.deleteProduct(product.productId);
+            await productService.deleteProduct(product.productId);
             fetchProducts();
             setModalSuccessMessage("Xoá sản phẩm thành công");
             setModalSuccessOpen(true);
@@ -461,6 +471,7 @@ export default function Products() {
                     rowPerPageOptions={[5, 10, 20]}
                     handleChangePage={handleChangePage}
                     handleChangeRowPerPage={handleChangeRowPerPage}
+                    navigateDetail={(item) => router.push(`/products/details/${item.productId}`)}
                     handleEdit={handleEdit}
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa sản phẩm này không?"

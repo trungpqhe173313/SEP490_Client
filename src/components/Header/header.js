@@ -10,7 +10,7 @@ const Header = () => {
   const router = useRouter();
   const [toggle, setToggle] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const { isLogin, user } = useLogin();
+  const { isLogin, user, refreshUserInfo } = useLogin();
 
 
   const handleLogOut = () => {

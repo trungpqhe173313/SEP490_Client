@@ -34,8 +34,8 @@ export default function Employees() {
     const [totalCount, setTotalCount] = useState(0);
 
     const pageRole = ["Manager"];
-    const { setLoading } = useLoading();
-    const { isLogin, user } = useLogin();
+    const { loading, setLoading } = useLoading();
+    const { isLogin, user, refreshUserInfo } = useLogin();
     const router = useRouter();
     const buttonRef = useRef(null);
     const [pageReady, setPageReady] = useState(false);
@@ -106,14 +106,24 @@ export default function Employees() {
     };
 
     useEffect(() => {
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+        refreshUserInfo();
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
+        
+    }, [isLogin, user, loading]);
 
     useEffect(() => {
         if (!pageReady) return;
@@ -270,6 +280,7 @@ export default function Employees() {
                     rowPerPageOptions={[5, 10, 20]}
                     handleChangePage={handleChangePage}
                     handleChangeRowPerPage={handleChangeRowPerPage}
+                    navigateDetail={(item) => router.push(`/employees/details/${item.userId}`)}
                     handleEdit={handleEdit}
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa nhân viên này không?"

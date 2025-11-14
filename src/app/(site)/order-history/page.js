@@ -15,8 +15,8 @@ import Loader from "@/components/Loader/loader";
 
 export default function page() {
   const router = useRouter();
-  const { setLoading } = useLoading();
-  const { isLogin, user } = useLogin();
+  const { loading, setLoading } = useLoading();
+  const { isLogin, user, refreshUserInfo } = useLogin();
 
   //Data state
   const [orders, setOrders] = useState([]);

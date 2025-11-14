@@ -15,7 +15,7 @@ export default function Warehouses() {
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
     const [editingWarehouse, setEditingWarehouse] = useState(null);
-    const { setLoading } = useLoading();
+    const { loading, setLoading } = useLoading();
 
     const headerData = [
         {

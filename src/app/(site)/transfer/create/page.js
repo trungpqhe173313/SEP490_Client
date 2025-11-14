@@ -3,7 +3,7 @@ import { useLoading } from '@/context/LoadingContext'
 
 
 export default function CreateTransfer() {
-    const { setLoading } = useLoading();
+    const { loading, setLoading } = useLoading();
     useEffect(() => {
         setLoading(false);
     })

@@ -36,21 +36,31 @@ export default function Categories() {
     const [rowPerPage, setRowPerPage] = useState(20);
     const [totalCount, setTotalCount] = useState(0);
 
-    const { setLoading } = useLoading();
-    const { isLogin, user } = useLogin();
+    const { loading, setLoading } = useLoading();
+    const { isLogin, user, refreshUserInfo } = useLogin();
     const router = useRouter();
     const buttonRef = useRef(null);
 
     // Check authorization
     useEffect(() => {
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+        refreshUserInfo();
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
+        
+    }, [isLogin, user, loading]);
 
     const headerData = [
         {
@@ -168,7 +178,7 @@ export default function Categories() {
             setModalOpen(false);
             fetchCategories();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -243,6 +253,7 @@ export default function Categories() {
                     rowPerPageOptions={[5, 10, 20]}
                     handleChangePage={handleChangePage}
                     handleChangeRowPerPage={handleChangeRowPerPage}
+                    navigateDetail={(item) => router.push(`/categories/details/${item.categoryId}`)}
                     handleEdit={handleEdit}
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa danh mục này không?"

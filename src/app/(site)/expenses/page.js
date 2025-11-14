@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
 
 export default function Expenses() {
-    const { setLoading } = useLoading();
+    const { loading, setLoading } = useLoading();
     
     useEffect(() => {
         setLoading(false);

@@ -61,8 +61,8 @@ export default function Imports() {
     const [warehouseLoading, setWarehouseLoading] = useState(false);
 
     const pageRole = ["Manager"];
-    const { setLoading } = useLoading();
-    const { isLogin, user } = useLogin();
+    const { loading, setLoading } = useLoading();
+    const { isLogin, user, refreshUserInfo } = useLogin();
     const buttonRef = useRef(null);
     const [pageReady, setPageReady] = useState(false);
 
@@ -199,14 +199,24 @@ export default function Imports() {
     };
 
     useEffect(() => {
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+        refreshUserInfo();
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
+        
+    }, [isLogin, user, loading]);
 
     useEffect(() => {
         if (!pageReady) return;

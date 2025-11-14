@@ -18,7 +18,7 @@ import Loader from "@/components/Loader/loader";
 
 export default function Exports() {
   const router = useRouter();
-  const { isLogin, user } = useLogin();
+  const { isLogin, user, refreshUserInfo } = useLogin();
 
   const navigate = (path) => {
     router.push(path);
@@ -60,7 +60,7 @@ export default function Exports() {
   const [supplierLoading, setSupplierLoading] = useState(false);
   const [warehouseLoading, setWarehouseLoading] = useState(false);
 
-  const { setLoading } = useLoading();
+  const { loading, setLoading } = useLoading();
   const buttonRef = useRef(null);
   const [pageReady, setPageReady] = useState(false);
 

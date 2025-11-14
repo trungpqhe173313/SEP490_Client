@@ -27,11 +27,11 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LoginProvider>
-          <LoadingProvider>
+        <LoadingProvider>
+          <LoginProvider>
             <ClientLayout>{children}</ClientLayout>
-          </LoadingProvider>
-        </LoginProvider>
+          </LoginProvider>
+        </LoadingProvider>
       </body>
     </html>
   );

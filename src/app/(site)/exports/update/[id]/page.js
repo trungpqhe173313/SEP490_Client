@@ -30,8 +30,8 @@ import Loader from "@/components/Loader/loader";
 export default function UpdateExport({ params }) {
     const router = useRouter();
     const { id } = React.use(params);
-    const { isLogin, user } = useLogin();
-    const { setLoading } = useLoading();
+    const { isLogin, user, refreshUserInfo } = useLogin();
+    const { loading, setLoading } = useLoading();
     const [products, setProducts] = useState([]);
 
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -60,14 +60,24 @@ export default function UpdateExport({ params }) {
 
     // Check authorization
     useEffect(() => {
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+        refreshUserInfo();
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
+        
+    }, [isLogin, user, loading]);
 
     const navigate = (path) => {
         router.push(path);

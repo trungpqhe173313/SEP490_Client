@@ -1,12 +1,15 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import authService from "@/services/auth.service";
+import { useLoading } from "./LoadingContext";
 
 const LoginContext = createContext();
 
 export function LoginProvider({ children }) {
     const [isLogin, setIsLogin] = useState(false);
     const [user, setUser] = useState({});
+
+    const { loading, setLoading } = useLoading();
 
     const refreshUserInfo = () => {
         if (authService.isAuthenticated()) {
@@ -20,6 +23,7 @@ export function LoginProvider({ children }) {
 
     useEffect(() => {
         refreshUserInfo();
+        setLoading(false);
     }, []);
 
     return (

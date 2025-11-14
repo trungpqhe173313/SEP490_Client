@@ -59,20 +59,30 @@ export default function Contracts() {
     const [totalCount, setTotalCount] = useState(0);
 
     //Loading state
-    const { setLoading } = useLoading();
-    const { isLogin, user } = useLogin();
+    const { loading, setLoading } = useLoading();
+    const { isLogin, user, refreshUserInfo } = useLogin();
     const buttonRef = useRef(null);
 
     // Check authorization
     useEffect(() => {
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+        refreshUserInfo();
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
+        
+    }, [isLogin, user, loading]);
 
     //Table headers
     const headerData = [

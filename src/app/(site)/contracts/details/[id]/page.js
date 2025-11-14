@@ -8,9 +8,9 @@ import Loader from "@/components/Loader/loader";
 
 export default function ContractDetails({ params }) {
     const { id } = React.use(params);
-    const { setLoading } = useLoading();
+    const { loading, setLoading } = useLoading();
     const router = useRouter();
-    const { isLogin, user } = useLogin();
+    const { isLogin, user, refreshUserInfo } = useLogin();
 
     const [contract, setContract] = useState({});
     const [customer, setCustomer] = useState(null);
@@ -21,14 +21,24 @@ export default function ContractDetails({ params }) {
 
     // Check authorization
     useEffect(() => {
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+        refreshUserInfo();
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
+        
+    }, [isLogin, user, loading]);
 
     useEffect(() => {
         if (!pageReady) return;

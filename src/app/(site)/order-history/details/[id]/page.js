@@ -10,9 +10,9 @@ import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
 
 export default function ExportDetail({ params }) {
-    const { setLoading } = useLoading();
+    const { loading, setLoading } = useLoading();
     const { id } = React.use(params);
-    const { user, isLogin } = useLogin();
+    const { isLogin, user, refreshUserInfo } = useLogin();
     const router = useRouter();
 
     const [transaction, setTransaction] = useState({});
@@ -23,14 +23,24 @@ export default function ExportDetail({ params }) {
 
     // Check authorization
     useEffect(() => {
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+        refreshUserInfo();
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
+        
+    }, [isLogin, user, loading]);
 
     const getStatus = (string) => {
         switch (string) {

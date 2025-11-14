@@ -33,8 +33,8 @@ import Loader from "@/components/Loader/loader";
 
 export default function CreateImport() {
     const router = useRouter();
-    const { setLoading } = useLoading();
-    const { isLogin, user } = useLogin();
+    const { loading, setLoading } = useLoading();
+    const { isLogin, user, refreshUserInfo } = useLogin();
     const [rows, setRows] = useState([]);
     const [filteredRows, setFilteredRows] = useState(rows);
     const today = new Date();
@@ -70,14 +70,24 @@ export default function CreateImport() {
 
     // Check authorization
     useEffect(() => {
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+        refreshUserInfo();
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
+        
+    }, [isLogin, user, loading]);
 
     const total = rows.reduce(
         (sum, r) => sum + (r.unitPrice - r.discount) * r.quantity,

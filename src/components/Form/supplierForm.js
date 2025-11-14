@@ -179,6 +179,9 @@ export function SupplierForm({
                                 type="text"
                                 name="phone"
                                 value={form.phone}
+                                onInput={(e) => {
+                                    e.target.value = e.target.value.replace(/\D/g, "");
+                                }}
                                 onChange={(e) => handleChange("phone", e.target.value)}
                                 className={`w-full bg-white border rounded px-3 py-2 ${!validPhone ? "border-red-500" : "border-green-500"}`}
                                 required

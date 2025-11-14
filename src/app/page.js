@@ -8,7 +8,7 @@ import AboutUs from "@/components/HomePage/aboutUs";
 import Statistic from "@/components/HomePage/statistic";
 
 export default function Home() {
-  const { setLoading } = useLoading();
+  const { loading, setLoading } = useLoading();
 
   useEffect(() => {
     setLoading(false);
