@@ -301,14 +301,6 @@ export default function CreateImport() {
         <div className="p-4 bg-gray-50 h-auto flex gap-6 grid grid-cols-4">
             <div className="col-span-3">
                 <div className="flex items-center rounded-md shadow-md p-4 bg-white gap-4 mb-4">
-                    <Button
-                        variant="contained"
-                        startIcon={<ArrowBackIcon />}
-                        onClick={() => navigate("/imports")}
-                        sx={{ backgroundColor: "#00a544", color: "white" }}
-                    >
-                        Quay lại
-                    </Button>
                     <h1 className="text-2xl font-bold">Tạo phiếu nhập</h1>
                     <TextField
                         label="Tìm kiếm theo tên hoặc mã"

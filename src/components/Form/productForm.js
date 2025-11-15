@@ -94,9 +94,10 @@ export function ProductForm({
         if (initialData) {
             setForm({
                 productName: initialData.productName || "",
-                imageURL: initialData.imageURL || "",
+                image: initialData.image || "",
                 code: initialData.code || "",
                 weightPerUnit: initialData.weightPerUnit || "",
+                sellingPrice: initialData.sellingPrice || 0,
                 description: initialData.description || "",
                 isAvailable: initialData.isAvailable ?? true,
                 quantity: initialData.quantity || 0,
@@ -110,9 +111,10 @@ export function ProductForm({
         } else {
             setForm({
                 productName: "",
-                imageURL: "",
+                image: "",
                 code: "",
                 weightPerUnit: "",
+                sellingPrice: 0,
                 description: "",
                 isAvailable: true,
                 warehouseId: 1,
@@ -131,10 +133,12 @@ export function ProductForm({
     const [validWeightPerUnit, setValidWeightPerUnit] = useState(true);
     const [validCode, setValidCode] = useState(true);
     const [validProductName, setValidProductName] = useState(true);
+    const [validSellingPrice, setValidSellingPrice] = useState(true);
 
     const [errorWeightPerUnit, setErrorWeightPerUnit] = useState("");
     const [errorCode, setErrorCode] = useState("");
     const [errorProductName, setErrorProductName] = useState("");
+    const [errorSellingPrice, setErrorSellingPrice] = useState("");
 
     const handleChange = (name, value) => {
         let newValue = value;
@@ -150,6 +154,16 @@ export function ProductForm({
                 } else {
                     setValidWeightPerUnit(true);
                     setErrorWeightPerUnit("");
+                }
+                break;
+            case "sellingPrice":
+                newValue = parseInt(value);
+                if (newValue < 0) {
+                    setValidSellingPrice(false);
+                    setErrorSellingPrice("Giá bán phải lớn hơn 0");
+                } else {
+                    setValidSellingPrice(true);
+                    setErrorSellingPrice("");
                 }
                 break;
             case "code":
@@ -224,7 +238,7 @@ export function ProductForm({
             return;
         }
         setError("");
-        handleChange('imageURL', file);
+        handleChange('image', file);
     };
 
     const formatImageUrl = (url) => typeof url === 'string' ? url : URL.createObjectURL(url);
@@ -279,7 +293,7 @@ export function ProductForm({
                             />
                             {form.image && (
                                 <div className="mt-2 flex justify-center">
-                                    <img src={formatImageUrl(form.imageURL)} alt="Preview" className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
+                                    <img src={formatImageUrl(form.image)} alt="Preview" className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
                                 </div>
                             )}
                         </div>
@@ -321,12 +335,27 @@ export function ProductForm({
                             <input
                                 type="number"
                                 name="weightPerUnit"
-                                value={form.weightPerUnit}
+                                value={form.weightPerUnit || ""}
                                 onChange={(e) => handleChange("weightPerUnit", e.target.value)}
                                 className={`w-full bg-white border rounded px-3 py-2 ${!validWeightPerUnit ? "border-red-500" : "border-green-500"}`}
                                 required
                             />
                             {!validWeightPerUnit && <p className="text-red-500 text-xs italic">{errorWeightPerUnit}</p>}
+                        </div>
+                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
+                            <div className="grid grid-cols-1">
+                                <label className="block text-md font-bold">Giá bán</label>
+                                <p className="text-xs text-gray-500">Nhập giá bán sản phẩm</p>
+                            </div>
+                            <input
+                                type="number"
+                                name="sellingPrice"
+                                value={form.sellingPrice || ""}
+                                onChange={(e) => handleChange("sellingPrice", e.target.value)}
+                                className={`w-full bg-white border rounded px-3 py-2 ${!validSellingPrice ? "border-red-500" : "border-green-500"}`}
+                                required
+                            />
+                            {!validSellingPrice && <p className="text-red-500 text-xs italic">{errorSellingPrice}</p>}
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">

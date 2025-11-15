@@ -117,14 +117,15 @@ export function EmployeeForm({
                 break;
             case "password":
                 const checkingPassword = value.trim();
-                const regex = /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                const regex = /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\.-])[A-Za-z\d@$!%*?&_\.-]{8,}$/;
                 if (!regex.test(checkingPassword)) {
                     setValidPassword(false);
-                    setErrorPassword("Mật khẩu phải có ít nhất 8 ký tự, chữ hoa, chữ thường, số và ký tự đặc biệt");
+                    setErrorPassword("Mật khẩu phải có ít nhất 8 ký tự, chữ hoa, chữ thường, số và 1 trong các ký tự sau: @ $ ! % * ? & _ . -");
                 } else {
                     setValidPassword(true);
                     setErrorPassword("");
                 }
+                break;
             default:
                 break;
         }
@@ -247,9 +248,9 @@ export function EmployeeForm({
                                 >
                                     {showPassword ? <EyeOff size={25} /> : <Eye size={25} />}
                                 </button>
-                                {errorPassword && <p className="text-red-500 text-xs italic">{errorPassword}</p>}
                             </div>
                         }
+                        {errorPassword && <p className="text-red-500 text-xs italic">{errorPassword}</p>}
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Tên nhân viên *</label>

@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react'
 import { customerOrderService } from '@/services/customerOrder.service';
+import { getExportStatus } from '@/lib/getExportStatus';
 import { numberToVietnamese } from '@/lib/numberToVietnamese';
 import { convertKgToTon } from '@/lib/convertToTon';
 import { useLoading } from '@/context/LoadingContext';
@@ -8,6 +9,7 @@ import TableCommon from "@/components/Table/table";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
+import { formatLargeNumber } from '@/lib/formatLargeNumber';
 
 export default function ExportDetail({ params }) {
     const { loading, setLoading } = useLoading();
@@ -41,23 +43,6 @@ export default function ExportDetail({ params }) {
         }
         
     }, [isLogin, user, loading]);
-
-    const getStatus = (string) => {
-        switch (string) {
-            case 0:
-                return <p className="text-yellow-600">Nháp</p>
-            case 1:
-                return <p className="text-blue-600">Lên đơn</p>
-            case 2:
-                return <p className="text-yellow-600">Đang giao</p>
-            case 3:
-                return <p className="text-green-600">Đã giao</p>
-            case 4:
-                return <p className="text-red-600">Đã hủy</p>
-            default:
-                return <p className="text-black">{string}</p>
-        }
-    }
 
     const fetchTransaction = async () => {
         try {
@@ -127,11 +112,6 @@ export default function ExportDetail({ params }) {
         },
     ]
 
-    const formatLargeNumber = (number) => {
-        if (number === null || isNaN(number)) return 0;
-        return number.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
-    }
-
     if (!pageReady) {
         return <Loader />;
     }
@@ -146,7 +126,7 @@ export default function ExportDetail({ params }) {
                     <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
                     <div className='my-2 flex flex-row gap-2'>
                         <p>Trạng thái: </p>
-                        {getStatus(transaction.status)}
+                        {getExportStatus(transaction.status)}
                     </div>
                 </div>
                 <div className='col-span-2 rounded-xl bg-white p-4'>

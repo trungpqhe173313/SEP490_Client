@@ -26,6 +26,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
+import { formatLargeNumber } from '@/lib/formatLargeNumber';
 
 export default function UpdateExport({ params }) {
     const router = useRouter();
@@ -199,11 +200,6 @@ export default function UpdateExport({ params }) {
             }
         }
     };
-
-    const formatLargeNumber = (number) => {
-        if (number === null || isNaN(number)) return 0;
-        return number.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
-    }
 
     const removeLeadingZero = (number) => {
         if (number === null || isNaN(number)) return 0;

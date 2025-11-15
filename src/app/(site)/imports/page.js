@@ -11,6 +11,7 @@ import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
+import { getImportStatus, getImportStatusText } from "@/lib/getImportStatus";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import ImportResultModal from "@/components/Modal/importResultModal";
@@ -66,20 +67,6 @@ export default function Imports() {
     const buttonRef = useRef(null);
     const [pageReady, setPageReady] = useState(false);
 
-    const getStatus = (string) => {
-        switch (string) {
-            case "Đã kiểm":
-                return <div className="text-green-600">{string}</div>
-            case "Lên đơn":
-                return <div className="text-blue-600">{string}</div>
-            case "Đang kiểm":
-                return <div className="text-yellow-600">{string}</div>
-            case "Đã ngưng hoạt động":
-                return <div className="text-black-600">{string}</div>
-            default:
-                return <div className="text-black">Không rõ</div>
-        }
-    }
 
     const headerData = [
         {
@@ -105,7 +92,7 @@ export default function Imports() {
         {
             key: "status",
             label: "Trạng thái",
-            customValue: (item) => getStatus(item.status)
+            customValue: (item) => getImportStatus(item.status)
         },
         {
             key: "transactionDate",
@@ -116,6 +103,11 @@ export default function Imports() {
             key: "note",
             label: "Ghi chú",
             customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
+        },
+        {
+            key: "action",
+            label: "Hành động",
+            customValue: (item) => item.transactionId ? <button className="text-white bg-cyan-500 px-4 py-2 rounded-xl" onClick={() => navigate(`/imports/details/${item.transactionId}`)}>Chi tiết</button> : <div>Không có</div>
         },
     ]
 
@@ -215,7 +207,7 @@ export default function Imports() {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
     useEffect(() => {
@@ -444,10 +436,9 @@ export default function Imports() {
                             onKeyDown={handleKeyDown}
                         >
                             <option value="">Tất cả</option>
-                            <option value={1}>Lên đơn</option>
-                            <option value={4}>Đã ngưng hoạt động</option>
-                            <option value={5}>Đang kiểm</option>
-                            <option value={6}>Đã kiểm</option>
+                            <option value={1}>{getImportStatusText(1)}</option>
+                            <option value={2}>{getImportStatusText(2)}</option>
+                            <option value={3}>{getImportStatusText(3)}</option>
                         </select>
                     </div>
                     <div className="mt-2 w-full">
@@ -521,19 +512,8 @@ export default function Imports() {
                 rowPerPageOptions={[5, 10, 20]}
                 handleChangePage={handleChangePage}
                 handleChangeRowPerPage={handleChangeRowPerPage}
-                navigateDetail={(item) => navigate(`/imports/details/${item.transactionId}`)}
-                handleEdit={(item) => navigate(`/imports/update/${item.transactionId}`)}
-                handleDelete={(item) => handleDelete(item)}
-                messagePopupDelete="Bạn có muốn xóa phiếu nhập này không?"
                 usePagination={true}
-                useAction={true}
             />
-            {/* <ImportForm
-                isOpen={modalOpen}
-                onClose={() => setModalOpen(false)}
-                onConfirm={handleConfirm}
-                initialData={editingImport}
-            /> */}
             <ImportResultModal isOpen={modalImportOpen} message={modalImportMessage} data={modalImportData} onClose={() => setModalImportOpen(false)} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />

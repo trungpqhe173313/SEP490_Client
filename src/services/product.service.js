@@ -13,6 +13,10 @@ export const productService = {
         const response = await API.get(`/products/GetProductsByWarehouse/${id}`);
         return response.data;
     },
+    getProductByID: async (id) => {
+        const response = await API.get(`/products/GetById/${id}`);
+        return response.data;
+    },
     createProduct: async (data) => {
         const response = await API.post('/products/CreateProduct', data, {
             headers: {

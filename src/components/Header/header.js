@@ -36,7 +36,10 @@ const Header = () => {
             <AccountCircleIcon className="text-white" />
             {toggle && (
               <div className="absolute top-10 right-0 bg-white shadow-md w-40 background-primary text-white">
-                <div className="cursor-pointer p-4  background-primary background-hovered text-white">
+                <div
+                  className="cursor-pointer p-4  background-primary background-hovered text-white"
+                  onClick={() => router.push("/profile")}
+                >
                   <span>Hồ sơ</span>
                 </div>
                 <div

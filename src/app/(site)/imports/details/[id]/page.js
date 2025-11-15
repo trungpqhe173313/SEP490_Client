@@ -8,6 +8,8 @@ import TableCommon from "@/components/Table/table";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
+import { getImportStatus } from '@/lib/getImportStatus';
+import { formatLargeNumber } from '@/lib/formatLargeNumber';
 
 
 export default function ImportDetail({ params }) {
@@ -40,7 +42,7 @@ export default function ImportDetail({ params }) {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
     const fetchTransaction = async () => {
@@ -62,27 +64,6 @@ export default function ImportDetail({ params }) {
         if (!pageReady) return;
         fetchTransaction();
     }, [pageReady])
-
-    const getStatus = (string) => {
-        switch (string) {
-            case 1:
-                return <p className="text-yellow-600">Nháp</p>
-            case 0:
-                return <p className="text-blue-600">Lên đơn</p>
-            case 2:
-                return <p className="text-yellow-600">Đang giao</p>
-            case 3:
-                return <p className="text-green-600">Đã giao</p>
-            case 4:
-                return <p className="text-red-600">Đã hủy</p>
-            case 5:
-                return <p className="text-yellow-600">Đang kiểm</p>
-            case 6:
-                return <p className="text-green-600">Đã kiểm</p>
-            default:
-                return <p className="text-black">{string}</p>
-        }
-    }
 
     const headerData = [
         {
@@ -132,9 +113,24 @@ export default function ImportDetail({ params }) {
         },
     ]
 
-    const formatLargeNumber = (number) => {
-        if (number === null || isNaN(number)) return 0;
-        return number.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
+    const handleCopy = () => {
+        console.log('copy');
+    }
+
+    const handleConfirm = () => {
+        console.log('confirm');
+    }
+
+    const handleEdit = () => {
+        router.push(`/imports/update/${id}`);
+    }
+
+    const handleDelete = () => {
+        console.log('delete');
+    }
+
+    const handleReturn = () => {
+        console.log('return');
     }
 
     if (!pageReady) return <Loader />;
@@ -149,7 +145,7 @@ export default function ImportDetail({ params }) {
                     <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
                     <div className='my-2 flex flex-row gap-2'>
                         <p>Trạng thái: </p>
-                        {getStatus(transaction.status)}
+                        {getImportStatus(transaction.status)}
                     </div>
                 </div>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
@@ -170,6 +166,13 @@ export default function ImportDetail({ params }) {
                     <h2 className='absolute left-[4.5%] transform -translate-x-1/2'>Tổng</h2>
                     <h2 className='absolute right-[29%] transform -translate-x-1/2'>{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</h2>
                     <h2 className='absolute right-[3.5%] transform -translate-x-1/2'>{formatLargeNumber(transaction.totalCost)}₫</h2>
+                </div>
+                <div className='flex flex-row gap-2 p-4'>
+                    {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleConfirm}>Xác nhận nhập kho</button>}
+                    <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép đơn</button>
+                    {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
+                    {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleDelete}>Xóa</button>}
+                    <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>
                 </div>
             </div>
 

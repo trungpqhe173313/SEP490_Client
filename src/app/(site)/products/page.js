@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
+import { formatLargeNumber } from "@/lib/formatLargeNumber";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -53,7 +54,7 @@ export default function Products() {
 
     // Pagination state
     const [pageIndex, setPageIndex] = useState(0);
-    const [rowPerPage, setRowPerPage] = useState(20);
+    const [rowPerPage, setRowPerPage] = useState(5);
     const [totalCount, setTotalCount] = useState(0);
 
     // Loading state
@@ -69,6 +70,7 @@ export default function Products() {
         { key: "productName", label: "Tên sản phẩm", customValue: (item) => item.productName && <div>{item.productName}</div> },
         { key: "code", label: "Mã", customValue: (item) => item.code && <div>{item.code}</div> },
         { key: "weightPerUnit", label: "Khối lượng", customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit}</div> },
+        { key: "sellingPrice", label: "Giá bán", customValue: (item) => item.sellingPrice && <div>{formatLargeNumber(item.sellingPrice)}đ</div> },
         { key: "supplierName", label: "Nhà cung cấp", customValue: (item) => item.supplierName && <div>{item.supplierName}</div> },
         { key: "categoryName", label: "Danh mục", customValue: (item) => item.categoryName && <div>{item.categoryName}</div> },
         { key: "isAvailable", label: "Trạng thái", customValue: (item) => item.isAvailable === true ? <div className="text-green-600">Còn hàng</div> : <div className="text-red-600">Hết hàng</div> },
@@ -176,7 +178,7 @@ export default function Products() {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
     useEffect(() => {
@@ -321,164 +323,165 @@ export default function Products() {
     }
 
     return (
-        <div className="grid grid-cols-4 p-8 gap-4">
+        <div className="flex flex-col p-4">
+            <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4 justify-between">
+                <div className="flex flex-col mr-4">
+                    <h1 className="text-2xl font-bold">Danh sách sản phẩm</h1>
+                </div>
+                <div className="flex flex-col">
+                    <button className="background-primary text-white cursor-pointer rounded-xl px-4 py-2" onClick={handleCreate}>Thêm sản phẩm</button>
+                </div>
+            </div>
+
             {/* Filter sidebar */}
-            <div className="col-span-1">
-                <div className="p-4 rounded-2xl bg-white h-auto sticky top-0">
-                    <h2 className="text-xl font-bold">Lọc sản phẩm</h2>
-                    <div className="flex flex-col items-center my-4">
-                        <div className="my-2 w-full">
-                            <label className="mr-2">Tên sản phẩm:</label>
+            <div className="p-4 rounded-2xl bg-white h-auto w-full mb-4">
+                <h2 className="text-xl font-bold">Lọc sản phẩm</h2>
+                <div className="flex items-center my-4 gap-2">
+                    <div className="my-2 w-[24.5%]">
+                        <label className="mr-2">Nhà cung cấp:</label>
+                        <AutocompleteCommon
+                            name="supplierId"
+                            value={selectedSupplier}
+                            loading={supplierLoading}
+                            options={suppliers}
+                            onSelect={(item) => handleChangeDropdown(item, "supplierId")}
+                            onSearch={fetchSuppliers}
+                            getOptionLabel={(option) => option.supplierName}
+                            getOptionKey={(option) => option.supplierId}
+                        />
+                    </div>
+                    <div className="my-2 w-[24.5%]">
+                        <label className="mr-2">Danh mục:</label>
+                        <AutocompleteCommon
+                            name="categoryId"
+                            value={selectedCategory}
+                            loading={categoryLoading}
+                            options={categories}
+                            onSelect={(item) => handleChangeDropdown(item, "categoryId")}
+                            onSearch={fetchCategories}
+                            getOptionLabel={(option) => option.categoryName}
+                            getOptionKey={(option) => option.categoryId}
+                        />
+                    </div>
+                </div>
+                <div className="flex items-center my-4 gap-2">
+                    <div className="my-2 w-[24.5%]">
+                        <label className="mr-2">Tên sản phẩm:</label>
+                        <input
+                            type="text"
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={filterProductName}
+                            onChange={(e) => setFilterProductName(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                    </div>
+                    <div className="my-2 w-[24.5%]">
+                        <label className="mr-2">Mã:</label>
+                        <input
+                            type="text"
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={filterCode}
+                            onChange={(e) => setFilterCode(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                    </div>
+                    <div className="my-2 w-[24.5%] ml-2">
+                        <label className="mr-2">Trạng thái:</label>
+                        <select
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={filterisAvailable && filterisAvailable !== "null" ? filterisAvailable : "null"}
+                            onChange={(e) => setFilterisAvailable(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        >
+                            <option value="null">Tất cả</option>
+                            <option value="true">Đang hoạt động</option>
+                            <option value="false">Dừng hoạt động</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="flex items-center my-4 gap-4">
+                    <div className="my-2 w-full grid grid-cols-2 gap-2">
+                        <div className="col-span-1">
+                            <label className="mr-2">Khối lượng từ</label>
                             <input
-                                type="text"
+                                type="number"
                                 className="w-full p-2 border border-gray-300 rounded"
-                                value={filterProductName}
-                                onChange={(e) => setFilterProductName(e.target.value)}
+                                value={filterFromWeightPerUnit || ""}
+                                onChange={(e) => setFilterFromWeightPerUnit(e.target.value)}
                                 onKeyDown={handleKeyDown}
                             />
                         </div>
-                        <div className="my-2 w-full">
-                            <label className="mr-2">Mã:</label>
+                        <div className="col-span-1">
+                            <label className="mr-2">Khối lượng đến</label>
                             <input
-                                type="text"
+                                type="number"
                                 className="w-full p-2 border border-gray-300 rounded"
-                                value={filterCode}
-                                onChange={(e) => setFilterCode(e.target.value)}
+                                value={filterToWeightPerUnit || ""}
+                                onChange={(e) => setFilterToWeightPerUnit(e.target.value)}
                                 onKeyDown={handleKeyDown}
                             />
-                        </div>
-                        <div className="my-2 w-full grid grid-cols-2 gap-2">
-                            <div className="col-span-1">
-                                <label className="mr-2">Khối lượng từ</label>
-                                <input
-                                    type="number"
-                                    className="w-full p-2 border border-gray-300 rounded"
-                                    value={filterFromWeightPerUnit || ""}
-                                    onChange={(e) => setFilterFromWeightPerUnit(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                />
-                            </div>
-                            <div className="col-span-1">
-                                <label className="mr-2">Khối lượng đến</label>
-                                <input
-                                    type="number"
-                                    className="w-full p-2 border border-gray-300 rounded"
-                                    value={filterToWeightPerUnit || ""}
-                                    onChange={(e) => setFilterToWeightPerUnit(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                />
-                            </div>
                         </div>
                         {errorToWeightPerUnit && <span className="text-red-500">{errorToWeightPerUnit}</span>}
-                        <div className="my-2 w-full">
-                            <label className="mr-2">Nhà cung cấp:</label>
-                            <AutocompleteCommon
-                                name="supplierId"
-                                value={selectedSupplier}
-                                loading={supplierLoading}
-                                options={suppliers}
-                                onSelect={(item) => handleChangeDropdown(item, "supplierId")}
-                                onSearch={fetchSuppliers}
-                                getOptionLabel={(option) => option.supplierName}
-                                getOptionKey={(option) => option.supplierId}
-                            />
-                        </div>
-                        <div className="my-2 w-full">
-                            <label className="mr-2">Danh mục:</label>
-                            <AutocompleteCommon
-                                name="categoryId"
-                                value={selectedCategory}
-                                loading={categoryLoading}
-                                options={categories}
-                                onSelect={(item) => handleChangeDropdown(item, "categoryId")}
-                                onSearch={fetchCategories}
-                                getOptionLabel={(option) => option.categoryName}
-                                getOptionKey={(option) => option.categoryId}
-                            />
-                        </div>
-                        <div className="my-2 w-full">
-                            <label className="mr-2">Trạng thái:</label>
-                            <select
+                    </div>
+                    <div className="my-2 w-full grid grid-cols-2 gap-2">
+                        <div className="col-span-1">
+                            <label className="mr-2">Ngày tạo từ</label>
+                            <input
+                                type="date"
                                 className="w-full p-2 border border-gray-300 rounded"
-                                value={filterisAvailable && filterisAvailable !== "null" ? filterisAvailable : "null"}
-                                onChange={(e) => setFilterisAvailable(e.target.value)}
+                                value={filterFromCreatedDate && formatDateToInput(filterFromCreatedDate)}
+                                onChange={(e) => {
+                                    const date = new Date(e.target.value);
+                                    setFilterFromCreatedDate(date);
+                                }}
                                 onKeyDown={handleKeyDown}
-                            >
-                                <option value="null">Tất cả</option>
-                                <option value="true">Đang hoạt động</option>
-                                <option value="false">Dừng hoạt động</option>
-                            </select>
+                            />
                         </div>
-                        <div className="my-2 w-full grid grid-cols-2 gap-2">
-                            <div className="col-span-1">
-                                <label className="mr-2">Ngày tạo từ</label>
-                                <input
-                                    type="date"
-                                    className="w-full p-2 border border-gray-300 rounded"
-                                    value={filterFromCreatedDate && formatDateToInput(filterFromCreatedDate)}
-                                    onChange={(e) => {
-                                        const date = new Date(e.target.value);
-                                        setFilterFromCreatedDate(date);
-                                    }}
-                                    onKeyDown={handleKeyDown}
-                                />
-                            </div>
-                            <div className="col-span-1">
-                                <label className="mr-2">Ngày tạo đến</label>
-                                <input
-                                    type="date"
-                                    className="w-full p-2 border border-gray-300 rounded"
-                                    value={filterToCreatedDate && formatDateToInput(filterToCreatedDate)}
-                                    onChange={(e) => {
-                                        const date = new Date(e.target.value);
-                                        setFilterToCreatedDate(date);
-                                    }}
-                                    onKeyDown={handleKeyDown}
-                                />
-                            </div>
+                        <div className="col-span-1">
+                            <label className="mr-2">Ngày tạo đến</label>
+                            <input
+                                type="date"
+                                className="w-full p-2 border border-gray-300 rounded"
+                                value={filterToCreatedDate && formatDateToInput(filterToCreatedDate)}
+                                onChange={(e) => {
+                                    const date = new Date(e.target.value);
+                                    setFilterToCreatedDate(date);
+                                }}
+                                onKeyDown={handleKeyDown}
+                            />
                         </div>
                         {errorToCreatedDate && <span className="text-red-500">{errorToCreatedDate}</span>}
                     </div>
-                    <div className="flex justify-center gap-2">
-                        <button
-                            className="px-4 py-2 background-primary text-white rounded cursor-pointer"
-                            onClick={() => handleApplyFilter()}
-                            ref={buttonRef}
-                        >
-                            Lọc
-                        </button>
-                        <button className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer" onClick={() => handleClearFilter()}>Xóa bộ lọc</button>
-                    </div>
+                </div>
+                <div className="flex justify-center gap-2">
+                    <button
+                        className="px-4 py-2 background-primary text-white rounded cursor-pointer"
+                        onClick={() => handleApplyFilter()}
+                        ref={buttonRef}
+                    >
+                        Lọc
+                    </button>
+                    <button className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer" onClick={() => handleClearFilter()}>Xóa bộ lọc</button>
                 </div>
             </div>
             {/* Main content */}
-            <div className="col-span-3">
-                <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
-                    <div className="flex flex-col w-3/4 mr-4">
-                        <h1 className="text-2xl font-bold">Danh sách sản phẩm</h1>
-                    </div>
-                    <div className="flex flex-col w-1/4">
-                        <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={handleCreate}>Thêm sản phẩm</button>
-                    </div>
-                </div>
-                <TableCommon
-                    headers={headerData}
-                    tableData={products}
-                    defaultSortColumn="productId"
-                    rowPerPage={rowPerPage}
-                    pageIndex={pageIndex}
-                    totalCount={totalCount}
-                    rowPerPageOptions={[5, 10, 20]}
-                    handleChangePage={handleChangePage}
-                    handleChangeRowPerPage={handleChangeRowPerPage}
-                    navigateDetail={(item) => router.push(`/products/details/${item.productId}`)}
-                    handleEdit={handleEdit}
-                    handleDelete={handleDelete}
-                    messagePopupDelete="Bạn có muốn xóa sản phẩm này không?"
-                    usePagination={true}
-                    useAction={true}
-                />
-            </div>
+            <TableCommon
+                headers={headerData}
+                tableData={products}
+                defaultSortColumn="productId"
+                rowPerPage={rowPerPage}
+                pageIndex={pageIndex}
+                totalCount={totalCount}
+                rowPerPageOptions={[5, 10, 20]}
+                handleChangePage={handleChangePage}
+                handleChangeRowPerPage={handleChangeRowPerPage}
+                navigateDetail={(item) => router.push(`/products/details/${item.productId}`)}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+                messagePopupDelete="Bạn có muốn xóa sản phẩm này không?"
+                usePagination={true}
+                useAction={true}
+            />
             <ProductForm
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}

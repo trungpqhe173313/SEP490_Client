@@ -11,6 +11,7 @@ import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
+import { getExportStatus, getExportStatusText } from "@/lib/getExportStatus";
 import Loader from "@/components/Loader/loader";
 
 export default function page() {
@@ -48,6 +49,7 @@ export default function page() {
   const buttonRef = useRef(null);
 
   useEffect(() => {
+    if (loading) return;
     if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
       setPageReady(true);
     } else if (!isLogin) {
@@ -56,24 +58,6 @@ export default function page() {
       router.push("/");
     }
   }, [isLogin, user, router]);
-
-  const getStatus = (string) => {
-    switch (string) {
-      case "Đã kiểm":
-        return <div className="text-green-600">{string}</div>
-      case "Lên đơn":
-        return <div className="text-blue-600">{string}</div>
-      case "Đang kiểm":
-      case "Đang giao":
-      case "Nháp":
-        return <div className="text-yellow-600">{string}</div>
-      case "Hủy":
-      case "Đã ngưng hoạt động":
-        return <div className="text-red-600">{string}</div>
-      default:
-        return <div className="text-black">{string}</div>
-    }
-  }
 
   const headerData = [
     {
@@ -89,7 +73,7 @@ export default function page() {
     {
       key: "statusName",
       label: "Trạng thái",
-      customValue: (item) => getStatus(item.statusName)
+      customValue: (item) => getExportStatus(item.status)
     },
     {
       key: "transactionDate",
@@ -100,10 +84,11 @@ export default function page() {
       key: "note",
       label: "Ghi chú",
       customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
-    }, {
+    }, 
+    {
       key: "action",
       label: "Hành động",
-      customValue: (item) => item.transactionId ? <button className="text-white background-primary px-4 py-2 rounded-xl" onClick={() => navigate(`/order-history/details/${item.transactionId}`)}>Chi tiết</button> : <div>Không có</div>
+      customValue: (item) => item.transactionId ? <button className="text-white bg-blue-600 px-4 py-2 rounded-xl" onClick={() => navigate(`/order-history/details/${item.transactionId}`)}>Chi tiết</button> : <div>Không có</div>
     },
   ]
 
@@ -310,10 +295,9 @@ export default function page() {
               onKeyDown={handleKeyDown}
             >
               <option value="">Tất cả</option>
-              <option value={0}>Nháp</option>
-              <option value={1}>Lên đơn</option>
-              <option value={2}>Đang giao</option>
-              <option value={4}>Hủy</option>
+              <option value={3}>{getExportStatusText(3)}</option>
+              <option value={4}>{getExportStatusText(4)}</option>
+              <option value={5}>{getExportStatusText(5)}</option>
             </select>
           </div>
           <div className="mt-2 w-full">

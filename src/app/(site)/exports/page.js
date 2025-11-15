@@ -11,6 +11,7 @@ import { useLogin } from "@/context/LoginContext";
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
+import { getExportStatus, getExportStatusText } from "@/lib/getExportStatus";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -28,8 +29,6 @@ export default function Exports() {
   const [exports, setExports] = useState([]);
 
   //Modal state
-  const [modalOpen, setModalOpen] = useState(false);
-
   const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
   const [modalSuccessMessage, setModalSuccessMessage] = useState("");
 
@@ -67,6 +66,7 @@ export default function Exports() {
   const pageRole = ["Manager"];
 
   useEffect(() => {
+    if (loading) return;
     if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
       setPageReady(true);
     } else if (!isLogin) {
@@ -75,24 +75,6 @@ export default function Exports() {
       router.push("/");
     }
   }, [isLogin, user, router]);
-
-  const getStatus = (string) => {
-    switch (string) {
-      case "Đã kiểm":
-        return <div className="text-green-600">{string}</div>
-      case "Lên đơn":
-        return <div className="text-blue-600">{string}</div>
-      case "Đang kiểm":
-      case "Đang giao":
-      case "Nháp":
-        return <div className="text-yellow-600">{string}</div>
-      case "Hủy":
-      case "Đã ngưng hoạt động":
-        return <div className="text-red-600">{string}</div>
-      default:
-        return <div className="text-black">{string}</div>
-    }
-  }
 
   const headerData = [
     {
@@ -118,7 +100,7 @@ export default function Exports() {
     {
       key: "statusName",
       label: "Trạng thái",
-      customValue: (item) => getStatus(item.statusName)
+      customValue: (item) => getExportStatus(item.status)
     },
     {
       key: "transactionDate",
@@ -129,6 +111,11 @@ export default function Exports() {
       key: "note",
       label: "Ghi chú",
       customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
+    }, 
+    {
+      key: "action",
+      label: "Hành động",
+      customValue: (item) => item.transactionId ? <button className="text-white bg-cyan-500 px-4 py-2 rounded-xl" onClick={() => navigate(`/exports/details/${item.transactionId}`)}>Chi tiết</button> : <div>Không có</div>
     },
   ]
 
@@ -336,10 +323,12 @@ export default function Exports() {
               onKeyDown={handleKeyDown}
             >
               <option value="">Tất cả</option>
-              <option value={0}>Nháp</option>
-              <option value={1}>Lên đơn</option>
-              <option value={2}>Đang giao</option>
-              <option value={4}>Hủy</option>
+              <option value={1}>{getExportStatusText(1)}</option>
+              <option value={2}>{getExportStatusText(2)}</option>
+              <option value={3}>{getExportStatusText(3)}</option>
+              <option value={4}>{getExportStatusText(4)}</option>
+              <option value={5}>{getExportStatusText(5)}</option>
+              <option value={6}>{getExportStatusText(6)}</option>
             </select>
           </div>
           <div className="mt-2 w-full">
@@ -413,19 +402,8 @@ export default function Exports() {
         rowPerPageOptions={[5, 10, 20]}
         handleChangePage={handleChangePage}
         handleChangeRowPerPage={handleChangeRowPerPage}
-        navigateDetail={(item) => navigate(`/exports/details/${item.transactionId}`)}
-        handleEdit={(item) => navigate(`/exports/update/${item.transactionId}`)}
-        handleDelete={(item) => console.log(`Delete ID: ${item.transactionId}`)}
-        messagePopupDelete="Bạn có muốn xóa phiếu xuất này không?"
         usePagination={true}
-        useAction={true}
       />
-      {/* <ImportForm
-                isOpen={modalOpen}
-                onClose={() => setModalOpen(false)}
-                onConfirm={handleConfirm}
-                initialData={editingImport}
-            /> */}
       <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
       <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
     </div>

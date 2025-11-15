@@ -50,7 +50,7 @@ class AuthService {
     }
   }
 
-    // Store authentication data
+  // Store authentication data
   storeAuthData(authData) {
     localStorage.setItem("accessToken", authData.accessToken);
     localStorage.setItem("refreshToken", authData.refreshToken);
@@ -83,12 +83,42 @@ class AuthService {
   // Logout function
   logout() {
     localStorage.clear();
-    // localStorage.removeItem("accessToken");
-    // localStorage.removeItem("refreshToken");
-    // localStorage.removeItem("userInfo");
-    // localStorage.removeItem("token");
   }
 
+  async getProfile() {
+    try {
+      const response = await API.get("/Account/profile");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateProfile(data) {
+    try {
+      const response = await API.put("/Account/profile", data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updatePassword(data) {
+    try {
+      const response = await API.post("/Account/change-password", data, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  getRefreshToken() {
+    return localStorage.getItem("refreshToken");
+  }
   // Refresh token function (if needed in the future)
   async refreshToken() {
     try {
@@ -100,7 +130,7 @@ class AuthService {
       const response = await API.post("/Account/RefreshToken", {
         refreshToken
       });
-      
+
       if (response.data.success) {
         this.storeAuthData(response.data.data);
         return response.data;
