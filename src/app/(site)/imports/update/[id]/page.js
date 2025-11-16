@@ -451,7 +451,7 @@ export default function UpdateImport({ params }) {
                     Hoàn thành
                 </button>
             </div>
-            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), navigate("/imports") }} />
+            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), router.back() }} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>
     );

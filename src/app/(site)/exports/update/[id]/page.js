@@ -242,8 +242,8 @@ export default function UpdateExport({ params }) {
                 setModalSuccessOpen(true);
             })
             .catch((error) => {
-                setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
-                setModalFailedSubMessages(error.response.data.error.messages);
+                setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                setModalFailedSubMessages(error?.response?.data?.error?.messages);
                 setModalFailedOpen(true);
             });
         setLoading(false);
@@ -383,22 +383,6 @@ export default function UpdateExport({ params }) {
                             onChange={(e) => setNote(e.target.value)}
                             className="p-2 border border-gray-300 rounded bg-white w-full"
                         />
-                        <div>
-                            <label className="block text-md font-bold">Trạng thái</label>
-                            <select
-                                name="status"
-                                value={status || 0}
-                                disabled={status === 4}
-                                onChange={(e) => setStatus(e.target.value)}
-                                className="w-auto p-2 border border-gray-300 rounded-md"
-                            >
-                                <option value={0}>Nháp</option>
-                                <option value={1}>Lên đơn</option>
-                                <option value={2}>Đang giao</option>
-                                <option value={3}>Đã giao</option>
-                                <option value={4}>Đã hủy</option>
-                            </select>
-                        </div>
                     </div>
                     <div className="text-right mr-4">
                         <p>Tổng số lượng: {cart.length} sản phẩm</p>
@@ -468,7 +452,7 @@ export default function UpdateExport({ params }) {
                     </button>
                 </div>
             </div>
-            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), navigate("/exports") }} />
+            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), router.back() }} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>
     );

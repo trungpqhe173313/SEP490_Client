@@ -1,5 +1,5 @@
 export const getImportStatus = (status) => {
-    if (!status) return <p className="text-black">Không có trạng thái</p>
+    if (!status && status !== 0) return <p className="text-black">Không có trạng thái</p>
     switch (status) {
         case 1:
             return <p className="text-yellow-600">Đang kiểm</p>
@@ -13,7 +13,7 @@ export const getImportStatus = (status) => {
 }
 
 export const getImportStatusText = (status) => {
-    if (!status) return "Không có trạng thái"
+    if (!status && status !== 0) return "Không có trạng thái"
     switch (status) {
         case 1:
             return "Đang kiểm"

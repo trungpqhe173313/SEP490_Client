@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
 import { getExportStatus } from "@/lib/getExportStatus";
 import { formatLargeNumber } from '@/lib/formatLargeNumber';
+import SuccessModal from '@/components/Modal/successModal';
+import FailedModal from '@/components/Modal/failedModal';
 
 
 export default function ExportDetail({ params }) {
@@ -17,6 +19,12 @@ export default function ExportDetail({ params }) {
     const { id } = React.use(params);
     const router = useRouter();
     const { isLogin, user, refreshUserInfo } = useLogin();
+
+    const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
+    const [modalSuccessMessage, setModalSuccessMessage] = useState("");
+    const [modalFailedOpen, setModalFailedOpen] = useState(false);
+    const [modalFailedMessage, setModalFailedMessage] = useState("");
+    const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
 
     const [transaction, setTransaction] = useState({});
     const [customer, setCustomer] = useState({});
@@ -42,7 +50,7 @@ export default function ExportDetail({ params }) {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
     const fetchTransaction = async () => {
@@ -117,8 +125,52 @@ export default function ExportDetail({ params }) {
         console.log('copy');
     }
 
-    const handleConfirm = () => {
-        console.log('confirm');
+    const handleUpdateOrder = async () => {
+        setLoading(true);
+        try {
+            await exportService.updateToOrder(id);
+            setModalSuccessMessage("Lên đơn phiếu xuất kho thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleUpdateDelivering = async () => {
+        setLoading(true);
+        try {
+            await exportService.updateToDelivering(id);
+            setModalSuccessMessage("Xác nhận xuất kho thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleUpdateDone = async () => {
+        setLoading(true);
+        try {
+            await exportService.updateToDone(id);
+            setModalSuccessMessage("Giao hàng thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const handleEdit = () => {
@@ -167,12 +219,19 @@ export default function ExportDetail({ params }) {
                     <h2 className='absolute right-[29%] transform -translate-x-1/2'>{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</h2>
                     <h2 className='absolute right-[3.5%] transform -translate-x-1/2'>{formatLargeNumber(transaction.totalCost)}₫</h2>
                 </div>
-                <div className='flex flex-row gap-2 p-4'>
-                    {transaction && transaction.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleConfirm}>Xác nhận xuất kho</button>}
-                    <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép đơn</button>
-                    {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
-                    {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleDelete}>Xóa</button>}
-                    <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>
+                <div className='flex flex-row justify-between items-center p-4'>
+                    <div className='flex flex-row items-center gap-2'>
+                        {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateOrder}>Lên đơn</button>}
+                        {transaction && transaction.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDelivering}>Xác nhận xuất kho</button>}
+                        {transaction && transaction.status === 3 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDone}>Hoàn thành giao hàng</button>}
+                        <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép đơn</button>
+                        {transaction && transaction.status > 3 && transaction.status < 6 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
+                    </div>
+                    <div className='flex flex-row items-center gap-2 justify-end'>
+                        {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
+                        {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleDelete}>Xóa</button>}
+                    </div>
+
                 </div>
             </div>
 
@@ -191,6 +250,8 @@ export default function ExportDetail({ params }) {
                     <h2>{numberToVietnamese(transaction.totalCost)}</h2>
                 </div>
             </div>
+            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
+            <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>
     )
 }
