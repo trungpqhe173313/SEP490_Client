@@ -17,6 +17,10 @@ export const productService = {
         const response = await API.get(`/products/GetById/${id}`);
         return response.data;
     },
+    getProductBySupplier: async (data) => {
+        const response = await API.post(`/products/GetProductBySupplier`, data);
+        return response.data;
+    },
     createProduct: async (data) => {
         const response = await API.post('/products/CreateProduct', data, {
             headers: {

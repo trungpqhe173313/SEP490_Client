@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
+import { formatDateToInput } from '@/lib/formatDateToInput';
 
 import { productService } from "@/services/product.service";
 import { importService } from "@/services/import.service";
@@ -87,10 +88,6 @@ export default function UpdateImport({ params }) {
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
     );
-
-    const formatDateToInput = (dt) => {
-        return dt.toISOString().split('T')[0];
-    }
 
     const removeLeadingZero = (number) => {
         if (number === null || isNaN(number)) return 0;

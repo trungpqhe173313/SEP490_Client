@@ -7,21 +7,23 @@ import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
+import { PriceListForm } from "@/components/Form/priceListForm";
 import TableCommon from "@/components/Table/table";
 import Loader from "@/components/Loader/loader";
-import ConfirmModal from "@/components/Modal/confirmModal";
+import { formatDateToInput } from '@/lib/formatDateToInput';
+
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 
 export default function PriceList() {
     //Data state
     const [priceLists, setPriceLists] = useState([]);
+    const [editingPriceList, setEditingPriceList] = useState(null);
     const [pageReady, setPageReady] = useState(false);
     const pageRole = ["Manager"];
 
     //Modal state
-    const [modalConfirmOpen, setModalConfirmOpen] = useState(false);
-    const [modalConfirmMessage, setModalConfirmMessage] = useState("");
+    const [modalOpen, setModalOpen] = useState(false);
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
@@ -96,21 +98,7 @@ export default function PriceList() {
             key: "createdAt",
             label: "Ngày tạo",
             customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString()}</div>,
-        },
-        {
-            key: "action",
-            label: "Hành động",
-            customValue: (item) => item.priceListId &&
-                <div className="flex flex-row items-center gap-2">
-                    <button className="text-white bg-cyan-500 px-4 py-2 rounded-xl" onClick={() => navigate(`/price-list/details/${item.priceListId}`)}>Chi tiết</button>
-                    <button className="text-white bg-red-500 px-4 py-2 rounded-xl" onClick={() => 
-                        {
-                            setModalConfirmMessage(`Xóa bảng giá ${item.priceListName}?`);
-                            setModalConfirmOpen(true);
-                        }
-                    }>Xóa</button>
-                </div>
-        },
+        }
     ];
 
     // Pagination handlers
@@ -142,10 +130,6 @@ export default function PriceList() {
         if (!pageReady) return;
         fetchPriceLists();
     }, [pageIndex, rowPerPage, pageReady]);
-
-    const formatDateToInput = (dt) => {
-        return dt.toISOString().split('T')[0];
-    }
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -182,10 +166,36 @@ export default function PriceList() {
         setPageIndex(0);
     };
 
-    const handleConfirmDelete = () => {
-        setModalConfirmOpen(false);
-        handleDelete(deletedPriceList);
+    const handleCreate = () => {
+        setEditingPriceList(null);
+        setModalOpen(true);
     };
+
+    const handleEdit = (priceList) => {
+        setEditingPriceList(priceList);
+        setModalOpen(true);
+    };
+
+    const handleConfirm = async (priceListData) => {
+        setLoading(true);
+        try {
+            if (editingPriceList) {
+                await priceListService.updatePriceList(editingPriceList.priceListId, priceListData);
+                setModalSuccessMessage("Cập nhật bảng giá thành công");
+            } else {
+                await priceListService.createPriceList(priceListData);
+                setModalSuccessMessage("Tạo bảng giá thành công");
+            }
+            setModalSuccessOpen(true);
+            setModalOpen(false);
+            fetchPriceLists();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const handleDelete = async (priceList) => {
         if (priceList.isActive === false) {
@@ -296,12 +306,13 @@ export default function PriceList() {
             </div>
             {/* Main content */}
             <div className="col-span-3">
-                <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
-                    <div className="flex flex-col w-3/4 mr-4">
+                <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4 justify-between">
+                    <div className="flex flex-col">
                         <h1 className="text-2xl font-bold">Danh sách bảng giá</h1>
                     </div>
-                    <div className="flex flex-col w-1/4">
-                        <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => router.push("/price-list/modify")}>Chỉnh sửa bảng giá</button>
+                    <div className="flex flex-col gap-2">
+                        <button className="px-4 py-2 background-primary text-white rounded-xl cursor-pointer" onClick={() => handleCreate()}>Tạo bảng giá mới</button>
+                        <button className="px-4 py-2 bg-yellow-500 text-white rounded-xl cursor-pointer" onClick={() => router.push("/price-list/modify")}>Chỉnh sửa chi tiết bảng giá</button>
                     </div>
                 </div>
                 <TableCommon
@@ -314,10 +325,15 @@ export default function PriceList() {
                     rowPerPageOptions={[5, 10, 20]}
                     handleChangePage={handleChangePage}
                     handleChangeRowPerPage={handleChangeRowPerPage}
+                    navigateDetail={(item) => navigate(`price-list/details/${item.priceListId}`)}
+                    handleEdit={handleEdit}
+                    handleDelete={handleDelete}
+                    messagePopupDelete="Bạn có muốn xóa bảng giá này?"
                     usePagination={true}
+                    useAction={true}
                 />
             </div>
-            <ConfirmModal isOpen={modalConfirmOpen} message={modalConfirmMessage} onConfirm={handleConfirmDelete} onCancel={() => setModalConfirmOpen(false)} />
+            <PriceListForm isOpen={modalOpen} onClose={() => setModalOpen(false)} onConfirm={handleConfirm} initialData={editingPriceList} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} onClose={() => setModalFailedOpen(false)} />
         </div>

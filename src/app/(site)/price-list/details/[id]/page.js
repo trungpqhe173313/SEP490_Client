@@ -103,7 +103,7 @@ export default function PriceDetail({ params }) {
         <div className='flex flex-col gap-4 w-full p-4'>
             <div className='w-full bg-white p-4 rounded-xl flex items-center justify-between'>
                 <h1 className='text-2xl font-semibold'>Chi tiết bảng giá</h1>
-                <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => handleUpdate()}>Chỉnh sửa bảng giá</button>
+                <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => handleUpdate()}>Chỉnh sửa chi tiết bảng giá</button>
             </div>
             <TableCommon
                 headers={headerData}

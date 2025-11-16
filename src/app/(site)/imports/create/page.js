@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
+import { formatDateToInput } from '@/lib/formatDateToInput';
 
 import { productService } from "@/services/product.service";
 import { warehouseService } from "@/services/warehouse.service";
@@ -23,7 +24,6 @@ import {
     IconButton,
     TextField,
     TablePagination,
-    Button
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -140,9 +140,6 @@ export default function CreateImport() {
     const navigate = (path) => {
         router.push(path);
     };
-    const formatDateToInput = (dt) => {
-        return dt.toISOString().split('T')[0];
-    }
 
     const removeLeadingZero = (number) => {
         if (number === null || isNaN(number)) return 0;

@@ -17,6 +17,10 @@ export const priceListService = {
         const response = await API.put(`/pricelist/Update/${id}`, data);
         return response.data;
     },
+    updatePriceListDetail: async (id, data) => {
+        const response = await API.put(`/pricelist/UpdateDetail/${id}`, data);
+        return response.data;
+    },
     deletePriceList: async (id) => {
         const response = await API.delete(`/pricelist/Delete/${id}`);
         return response.data;

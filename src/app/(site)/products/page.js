@@ -8,6 +8,7 @@ import { useLoading } from "@/context/LoadingContext";
 import { useRef } from "react";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
+import { formatDateToInput } from '@/lib/formatDateToInput';
 
 import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
@@ -185,10 +186,6 @@ export default function Products() {
         if (!pageReady) return;
         fetchProducts();
     }, [pageIndex, rowPerPage, pageReady]);
-
-    const formatDateToInput = (dt) => {
-        return dt.toISOString().split('T')[0];
-    }
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {

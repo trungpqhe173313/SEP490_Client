@@ -8,6 +8,7 @@ import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import { formatDateToInput } from '@/lib/formatDateToInput';
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
@@ -214,10 +215,6 @@ export default function Imports() {
         if (!pageReady) return;
         fetchImports();
     }, [pageIndex, rowPerPage, pageReady]);
-
-    const formatDateToInput = (dt) => {
-        return dt.toISOString().split('T')[0];
-    }
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
