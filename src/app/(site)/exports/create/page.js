@@ -157,14 +157,14 @@ export default function CreateExport() {
     };
 
     const fetchPriceListDetail = async (id) => {
-        setPageReady(false);
+        setLoading(true);
         try {
             const response = await priceListService.getPriceListByID(id);
             setSelectedPriceListDetail(response.data.priceListDetails);
         } catch (error) {
             console.log(error);
         } finally {
-            setPageReady(true);
+            setLoading(false);
         }
     };
 
@@ -228,6 +228,15 @@ export default function CreateExport() {
         if (!selectedPriceList) return;
         fetchPriceListDetail(selectedPriceList.priceListId);
     }, [selectedPriceList]);
+
+    useEffect(() => {
+        if (!selectedPriceListDetail) return;
+        const updatedCart = cart.map((product) => {
+            const priceListDetail = selectedPriceListDetail.find((p) => p.productId === product.productId);
+            return { ...product, unitPrice: priceListDetail?.price || product.sellingPrice };
+        })
+        setCart(updatedCart);
+    }, [selectedPriceListDetail]);
 
     const removeLeadingZero = (number) => {
         if (number === null || isNaN(number)) return 0;
