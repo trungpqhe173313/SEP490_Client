@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { productService } from "@/services/product.service";
 import { customerService } from "@/services/customer.service";
+import { priceListService } from "@/services/priceList.service";
 import { exportService } from "@/services/export.service";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
@@ -34,6 +35,11 @@ export default function CreateExport() {
     const { loading, setLoading } = useLoading();
     const { isLogin, user, refreshUserInfo } = useLogin();
     const [products, setProducts] = useState([]);
+
+    const [selectedPriceList, setSelectedPriceList] = useState(null);
+    const [selectedPriceListDetail, setSelectedPriceListDetail] = useState(null);
+    const [priceLists, setPriceLists] = useState([]);
+    const [priceListLoading, setPriceListLoading] = useState(false);
 
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [productsForSearch, setProductsForSearch] = useState([]);
@@ -77,7 +83,7 @@ export default function CreateExport() {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
     const navigate = (path) => {
@@ -133,9 +139,39 @@ export default function CreateExport() {
         }
     };
 
+    const fetchPriceLists = async (name) => {
+        try {
+            setPriceListLoading(true);
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                priceListName: name,
+            }
+            const response = await priceListService.getAllPriceLists(body);
+            setPriceLists(response.data.items);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setPriceListLoading(false);
+        }
+    };
+
+    const fetchPriceListDetail = async (id) => {
+        setPageReady(false);
+        try {
+            const response = await priceListService.getPriceListByID(id);
+            setSelectedPriceListDetail(response.data.priceListDetails);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setPageReady(true);
+        }
+    };
+
     useEffect(() => {
         fetchProducts();
         fetchCustomers("");
+        fetchPriceLists("");
         searchProducts("");
     }, []);
 
@@ -148,7 +184,7 @@ export default function CreateExport() {
             setCart(updatedCart);
             validateFields(updatedCart, selectedCustomer);
         } else {
-            const newProduct = { ...product, orderQuantity: 1, unitPrice: product.averageCost || 0 };
+            const newProduct = { ...product, orderQuantity: 1, unitPrice: getProductPrice(product) || 0 };
             const updatedCart = [...cart, newProduct];
             setCart(updatedCart);
             validateFields(updatedCart, selectedCustomer);
@@ -183,7 +219,15 @@ export default function CreateExport() {
                 }, 0);
             }
         }
+        if (field === "priceListId") {
+            setSelectedPriceList(item);
+        }
     };
+
+    useEffect(() => {
+        if (!selectedPriceList) return;
+        fetchPriceListDetail(selectedPriceList.priceListId);
+    }, [selectedPriceList]);
 
     const removeLeadingZero = (number) => {
         if (number === null || isNaN(number)) return 0;
@@ -234,6 +278,12 @@ export default function CreateExport() {
                 setModalFailedOpen(true);
             });
         setLoading(false);
+    }
+
+    const getProductPrice = (product) => {
+        if (selectedPriceList === null) return product.sellingPrice;
+        const priceListDetail = selectedPriceListDetail?.find((p) => p.productId === product.productId);
+        return priceListDetail?.price ?? product.sellingPrice;
     }
 
     const total = cart.reduce((sum, p) => sum + p.unitPrice * p.orderQuantity, 0);
@@ -379,7 +429,7 @@ export default function CreateExport() {
 
             <div className="bg-white rounded-xl h-auto col-span-4 w-full flex flex-col items-center justify-between px-4">
                 <div>
-                    <div className="w-full flex flex-row items-center">
+                    <div className="w-full flex flex-row items-center gap-4">
                         <div className="w-full mt-4">
                             <p className="text-xl font-bold">Khách hàng</p>
                             <AutocompleteCommon
@@ -393,7 +443,19 @@ export default function CreateExport() {
                                 getOptionKey={(option) => option.customerId}
                             />
                         </div>
-
+                        <div className="w-full mt-4">
+                            <p className="text-xl font-bold">Bảng giá</p>
+                            <AutocompleteCommon
+                                name="priceListId"
+                                value={selectedPriceList}
+                                loading={priceListLoading}
+                                options={priceLists}
+                                onSelect={(item) => handleChangeDropdown(item, "priceListId")}
+                                onSearch={fetchPriceLists}
+                                getOptionLabel={(option) => option.priceListName}
+                                getOptionKey={(option) => option.priceListId}
+                            />
+                        </div>
                     </div>
                     <div className="w-full grid grid-cols-2 py-4 gap-2 overflow-y-scroll scrollbar-hidden">
                         {currentProducts.map((product) => (
@@ -409,7 +471,7 @@ export default function CreateExport() {
                                     <p className="text-sm text-ellipsis whitespace-nowrap">
                                         {product.productName}
                                     </p>
-                                    <p className="text-green-600 font-bold">{formatLargeNumber(product.averageCost)}</p>
+                                    <p className="text-green-600 font-bold">{formatLargeNumber(getProductPrice(product))}</p>
                                 </div>
                             </div>
                         ))
@@ -438,7 +500,7 @@ export default function CreateExport() {
                     <button
                         className="background-primary background-hovered text-white text-2xl font-bold py-2 px-4 rounded"
                         onClick={() => handleSubmit()}>
-                        Thanh toán
+                        Lập đơn xuất kho
                     </button>
                 </div>
             </div>

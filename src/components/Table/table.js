@@ -31,6 +31,7 @@ export default function TableCommon({
     messagePopupDelete,
     usePagination,
     useAction,
+    fePagination,
     useDetail,
     handleFetchDetail
 }) {
@@ -83,6 +84,10 @@ export default function TableCommon({
             if (a[sortColumn] > b[sortColumn]) return sortType === 'asc' ? 1 : -1;
             return 0;
         });
+    }
+
+    if (fePagination) {
+        displayedData = displayedData.slice(pageIndex * rowPerPage, (pageIndex + 1) * rowPerPage);
     }
 
     return (

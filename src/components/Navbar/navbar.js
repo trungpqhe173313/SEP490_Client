@@ -82,13 +82,13 @@ const Navbar = () => {
         //   link: "/materials",
         //   role: "all",
         //   icon: <ForestIcon />
-        // },
-        // {
-        //   name: "Bảng giá",
-        //   link: "/prices",
-        //   role: "all",
-        //   icon: <AccountBalanceWalletIcon />
-        // }
+        //},
+        {
+          name: "Bảng giá",
+          link: "/price-list",
+          role: ["Manager"],
+          icon: <AccountBalanceWalletIcon />
+        }
       ]
     },
     {
