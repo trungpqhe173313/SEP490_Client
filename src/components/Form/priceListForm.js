@@ -18,9 +18,11 @@ export function PriceListForm({
   const [priceLists, setPriceLists] = useState([]);
 
   const [validPriceListName, setValidPriceListName] = useState(true);
+  const [validStartDate, setValidStartDate] = useState(true);
   const [validEndDate, setValidEndDate] = useState(true);
 
   const [errorPriceListName, setErrorPriceListName] = useState("");
+  const [errorStartDate, setErrorStartDate] = useState("");
   const [errorEndDate, setErrorEndDate] = useState("");
 
   const fetchPriceLists = async () => {
@@ -77,7 +79,10 @@ export function PriceListForm({
       case "endDate":
         if (form.startDate !== "" && value < form.startDate) {
           setValidEndDate(false);
-          setErrorEndDate("Ngày kết thúc phải là tương lai");
+          setErrorEndDate("Ngày hết hạn phải lớn hơn ngày có hiệu lực");
+        } else if (value < today) {
+          setValidEndDate(false);
+          setErrorEndDate("Ngày hết hạn phải là tương lai");
         } else {
           setValidEndDate(true);
           setErrorEndDate("");
@@ -88,7 +93,7 @@ export function PriceListForm({
     }
     setForm((prevForm) => ({
       ...prevForm,
-      [name]: value,
+      [name]: newValue,
     }));
   };
 

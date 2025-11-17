@@ -112,7 +112,7 @@ export default function Exports() {
       key: "note",
       label: "Ghi chú",
       customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
-    }, 
+    },
     {
       key: "action",
       label: "Hành động",
@@ -193,7 +193,8 @@ export default function Exports() {
       setExports(response.data.items);
       setTotalCount(response.data.totalCount);
     } catch (error) {
-      console.error("Error fetching exports:", error);
+      setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+      setModalFailedOpen(true);
     } finally {
       setLoading(false);
     }

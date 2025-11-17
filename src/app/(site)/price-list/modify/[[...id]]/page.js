@@ -32,7 +32,7 @@ export default function ModifyPriceList({ params }) {
     const router = useRouter();
     const { isLogin, user, refreshUserInfo } = useLogin();
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(20);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchTerm, setSearchTerm] = useState("");
 
     const [modalCreateOpen, setModalCreateOpen] = useState(false);
@@ -215,10 +215,12 @@ export default function ModifyPriceList({ params }) {
         setLoading(true);
         try {
             if (!selectedPriceList) return;
-            const body = selectedPriceListDetail.map((detail) => ({
-                productId: detail.productId,
-                unitPrice: detail.unitPrice ? detail.unitPrice : 0,
-            }))
+            const body = {
+                priceListDetails: selectedPriceListDetail.map((detail) => ({
+                    productId: detail.productId,
+                    unitPrice: detail.unitPrice ? detail.unitPrice : 0,
+                }))
+            }
             await priceListService.updatePriceListDetail(selectedPriceList.priceListId, body);
             setModalSuccessMessage("Cập nhật bảng giá thành công");
             setModalSuccessOpen(true);
