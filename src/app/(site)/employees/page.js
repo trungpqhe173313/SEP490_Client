@@ -273,7 +273,8 @@ export default function Employees() {
                 <TableCommon
                     headers={headerData}
                     tableData={employees}
-                    defaultSortColumn="userId"
+                    defaultSortColumn="createdAt"
+                    defaultSortType="desc"
                     rowPerPage={rowPerPage}
                     pageIndex={pageIndex}
                     totalCount={totalCount}

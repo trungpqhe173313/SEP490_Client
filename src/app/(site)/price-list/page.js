@@ -14,6 +14,7 @@ import { formatDateToInput } from '@/lib/formatDateToInput';
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
+import DateInput from "@/components/Input/DateInput";
 
 export default function PriceList() {
     //Data state
@@ -260,7 +261,8 @@ export default function PriceList() {
                         <div className="my-2 w-full grid grid-cols-2 gap-2">
                         <div className="col-span-1">
                             <label className="mr-2">Ngày tạo từ</label>
-                            <input
+                            <DateInput value={filterStartDate} onChange={(d) => setFilterStartDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+                            {/* <input
                                 type="date"
                                 className="w-full p-2 border border-gray-300 rounded"
                                 value={filterStartDate && formatDateToInput(filterStartDate)}
@@ -269,11 +271,12 @@ export default function PriceList() {
                                     setFilterStartDate(date);
                                 }}
                                 onKeyDown={handleKeyDown}
-                            />
+                            /> */}
                         </div>
                         <div className="col-span-1">
                             <label className="mr-2">Ngày tạo đến</label>
-                            <input
+                            <DateInput value={filterEndDate} onChange={(d) => setFilterEndDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+                            {/* <input
                                 type="date"
                                 className="w-full p-2 border border-gray-300 rounded"
                                 value={filterEndDate && formatDateToInput(filterEndDate)}
@@ -282,7 +285,7 @@ export default function PriceList() {
                                     setFilterEndDate(date);
                                 }}
                                 onKeyDown={handleKeyDown}
-                            />
+                            /> */}
                         </div>
                         {errorEndDate && <span className="text-red-500">{errorEndDate}</span>}
                     </div>
@@ -318,7 +321,8 @@ export default function PriceList() {
                 <TableCommon
                     headers={headerData}
                     tableData={priceLists}
-                    defaultSortColumn="priceListId"
+                    defaultSortColumn="createdAt"
+                    defaultSortType="desc"
                     rowPerPage={rowPerPage}
                     pageIndex={pageIndex}
                     totalCount={totalCount}

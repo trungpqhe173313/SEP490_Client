@@ -3,6 +3,7 @@ import { Modal } from "@mui/material";
 import { priceListService } from "@/services/priceList.service";
 import { supplierService } from '@/services/supplier.service';
 import { formatDateToInput } from '@/lib/formatDateToInput';
+import DateInput from '../Input/DateInput';
 
 export function PriceListForm({
   isOpen,
@@ -148,7 +149,13 @@ export function PriceListForm({
                 <label className="block text-md font-bold">Ngày hiệu lực</label>
                 <p className="text-xs text-gray-500">Nhập ngày hiệu lực</p>
               </div>
-              <input
+              <DateInput
+                value={form.startDate}
+                onChange={(d) => handleChange("startDate", d)}
+                className={`w-full bg-white border rounded px-3 py-2 ${!validStartDate ? "border-red-500" : "border-green-500"}`}
+                required
+              />
+              {/* <input
                 type="date"
                 name="endDate"
                 value={form.startDate && formatDateToInput(form.startDate)}
@@ -158,7 +165,7 @@ export function PriceListForm({
                 }}
                 className={`w-full bg-white border rounded px-3 py-2 ${!validStartDate ? "border-red-500" : "border-green-500"}`}
                 required
-              />
+              /> */}
               {!validStartDate && <p className="text-red-500 text-xs">{errorStartDate}</p>}
             </div>
             }
@@ -167,7 +174,13 @@ export function PriceListForm({
                 <label className="block text-md font-bold">Ngày hết hạn</label>
                 <p className="text-xs text-gray-500">Nhập ngày hết hạn</p>
               </div>
-              <input
+              <DateInput
+                value={form.endDate}
+                onChange={(d) => handleChange("endDate", d)}
+                className={`w-full bg-white border rounded px-3 py-2 ${!validEndDate ? "border-red-500" : "border-green-500"}`}
+                required
+              />
+              {/* <input
                 type="date"
                 name="endDate"
                 value={form.endDate && formatDateToInput(form.endDate)}
@@ -177,7 +190,7 @@ export function PriceListForm({
                 }}
                 className={`w-full bg-white border rounded px-3 py-2 ${!validEndDate ? "border-red-500" : "border-green-500"}`}
                 required
-              />
+              /> */}
               {!validEndDate && <p className="text-red-500 text-xs">{errorEndDate}</p>}
             </div>
             {initialData && <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">

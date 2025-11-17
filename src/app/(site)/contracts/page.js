@@ -9,6 +9,7 @@ import { useLoading } from "@/context/LoadingContext";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import DateInput from "@/components/Input/DateInput";
 
 import TableCommon from "@/components/Table/table";
 import { ContractForm } from "@/components/Form/contractForm";
@@ -349,7 +350,8 @@ export default function Contracts() {
                         <div className="my-2 w-full grid grid-cols-2 gap-2">
                             <div className="col-span-1">
                                 <label className="mr-2">Ngày tạo từ</label>
-                                <input
+                                <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterFromDate} onChange={(d) => setFilterFromDate(d)} />
+                                {/* <input
                                     type="date"
                                     className="w-full p-2 border border-gray-300 rounded"
                                     value={filterFromDate && formatDateToInput(filterFromDate)}
@@ -358,11 +360,12 @@ export default function Contracts() {
                                         setFilterFromDate(date);
                                     }}
                                     onKeyDown={handleKeyDown}
-                                />
+                                /> */}
                             </div>
                             <div className="col-span-1">
                                 <label className="mr-2">Ngày tạo đến</label>
-                                <input
+                                <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterToDate} onChange={(d) => setFilterToDate(d)} />
+                                {/* <input
                                     type="date"
                                     className="w-full p-2 border border-gray-300 rounded"
                                     value={filterToDate && formatDateToInput(filterToDate)}
@@ -371,7 +374,7 @@ export default function Contracts() {
                                         setFilterToDate(date);
                                     }}
                                     onKeyDown={handleKeyDown}
-                                />
+                                /> */}
                             </div>
                         </div>
                         {errorToDate && <span className="text-red-500">{errorToDate}</span>}
@@ -401,7 +404,8 @@ export default function Contracts() {
                 <TableCommon
                     headers={headerData}
                     tableData={contracts}
-                    defaultSortColumn="contractId"
+                    defaultSortColumn="updatedAt"
+                    defaultSortType="desc"
                     rowPerPage={rowPerPage}
                     pageIndex={pageIndex}
                     totalCount={totalCount}

@@ -246,7 +246,8 @@ export default function Categories() {
                 <TableCommon
                     headers={headerData}
                     tableData={categories}
-                    defaultSortColumn="categoryId"
+                    defaultSortColumn="updateAt"
+                    defaultSortType="desc"
                     rowPerPage={rowPerPage}
                     pageIndex={pageIndex}
                     totalCount={totalCount}

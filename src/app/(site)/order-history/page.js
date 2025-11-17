@@ -14,6 +14,7 @@ import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 import { getExportStatus, getExportStatusText } from "@/lib/getExportStatus";
 import Loader from "@/components/Loader/loader";
+import DateInput from "@/components/Input/DateInput";
 
 export default function page() {
   const router = useRouter();
@@ -299,7 +300,8 @@ export default function page() {
           </div>
           <div className="mt-2 w-full">
             <label className="mr-2">Giao dịch từ ngày:</label>
-            <input
+            <DateInput value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+            {/* <input
               type="date"
               className="w-full p-2 border border-gray-300 rounded"
               value={filterTransactionFromDate ? formatDateToInput(new Date(filterTransactionFromDate)) : ""}
@@ -308,11 +310,12 @@ export default function page() {
                 setFilterTransactionFromDate(date);
               }}
               onKeyDown={handleKeyDown}
-            />
+            /> */}
           </div>
           <div className="mt-2 w-full">
             <label className="mr-2">Đến ngày:</label>
-            <input
+            <DateInput value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+            {/* <input
               type="date"
               className="w-full p-2 border border-gray-300 rounded"
               value={filterTransactionToDate ? formatDateToInput(new Date(filterTransactionToDate)) : ""}
@@ -321,7 +324,7 @@ export default function page() {
                 setFilterTransactionToDate(date);
               }}
               onKeyDown={handleKeyDown}
-            />
+            /> */}
           </div>
         </div>
         <div className="flex flex-col justify-center">
@@ -349,7 +352,7 @@ export default function page() {
         headers={headerData}
         tableData={orders}
         defaultSortColumn="transactionDate"
-        asc={false}
+        defaultSortType="desc"
         rowPerPage={rowPerPage}
         pageIndex={pageIndex}
         totalCount={totalCount}

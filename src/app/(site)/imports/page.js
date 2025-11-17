@@ -9,6 +9,7 @@ import { useLoading } from "@/context/LoadingContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { formatDateToInput } from '@/lib/formatDateToInput';
+import DateInput from "@/components/Input/DateInput";
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
@@ -453,7 +454,8 @@ export default function Imports() {
                     </div>
                     <div className="mt-2 w-full">
                         <label className="mr-2">Giao dịch từ ngày:</label>
-                        <input
+                        <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} />
+                        {/* <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterTransactionFromDate && formatDateToInput(filterTransactionFromDate)}
@@ -462,11 +464,12 @@ export default function Imports() {
                                 setFilterTransactionFromDate(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        />
+                        /> */}
                     </div>
                     <div className="mt-2 w-full">
                         <label className="mr-2">Đến ngày:</label>
-                        <input
+                        <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} />
+                        {/* <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterTransactionToDate && formatDateToInput(filterTransactionToDate)}
@@ -475,7 +478,7 @@ export default function Imports() {
                                 setFilterTransactionToDate(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        />
+                        /> */}
                     </div>
                 </div>
                 <div className="flex flex-col justify-center">
@@ -502,7 +505,8 @@ export default function Imports() {
             <TableCommon
                 headers={headerData}
                 tableData={imports}
-                defaultSortColumn="transactionId"
+                defaultSortColumn="transactionDate"
+                defaultSortType="desc"
                 rowPerPage={rowPerPage}
                 pageIndex={pageIndex}
                 totalCount={totalCount}

@@ -278,7 +278,8 @@ export default function Customers() {
                 <TableCommon
                     headers={headerData}
                     tableData={customers}
-                    defaultSortColumn="userId"
+                    defaultSortColumn="createdAt"
+                    defaultSortType="desc"
                     rowPerPage={rowPerPage}
                     pageIndex={pageIndex}
                     totalCount={totalCount}

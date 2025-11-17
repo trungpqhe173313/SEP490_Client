@@ -28,6 +28,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
+import DateInput from "@/components/Input/DateInput";
 
 export default function UpdateImport({ params }) {
     const router = useRouter();
@@ -289,10 +290,9 @@ export default function UpdateImport({ params }) {
                             <TableRow className="background-primary">
                                 <TableCell sx={{ color: "white" }}>Mã hàng</TableCell>
                                 <TableCell sx={{ color: "white" }}>Tên hàng</TableCell>
-                                <TableCell sx={{ color: "white" }} align="center">Số lượng</TableCell>
-                                <TableCell sx={{ color: "white" }} align="center">Đơn giá</TableCell>
-                                <TableCell sx={{ color: "white" }} align="center">Giảm giá</TableCell>
-                                <TableCell sx={{ color: "white" }} align="right">Thành tiền</TableCell>
+                                <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
+                                <TableCell sx={{ color: "white" }} align="center">Đơn giá (VND)</TableCell>
+                                <TableCell sx={{ color: "white" }} align="right">Thành tiền (VND)</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -353,22 +353,6 @@ export default function UpdateImport({ params }) {
                                                 variant="outlined"
                                             />
                                         </TableCell>
-                                        <TableCell align="center">
-                                            <TextField
-                                                type="number"
-                                                size="small"
-                                                inputProps={{
-                                                    min: 0,
-                                                    style: { width: 70, textAlign: "center", height: "10px" },
-                                                }}
-                                                value={removeLeadingZero(r.discount)}
-                                                error={r.discount > r.unitPrice || r.discount < 0}
-                                                onChange={(e) =>
-                                                    handleChangeProduct(r.productId, "discount", e.target.value)
-                                                }
-                                                variant="outlined"
-                                            />
-                                        </TableCell>
                                         <TableCell align="right">
                                             {(r.quantity * r.unitPrice).toLocaleString('vi-VN')}₫
                                         </TableCell>
@@ -394,6 +378,14 @@ export default function UpdateImport({ params }) {
             <div className="w-full bg-white rounded-md shadow-md p-4 flex flex-col col-span-1">
                 <h3 className="font-semibold mb-4">Tổng hợp</h3>
                 <div className="flex justify-between mb-2 text-sm">
+                    <span>Tổng số loại sản phẩm:</span>
+                    <span>{rows.filter((row) => row.quantity > 0 && row.unitPrice > 0).length}</span>
+                </div>
+                <div className="flex justify-between mb-2 text-sm">
+                    <span>Tổng số lượng sản phẩm:</span>
+                    <span>{rows.reduce((total, row) => total + row.quantity, 0)}</span>
+                </div>
+                <div className="flex justify-between mb-2 text-sm">
                     <span>Tổng tiền hàng:</span>
                     <span>{totalPrice.toLocaleString('vi-VN')} ₫</span>
                 </div>
@@ -407,7 +399,8 @@ export default function UpdateImport({ params }) {
                 </div>
                 <div className="my-4">
                     <label className="block text-md font-bold">Ngày hết hạn</label>
-                    <input
+                    <DateInput className="w-full p-2 border border-gray-300 rounded-md" value={expireDate} onChange={(e) => setExpireDate(e)} disabled/>
+                    {/* <input
                         type="date"
                         name="expireDate"
                         disabled
@@ -417,21 +410,8 @@ export default function UpdateImport({ params }) {
                             setExpireDate(date);
                         }}
                         className="w-full p-2 border border-gray-300 rounded-md"
-                    />
+                    /> */}
                     {validExpireDateMessage && <span className="text-red-500">{validExpireDateMessage}</span>}
-                </div>
-                <div className="my-4">
-                    <label className="block text-md font-bold">Trạng thái</label>
-                    <select
-                        name="status"
-                        value={status || 5}
-                        onChange={(e) => setStatus(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                    >
-                        {/* <option value={0}>Lên đơn</option> */}
-                        <option value={5}>Đang kiểm</option>
-                        <option value={6}>Đã kiểm</option>
-                    </select>
                 </div>
                 <div className="my-4">
                     <label className="block text-md font-bold">Ghi chú</label>

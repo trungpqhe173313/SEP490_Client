@@ -18,6 +18,7 @@ import { formatLargeNumber } from "@/lib/formatLargeNumber";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import Loader from "@/components/Loader/loader";
+import DateInput from "@/components/Input/DateInput";
 
 export default function Products() {
     // Data state
@@ -423,7 +424,8 @@ export default function Products() {
                     <div className="my-2 w-full grid grid-cols-2 gap-2">
                         <div className="col-span-1">
                             <label className="mr-2">Ngày tạo từ</label>
-                            <input
+                            <DateInput value={filterFromCreatedDate} onChange={(d) => setFilterFromCreatedDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+                            {/* <input
                                 type="date"
                                 className="w-full p-2 border border-gray-300 rounded"
                                 value={filterFromCreatedDate && formatDateToInput(filterFromCreatedDate)}
@@ -432,11 +434,12 @@ export default function Products() {
                                     setFilterFromCreatedDate(date);
                                 }}
                                 onKeyDown={handleKeyDown}
-                            />
+                            /> */}
                         </div>
                         <div className="col-span-1">
                             <label className="mr-2">Ngày tạo đến</label>
-                            <input
+                            <DateInput value={filterToCreatedDate} onChange={(d) => setFilterToCreatedDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+                            {/* <input
                                 type="date"
                                 className="w-full p-2 border border-gray-300 rounded"
                                 value={filterToCreatedDate && formatDateToInput(filterToCreatedDate)}
@@ -445,7 +448,7 @@ export default function Products() {
                                     setFilterToCreatedDate(date);
                                 }}
                                 onKeyDown={handleKeyDown}
-                            />
+                            /> */}
                         </div>
                         {errorToCreatedDate && <span className="text-red-500">{errorToCreatedDate}</span>}
                     </div>
@@ -465,7 +468,8 @@ export default function Products() {
             <TableCommon
                 headers={headerData}
                 tableData={products}
-                defaultSortColumn="productId"
+                defaultSortColumn="createdAt"
+                defaultSortType="desc"
                 rowPerPage={rowPerPage}
                 pageIndex={pageIndex}
                 totalCount={totalCount}

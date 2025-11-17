@@ -19,6 +19,7 @@ export default function TableCommon({
     headers,
     tableData,
     defaultSortColumn,
+    defaultSortType,
     rowPerPage,
     pageIndex,
     totalCount,
@@ -32,10 +33,11 @@ export default function TableCommon({
     usePagination,
     useAction,
     fePagination,
+    extraRow,
     useDetail,
     handleFetchDetail
 }) {
-    const [sortType, setSortType] = useState('asc');
+    const [sortType, setSortType] = useState(defaultSortType || 'asc');
     const [sortColumn, setSortColumn] = useState(defaultSortColumn || headers[0].key);
     const [data, setData] = useState(tableData);
     const [isOpenPopupConfirmDelete, setIsOpenPopupConfirmDelete] = useState(false);
@@ -212,6 +214,9 @@ export default function TableCommon({
                                     )}
                                 </TableRow>
                             )
+                        )}
+                        {extraRow && (
+                            extraRow()
                         )}
                     </TableBody>
                 </Table>

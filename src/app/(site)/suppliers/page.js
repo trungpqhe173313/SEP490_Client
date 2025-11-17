@@ -292,7 +292,8 @@ export default function Suppliers() {
                 <TableCommon
                     headers={headerData}
                     tableData={suppliers}
-                    defaultSortColumn="supplierId"
+                    defaultSortColumn="createdAt"
+                    defaultSortType="desc"
                     rowPerPage={rowPerPage}
                     pageIndex={pageIndex}
                     totalCount={totalCount}

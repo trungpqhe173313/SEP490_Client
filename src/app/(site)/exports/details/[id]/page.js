@@ -12,6 +12,7 @@ import { getExportStatus } from "@/lib/getExportStatus";
 import { formatLargeNumber } from '@/lib/formatLargeNumber';
 import SuccessModal from '@/components/Modal/successModal';
 import FailedModal from '@/components/Modal/failedModal';
+import { TableRow, TableCell } from '@mui/material';
 
 
 export default function ExportDetail({ params }) {
@@ -85,11 +86,6 @@ export default function ExportDetail({ params }) {
             customValue: (item) => item.productName && <div>{item.productName}</div>
         },
         {
-            key: "expireDate",
-            label: "Ngày hết hạn",
-            customValue: (item) => item.expireDate && <div>{new Date(item.expireDate).toLocaleDateString('vi-VN')}</div>
-        },
-        {
             key: "note",
             label: "Ghi chú",
             customValue: (item) => item.note && <div>{item.note}</div>
@@ -111,15 +107,30 @@ export default function ExportDetail({ params }) {
         },
         {
             key: "unitPrice",
-            label: "Đơn giá",
+            label: "Đơn giá (VND)",
             customValue: (item) => item.unitPrice && <div>{formatLargeNumber(item.unitPrice)}₫</div>
         },
         {
             key: "totalPrice",
-            label: "Thành tiền (Đơn giá x Số lượng)",
+            label: "Thành tiền (VND)",
             customValue: (item) => item.quantity && item.unitPrice && <div>{formatLargeNumber(item.quantity * item.unitPrice)}₫</div>
         },
     ]
+
+    const extraRow = () => {
+        return (
+            <TableRow>
+                <TableCell colSpan={1} align="center">Tổng</TableCell>
+                <TableCell />
+                <TableCell />
+                <TableCell />
+                <TableCell />
+                <TableCell align="center">{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</TableCell>
+                <TableCell />
+                <TableCell align="center">{formatLargeNumber(transaction.totalPrice)} ₫</TableCell>
+            </TableRow>
+        )
+    }
 
     const handleCopy = () => {
         console.log('copy');
@@ -213,12 +224,8 @@ export default function ExportDetail({ params }) {
                 <TableCommon
                     headers={headerData}
                     tableData={products}
+                    extraRow={extraRow}
                 />
-                <div className='h-14 relative flex flex-row items-center'>
-                    <h2 className='absolute left-[4.5%] transform -translate-x-1/2'>Tổng</h2>
-                    <h2 className='absolute right-[29%] transform -translate-x-1/2'>{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</h2>
-                    <h2 className='absolute right-[3.5%] transform -translate-x-1/2'>{formatLargeNumber(transaction.totalCost)}₫</h2>
-                </div>
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>
                         {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateOrder}>Lên đơn</button>}

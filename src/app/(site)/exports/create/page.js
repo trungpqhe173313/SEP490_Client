@@ -329,9 +329,9 @@ export default function CreateExport() {
                                 <TableRow className="background-primary">
                                     <TableCell sx={{ color: "white" }}>Mã hàng</TableCell>
                                     <TableCell sx={{ color: "white" }}>Tên hàng</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Số lượng</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Đơn giá</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="right">Thành tiền</TableCell>
+                                    <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
+                                    <TableCell sx={{ color: "white" }} align="center">Đơn giá (VND)</TableCell>
+                                    <TableCell sx={{ color: "white" }} align="right">Thành tiền (VND)</TableCell>
                                     <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -429,8 +429,9 @@ export default function CreateExport() {
                         onChange={(e) => setNote(e.target.value)}
                         className="p-2 border border-gray-300 rounded ml-4 bg-white w-[50%]"
                     />
-                    <div className="text-right mr-4">
-                        <p>Tổng số lượng: {cart.length} sản phẩm</p>
+                    <div className="text-left mr-4">
+                        <p>Tổng số loại sản phẩm: {cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length} sản phẩm</p>
+                        <p>Tổng số lượng sản phẩm: {cart.reduce((total, p) => total + p.orderQuantity, 0)} sản phẩm</p>
                         <p className="text-xl font-bold">Tổng tiền hàng: {formatLargeNumber(total)} ₫</p>
                     </div>
                 </div>
