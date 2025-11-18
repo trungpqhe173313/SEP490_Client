@@ -186,7 +186,8 @@ export default function Imports() {
             setImports(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            console.error("Error fetching imports:", error);
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
         } finally {
             setLoading(false);
         }
@@ -373,7 +374,7 @@ export default function Imports() {
                     <h1 className="text-2xl font-bold">Danh sách phiếu nhập</h1>
                 </div>
                 <div className="flex flex-col gap-2">
-                    <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => navigate("/imports/create")}>Tạo phiếu nhập mới</button>
+                    <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => navigate("/imports/modify/create")}>Tạo phiếu nhập mới</button>
 
                     <label
                         htmlFor="excel-upload"

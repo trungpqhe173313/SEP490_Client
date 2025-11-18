@@ -61,7 +61,7 @@ export default function Customers() {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
     const headerData = [
@@ -122,7 +122,8 @@ export default function Customers() {
             setCustomers(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            console.error("Error fetching customers:", error);
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
         } finally {
             setLoading(false);
         }
@@ -248,9 +249,9 @@ export default function Customers() {
                     <div className="flex justify-center gap-2">
                         <button
                             className="px-4 py-2 background-primary text-white rounded cursor-pointer"
-                            onClick={() => { 
-                                setPageIndex(0); 
-                                fetchCustomers(); 
+                            onClick={() => {
+                                setPageIndex(0);
+                                fetchCustomers();
                             }}
                             ref={buttonRef}
                         >

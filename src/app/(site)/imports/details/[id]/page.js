@@ -131,7 +131,7 @@ export default function ImportDetail({ params }) {
     }
 
     const handleCopy = () => {
-        console.log('copy');
+        router.push(`/imports/modify/create/${id}`);
     }
 
     const handleConfirm = () => {
@@ -139,7 +139,7 @@ export default function ImportDetail({ params }) {
     }
 
     const handleEdit = () => {
-        router.push(`/imports/update/${id}`);
+        router.push(`/imports/modify/update/${id}`);
     }
 
     const handleDelete = () => {
@@ -147,7 +147,7 @@ export default function ImportDetail({ params }) {
     }
 
     const handleReturn = () => {
-        console.log('return');
+        router.push(`/returns/modify/create/import/${id}`);
     }
 
     if (!pageReady) return <Loader />;

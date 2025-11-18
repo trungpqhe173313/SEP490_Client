@@ -114,7 +114,8 @@ export default function Categories() {
             setCategories(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            console.error("Error fetching categories:", error);
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
         } finally {
             setLoading(false);
         }

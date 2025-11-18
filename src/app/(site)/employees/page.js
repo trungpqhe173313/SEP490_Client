@@ -99,7 +99,8 @@ export default function Employees() {
             setTotalCount(response.data.totalCount);
             setLoading(false);
         } catch (error) {
-            console.error("Error fetching employees:", error);
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
         } finally {
             setLoading(false);
         }

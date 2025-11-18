@@ -110,6 +110,7 @@ export default function PriceList() {
     };
 
     const fetchPriceLists = async () => {
+        setLoading(true);
         try {
             const body = {
                 pageIndex: pageIndex + 1,
@@ -123,7 +124,10 @@ export default function PriceList() {
             setPriceLists(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            console.error(error);
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
         }
     };
 

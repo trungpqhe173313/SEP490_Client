@@ -142,7 +142,8 @@ export default function Contracts() {
             setContracts(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            console.error("Error fetching contracts:", error);
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
         } finally {
             setLoading(false);
         }

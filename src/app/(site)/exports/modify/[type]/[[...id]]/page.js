@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { productService } from "@/services/product.service";
 import { exportService } from "@/services/export.service";
 import { priceListService } from "@/services/priceList.service";
+import { customerService } from "@/services/customer.service";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
@@ -31,7 +32,7 @@ import { formatLargeNumber } from '@/lib/formatLargeNumber';
 
 export default function UpdateExport({ params }) {
     const router = useRouter();
-    const { id } = React.use(params);
+    const { type, id } = React.use(params);
     const { isLogin, user, refreshUserInfo } = useLogin();
     const { loading, setLoading } = useLoading();
     const [products, setProducts] = useState([]);
@@ -45,12 +46,15 @@ export default function UpdateExport({ params }) {
     const [productsForSearch, setProductsForSearch] = useState([]);
     const [productLoading, setProductLoading] = useState(false);
 
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [customers, setCustomers] = useState([]);
+    const [customerLoading, setCustomerLoading] = useState(false);
+
     const [exportData, setExportData] = useState(null);
 
     const [cart, setCart] = useState([]);
-    const [status, setStatus] = useState("");
     const [note, setNote] = useState("");
-    const [totalPrice, setTotalPrice] = useState(0);
+    const [totalCost, setTotalCost] = useState(0);
 
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
@@ -92,46 +96,48 @@ export default function UpdateExport({ params }) {
 
     const fetchExport = async () => {
         setLoading(true);
-        if (!id) return;
-        await exportService.getExportDetail(id).then((response) => {
+        try {
+            if (!id) return;
+            const response = await exportService.getExportDetail(id)
             setExportData(response.data);
-            setStatus(response.data.status);
             setNote(response.data.list[0].note);
-            fetchProducts(response.data.list);
-        }).catch((error) => {
-            console.log(error);
-        })
+            setTotalCost(response.data.totalCost);
+            setSelectedCustomer(response.data.customer);
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const fetchProducts = async (exportData) => {
+    const fetchProducts = async () => {
         const body = { pageIndex: 1, pageSize: 1000, productName: "" };
         await productService.getProductAvailable(body)
             .then((response) => {
-                const cartItems = response.data.items.map((product) => {
-                    const exportProduct = exportData.find((p) => p.productId === product.productId);
-                    if (exportProduct) {
-                        return {
-                            ...product,
-                            orderQuantity: exportProduct.quantity,
-                            unitPrice: exportProduct.unitPrice
-                        };
-                    }
-                    return null;
-                }).filter(item => item !== null);
-
-                setCart(cartItems);
-                const total = cartItems.reduce((total, item) =>
-                    total + (item.unitPrice * item.orderQuantity), 0
-                );
-                setTotalPrice(total);
                 setProducts(response.data.items);
                 setProductsForSearch(response.data.items);
             })
             .catch((error) => {
                 console.log(error);
             });
-        setLoading(false);
     };
+
+    const fetchCart = (products) => {
+        if (!exportData) return;
+        const cartItems = products.map((product) => {
+            const exportProduct = exportData.list.find((p) => p.productId === product.productId);
+            if (exportProduct) {
+                return {
+                    ...product,
+                    orderQuantity: exportProduct.quantity,
+                    unitPrice: exportProduct.unitPrice
+                };
+            }
+            return null;
+        }).filter(item => item !== null);
+        setCart(cartItems);
+    }
 
     const searchProducts = async (name) => {
         try {
@@ -146,6 +152,24 @@ export default function UpdateExport({ params }) {
             setProductLoading(false);
         }
     }
+
+    const fetchCustomers = async (name) => {
+        try {
+            setCustomerLoading(true);
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                fullName: name,
+            }
+            const response = await customerService.getAllCustomers(body);
+            setCustomers(response.data.items);
+            console.log(response.data.items);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setCustomerLoading(false);
+        }
+    };
 
     const fetchPriceLists = async (name) => {
         try {
@@ -177,13 +201,17 @@ export default function UpdateExport({ params }) {
     };
 
     useEffect(() => {
-        fetchPriceLists("");
-    }, []);
-
-    useEffect(() => {
         if (!pageReady) return;
         fetchExport();
+        fetchPriceLists("");
+        fetchProducts();
+        fetchCustomers("");
     }, [pageReady]);
+
+    useEffect(() => {
+        if (!exportData || !products) return;
+        fetchCart(products);
+    }, [exportData, products]);
 
     const handleAddCart = (product) => {
         const existingProduct = cart.find((p) => p.productId === product.productId);
@@ -192,15 +220,15 @@ export default function UpdateExport({ params }) {
                 p.productId === product.productId ? { ...p, orderQuantity: (p.orderQuantity || 0) + 1 } : p
             );
             setCart(updatedCart);
-            validateFields(updatedCart);
+            validateFields(updatedCart, selectedCustomer);
         } else {
             setCart((prev) => {
                 const newProduct = { ...product, orderQuantity: 1, unitPrice: getProductPrice(product) || 0 };
                 const updatedCart = [...prev, newProduct];
-                validateFields(updatedCart);
-                const newTotalPrice = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
+                validateFields(updatedCart, selectedCustomer);
+                const newTotalCost = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
                 setTimeout(() => {
-                    setTotalPrice(newTotalPrice);
+                    setTotalCost(newTotalCost);
                 }, 0);
                 return updatedCart;
             });
@@ -210,7 +238,7 @@ export default function UpdateExport({ params }) {
     const handleRemoveCart = (productId) => {
         const updatedCart = cart.filter((p) => p.productId !== productId);
         setCart(updatedCart);
-        validateFields(updatedCart);
+        validateFields(updatedCart, selectedCustomer);
     };
 
     const handleChangeCart = (id, field, value) => {
@@ -220,16 +248,20 @@ export default function UpdateExport({ params }) {
                     ? { ...product, [field]: Number(value) || 0 }
                     : product
             );
-            validateFields(updatedCart);
-            const newTotalPrice = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
+            validateFields(updatedCart, selectedCustomer);
+            const newTotalCost = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
             setTimeout(() => {
-                setTotalPrice(newTotalPrice);
+                setTotalCost(newTotalCost);
             }, 0);
             return updatedCart;
         });
     };
 
     const handleChangeDropdown = (item, field) => {
+        if (field === "customerId") {
+            setSelectedCustomer(item);
+            validateFields(cart, item);
+        }
         if (field === "productId") {
             if (item) {
                 handleAddCart(item);
@@ -262,7 +294,11 @@ export default function UpdateExport({ params }) {
         return number.toString().replace(/^0+/, '');
     }
 
-    const validateFields = (cartArg = cart) => {
+    const validateFields = (cartArg = cart, selectedCustomerArg = selectedCustomer) => {
+        if (selectedCustomerArg === null) {
+            setErrors("Khách hàng không được để trống");
+            return false;
+        }
         if (cartArg.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length === 0) {
             setErrors("Sản phẩm không được để trống");
             return false;
@@ -285,23 +321,36 @@ export default function UpdateExport({ params }) {
 
     const handleSubmit = async () => {
         if (!validateFields()) return;
-        setLoading(true);
-        const body = {
+        setLoading(true); const body = {
             note,
-            totalCost: totalPrice,
+            totalCost: totalCost,
             listProductOrder: cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).map((p) => ({ productId: p.productId, quantity: p.orderQuantity, unitPrice: p.unitPrice })),
-            status: parseInt(status)
+            status: type === "create" ? 1 : exportData.status
         };
-        await exportService.updateExport(id, body)
-            .then((response) => {
-                setModalSuccessMessage("Chỉnh sửa phiếu xuất kho thành công");
-                setModalSuccessOpen(true);
-            })
-            .catch((error) => {
-                setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
-                setModalFailedSubMessages(error?.response?.data?.error?.messages);
-                setModalFailedOpen(true);
-            });
+        if (type === "create") {
+            await exportService.createExport(selectedCustomer.userId, body)
+                .then((response) => {
+                    setModalSuccessMessage("Tạo phiếu xuất kho thành công");
+                    setModalSuccessOpen(true);
+                })
+                .catch((error) => {
+                    setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+                    setModalFailedSubMessages(error.response.data.error.messages);
+                    setModalFailedOpen(true);
+                });
+        }
+        if (type === "update") {
+            await exportService.updateExport(id, body)
+                .then((response) => {
+                    setModalSuccessMessage("Chỉnh sửa phiếu xuất kho thành công");
+                    setModalSuccessOpen(true);
+                })
+                .catch((error) => {
+                    setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                    setModalFailedSubMessages(error?.response?.data?.error?.messages);
+                    setModalFailedOpen(true);
+                });
+        }
         setLoading(false);
     }
 
@@ -309,6 +358,10 @@ export default function UpdateExport({ params }) {
         if (selectedPriceList === null) return product.sellingPrice;
         const priceListDetail = selectedPriceListDetail?.find((p) => p.productId === product.productId);
         return priceListDetail?.price ?? product.sellingPrice;
+    }
+
+    const handleExit = () => {
+        (type === "create") ? router.push("/exports") : router.back();
     }
 
     const indexOfLastProduct = currentPage * itemsPerPage;
@@ -449,7 +502,7 @@ export default function UpdateExport({ params }) {
                     <div className="text-left mr-4">
                         <p>Tổng số loại sản phẩm: {cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length} sản phẩm</p>
                         <p>Tổng số lượng sản phẩm: {cart.reduce((total, p) => total + p.orderQuantity, 0)} sản phẩm</p>
-                        <p className="text-xl font-bold">Tổng tiền hàng: {formatLargeNumber(totalPrice)} ₫</p>
+                        <p className="text-xl font-bold">Tổng tiền hàng: {formatLargeNumber(totalCost)} ₫</p>
                     </div>
                 </div>
             </div>
@@ -459,12 +512,22 @@ export default function UpdateExport({ params }) {
                     <div className="w-full flex flex-row items-center gap-4">
                         <div className="w-full mt-4">
                             <p className="text-xl font-bold">Khách hàng</p>
-                            <input
+                            {exportData ? <input
                                 type="text"
                                 disabled
                                 value={exportData?.customer.fullName || ""}
                                 className="p-2 bg-white w-full border-1 border-gray-300 rounded"
+                            /> : <AutocompleteCommon
+                                name="customerId"
+                                value={selectedCustomer}
+                                loading={customerLoading}
+                                options={customers}
+                                onSelect={(item) => handleChangeDropdown(item, "customerId")}
+                                onSearch={fetchCustomers}
+                                getOptionLabel={(option) => option.fullName}
+                                getOptionKey={(option) => option.customerId}
                             />
+                            }
                         </div>
                         <div className="w-full mt-4">
                             <p className="text-xl font-bold">Bảng giá</p>
@@ -523,11 +586,11 @@ export default function UpdateExport({ params }) {
                     <button
                         className="background-primary background-hovered text-white text-2xl font-bold py-2 px-4 rounded"
                         onClick={() => handleSubmit()}>
-                        Hoàn thành chỉnh sửa
+                        Hoàn thành đơn
                     </button>
                 </div>
             </div>
-            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), router.back() }} />
+            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), handleExit() }} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>
     );

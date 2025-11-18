@@ -93,25 +93,31 @@ export default function Suppliers() {
 
     const fetchSuppliers = async () => {
         setLoading(true);
-        const body = {
-            pageIndex: pageIndex + 1,
-            pageSize: rowPerPage,
-            isActive: filterIsActive === "true" ? true : filterIsActive === "false" ? false : null
-        };
-        if (filterSupplierName) {
-            body.SupplierName = filterSupplierName;
-        }
-        if (filterEmail) {
-            body.Email = filterEmail;
-        }
-        if (filterPhone) {
-            body.Phone = filterPhone;
-        }
+        try {
+            const body = {
+                pageIndex: pageIndex + 1,
+                pageSize: rowPerPage,
+                isActive: filterIsActive === "true" ? true : filterIsActive === "false" ? false : null
+            };
+            if (filterSupplierName) {
+                body.SupplierName = filterSupplierName;
+            }
+            if (filterEmail) {
+                body.Email = filterEmail;
+            }
+            if (filterPhone) {
+                body.Phone = filterPhone;
+            }
 
-        const response = await supplierService.getAllSuppliers(body);
-        setSuppliers(response.data.items);
-        setTotalCount(response.data.totalCount);
-        setLoading(false);
+            const response = await supplierService.getAllSuppliers(body);
+            setSuppliers(response.data.items);
+            setTotalCount(response.data.totalCount);
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -131,7 +137,7 @@ export default function Suppliers() {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
     useEffect(() => {
@@ -216,7 +222,7 @@ export default function Suppliers() {
                 <div className="p-4 rounded-2xl bg-white h-auto sticky top-0">
                     <h2 className="text-xl font-bold">Lọc nhà cung cấp</h2>
                     <div className="flex flex-col items-center my-4">
-                        <div className="mt-2 w-full">   
+                        <div className="mt-2 w-full">
                             <label className="mr-2">Tên nhà cung cấp:</label>
                             <input
                                 type="text"

@@ -133,7 +133,7 @@ export default function ExportDetail({ params }) {
     }
 
     const handleCopy = () => {
-        console.log('copy');
+        router.push(`/exports/modify/create/${id}`);
     }
 
     const handleUpdateOrder = async () => {
@@ -185,7 +185,7 @@ export default function ExportDetail({ params }) {
     }
 
     const handleEdit = () => {
-        router.push(`/exports/update/${id}`);
+        router.push(`/exports/modify/update/${id}`);
     }
 
     const handleDelete = () => {
@@ -193,7 +193,7 @@ export default function ExportDetail({ params }) {
     }
 
     const handleReturn = () => {
-        console.log('return');
+        router.push(`/returns/modify/create/export/${id}`);
     }
 
     if (!pageReady) return <Loader />;

@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
-import { formatDateToInput } from '@/lib/formatDateToInput';
+import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 
 import { productService } from "@/services/product.service";
+import { warehouseService } from "@/services/warehouse.service";
+import { supplierService } from "@/services/supplier.service";
 import { importService } from "@/services/import.service";
 
 import SuccessModal from "@/components/Modal/successModal";
@@ -21,11 +23,9 @@ import {
     IconButton,
     TextField,
     TablePagination,
-    Button
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
 import DateInput from "@/components/Input/DateInput";
@@ -33,15 +33,24 @@ import DateInput from "@/components/Input/DateInput";
 export default function UpdateImport({ params }) {
     const router = useRouter();
     const { loading, setLoading } = useLoading();
-    const { id } = React.use(params);
+    const { type, id } = React.use(params);
     const { isLogin, user, refreshUserInfo } = useLogin();
+    const [products, setProducts] = useState([]);
     const [rows, setRows] = useState([]);
     const [filteredRows, setFilteredRows] = useState(rows);
     const [importData, setImportData] = useState(null);
     const today = new Date();
 
-    const [status, setStatus] = useState(null);
-    const [expireDate, setExpireDate] = useState("");
+    const [warehouses, setWarehouses] = useState([]);
+    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+    const [warehouseLoading, setWarehouseLoading] = useState(false);
+    const [suppliers, setSuppliers] = useState([]);
+    const [selectedSupplier, setSelectedSupplier] = useState(null);
+    const [supplierLoading, setSupplierLoading] = useState(false);
+
+    const [expireDate, setExpireDate] = useState(
+        new Date(Date.now() + 24 * 60 * 60 * 1000)
+    );
     const [note, setNote] = useState("");
 
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
@@ -54,6 +63,8 @@ export default function UpdateImport({ params }) {
     const [rowsPerPage, setRowsPerPage] = useState(20);
     const [searchTerm, setSearchTerm] = useState("");
 
+    const [validWarehouseMessage, setValidWarehouseMessage] = useState("");
+    const [validSupplierMessage, setValidSupplierMessage] = useState("");
     const [validExpireDateMessage, setValidExpireDateMessage] = useState("");
     const [pageReady, setPageReady] = useState(false);
     const pageRole = ["Manager"];
@@ -76,14 +87,11 @@ export default function UpdateImport({ params }) {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
-    const navigate = (path) => {
-        router.push(path);
-    };
 
-    const [totalPrice, setTotalPrice] = useState(0);
+    const [totalCost, setTotalCost] = useState(0);
 
     const paginatedRows = filteredRows.slice(
         page * rowsPerPage,
@@ -95,48 +103,63 @@ export default function UpdateImport({ params }) {
         return number.toString().replace(/^0+/, '');
     }
 
-    const fetchProduct = (data) => {
-        const body = { pageIndex: 1, pageSize: 1000, isActive: true, productName: "", supplierId: data.supplier.supplierId };
+    const fetchProduct = () => {
+        if (!selectedSupplier) return;
+        const body = { pageIndex: 1, pageSize: 1000, isActive: true, supplierId: selectedSupplier?.supplierId };
         productService
             .getAllProducts(body)
             .then((response) => {
-                const updatedProducts = response.data.items.map((p) => {
-                    const productInList = data.list.find(
-                        (l) => l.productId === p.productId
-                    );
-                    return {
-                        ...p,
-                        quantity: productInList ? productInList.quantity : 0,
-                        unitPrice: productInList ? productInList.unitPrice : p.unitPrice || 0,
-                        discount: productInList ? productInList.discount : 0
-                    };
-                });
-
-                setRows(updatedProducts.filter((p) => p.quantity > 0 && p.unitPrice > 0));
-                setFilteredRows(updatedProducts.filter((p) => p.quantity > 0 && p.unitPrice > 0));
-
-                const initialTotal = updatedProducts.reduce(
-                    (total, item) => total + (item.quantity * (item.unitPrice || 0)),
-                    0
-                );
-                setTotalPrice(initialTotal);
+                setProducts(response.data.items);
             })
             .catch((error) => {
                 console.log(error);
             });
     };
 
-    const fetchImport = async () => {
+    const fetchRows = async () => {
+        if (!products) return;
         setLoading(true);
+        let updatedProducts
+        if (importData) {
+            updatedProducts = products.map((p) => {
+                const productInList = importData.list.find(
+                    (l) => l.productId === p.productId
+                );
+                return {
+                    ...p,
+                    quantity: productInList ? productInList.quantity : 0,
+                    unitPrice: productInList ? productInList.unitPrice : p.unitPrice || 0,
+                };
+            });
+        } else {
+            updatedProducts = products.map((p) => ({
+                ...p,
+                quantity: 0,
+                unitPrice: p.unitPrice || 0,
+            }));
+        }
+        if (type === "create") {
+            setRows(updatedProducts);
+            setFilteredRows(updatedProducts);
+        } else {
+            setRows(updatedProducts.filter((p) => p.quantity > 0 && p.unitPrice > 0));
+            setFilteredRows(updatedProducts.filter((p) => p.quantity > 0 && p.unitPrice > 0));
+        }
+        setLoading(false);
+    }
+
+    const fetchImport = async () => {
         if (!id) return;
+        setLoading(true);
         await importService.getImportDetail(id)
             .then((response) => {
                 setImportData(response.data);
-                setStatus(response.data.status);
                 setExpireDate(new Date(response.data.list[0].expireDate));
                 setNote(response.data.list[0].note);
-                fetchProduct(response.data);
-                setTotalPrice(response.data.list.reduce((total, item) => total + item.quantity * item.unitPrice, 0));
+                setTotalCost(response.data.totalCost);
+                setSelectedSupplier(response.data.supplier);
+                fetchExactWarehouse(response.data.warehouseName);
+                console.log(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -144,11 +167,55 @@ export default function UpdateImport({ params }) {
         setLoading(false);
     }
 
+    const fetchSupplier = (supplierName) => {
+        const body = { pageIndex: 1, pageSize: 1000, isActive: true, supplierName: supplierName || "" };
+        supplierService
+            .getAllSuppliers(body)
+            .then((response) => {
+                setSuppliers(response.data.items);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    const fetchWarehouse = (warehouseName) => {
+        const body = { pageIndex: 1, pageSize: 1000, warehouseName: warehouseName || "" };
+        warehouseService
+            .getAllWarehouses(body)
+            .then((response) => {
+                setWarehouses(response.data.items);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    const fetchExactWarehouse = (warehouseName) => {
+        const body = { pageIndex: 1, pageSize: 1000, warehouseName: warehouseName };
+        warehouseService
+            .getAllWarehouses(body)
+            .then((response) => {
+                setSelectedWarehouse(response.data.items[0]);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
     useEffect(() => {
         validateFields();
-    }, [expireDate]);
+    }, [selectedSupplier, selectedWarehouse, expireDate]);
 
     const validateFields = () => {
+        if (!selectedSupplier) {
+            setValidSupplierMessage("Vui lòng chọn nhà cung cấp");
+            return false;
+        }
+        if (!selectedWarehouse) {
+            setValidWarehouseMessage("Vui lòng chọn kho");
+            return false;
+        }
         if (!expireDate) {
             setValidExpireDateMessage("Vui lòng nhập hạn sử dụng");
             return false;
@@ -158,6 +225,8 @@ export default function UpdateImport({ params }) {
             return false;
         }
         setValidExpireDateMessage("");
+        setValidSupplierMessage("");
+        setValidWarehouseMessage("");
         return true;
     }
 
@@ -177,16 +246,6 @@ export default function UpdateImport({ params }) {
             setModalFailedOpen(true);
             return false;
         }
-        if (rows.find((r) => r.discount < 0)) {
-            setModalFailedMessage("Giá khuyến mãi không thể là số âm");
-            setModalFailedOpen(true);
-            return false;
-        }
-        if (rows.find((r) => r.discount > r.unitPrice)) {
-            setModalFailedMessage("Giá khuyến mãi không thể lớn hơn giá gốc");
-            setModalFailedOpen(true);
-            return false;
-        }
         return true;
     }
 
@@ -195,30 +254,58 @@ export default function UpdateImport({ params }) {
             return;
         }
         setLoading(true);
-        const body = {
-            listProductOrder: rows
-                .filter((r) => r.quantity !== 0 && r.unitPrice !== 0)
-                .map((r) => ({
-                    productId: r.productId,
-                    quantity: r.quantity,
-                    unitPrice: r.unitPrice
-                })),
-            status: parseInt(status),
-            expireDate: expireDate,
-            totalCost: totalPrice,
-            note: note
+        if (type === "create") {
+            const body = {
+                warehouseId: selectedWarehouse.warehouseId,
+                supplierId: selectedSupplier.supplierId,
+                expireDate: expireDate,
+                note: note,
+                totalCost: totalCost,
+                products: rows
+                    .filter((r) => r.quantity !== 0 && r.unitPrice !== 0)
+                    .map((r) => ({
+                        productId: r.productId,
+                        quantity: r.quantity,
+                        unitPrice: r.unitPrice
+                    }))
+            }
+            await importService.createImport(body)
+                .then((response) => {
+                    setModalSuccessMessage("Tạo phiếu nhập kho thành công");
+                    setModalSuccessOpen(true);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                    setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
+                    setModalFailedOpen(true);
+                });
         }
-        await importService.updateImport(id, body)
-            .then((response) => {
-                setModalSuccessMessage("Cập nhật phiếu nhập kho thành công");
-                setModalSuccessOpen(true);
-            })
-            .catch((error) => {
-                console.log(error);
-                setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
-                setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
-                setModalFailedOpen(true);
-            });
+        if (type === "update") {
+            const body = {
+                listProductOrder: rows
+                    .filter((r) => r.quantity !== 0 && r.unitPrice !== 0)
+                    .map((r) => ({
+                        productId: r.productId,
+                        quantity: r.quantity,
+                        unitPrice: r.unitPrice
+                    })),
+                expireDate: expireDate,
+                totalCost: totalCost,
+                note: note
+            }
+            await importService.updateImport(id, body)
+                .then((response) => {
+                    setModalSuccessMessage("Cập nhật phiếu nhập kho thành công");
+                    setModalSuccessOpen(true);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                    setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
+                    setModalFailedOpen(true);
+                });
+        }
         setLoading(false);
     }
 
@@ -232,11 +319,11 @@ export default function UpdateImport({ params }) {
         setRows(updatedRows);
         setFilteredRows(updatedRows.map(r => ({ ...r })));
 
-        const newTotalPrice = updatedRows.reduce(
+        const newTotalCost = updatedRows.reduce(
             (total, item) => total + (item.quantity * (item.unitPrice || 0)),
             0
         );
-        setTotalPrice(newTotalPrice);
+        setTotalCost(newTotalCost);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -248,11 +335,26 @@ export default function UpdateImport({ params }) {
         setPage(0);
     };
 
+    const handleChangeDropdown = (item) => {
+        if (item) {
+            if (item.warehouseId) {
+                setSelectedWarehouse(item);
+            }
+            if (item.supplierId) {
+                setSelectedSupplier(item);
+            }
+        }
+    }
+
     const handleSearch = (searchTerm) => {
         const filteredRows = rows.filter(
             (p) => searchTerm === "" || p.code.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase()) && p.quantity > 0 && p.unitPrice > 0
         );
-        setFilteredRows(filteredRows.filter((r) => r.quantity !== 0 && r.unitPrice !== 0));
+        if (type === "update") {
+            setFilteredRows(filteredRows.filter((r) => r.quantity !== 0 && r.unitPrice !== 0));
+        } else {
+            setFilteredRows(filteredRows);
+        }
     };
 
     useEffect(() => {
@@ -262,9 +364,28 @@ export default function UpdateImport({ params }) {
     useEffect(() => {
         if (!pageReady) return;
         fetchImport();
+        fetchProduct();
+        fetchSupplier();
+        fetchWarehouse();
     }, [pageReady]);
 
-    if (!pageReady) { 
+    useEffect(() => {
+        if (!selectedSupplier) return;
+        setLoading(true);
+        fetchProduct();
+        setLoading(false);
+    }, [selectedSupplier]);
+
+    useEffect(() => {
+        if (!products) return;
+        fetchRows();
+    }, [products]);
+
+    const handleExit = () => {
+        (type === "create") ? router.push("/imports") : router.back();
+    }
+
+    if (!pageReady) {
         return <Loader />
     };
 
@@ -272,7 +393,7 @@ export default function UpdateImport({ params }) {
         <div className="p-4 bg-gray-50 h-auto flex gap-6 grid grid-cols-4">
             <div className="col-span-3">
                 <div className="flex items-center rounded-md shadow-md p-4 bg-white gap-4 mb-4">
-                    <h1 className="text-2xl font-bold">Cập nhật phiếu nhập</h1>
+                    <h1 className="text-2xl font-bold">{type === "create" ? "Tạo phiếu nhập" : "Cập nhật phiếu nhập"}</h1>
                     <TextField
                         label="Tìm kiếm theo tên hoặc mã"
                         variant="outlined"
@@ -387,19 +508,58 @@ export default function UpdateImport({ params }) {
                 </div>
                 <div className="flex justify-between mb-2 text-sm">
                     <span>Tổng tiền hàng:</span>
-                    <span>{totalPrice.toLocaleString('vi-VN')} ₫</span>
+                    <span>{totalCost?.toLocaleString('vi-VN') || 0} ₫</span>
                 </div>
                 <div className="my-4">
                     <label className="block text-md font-bold">Nhà kho</label>
-                    <input type="text" name="warehouseName" disabled value={importData?.warehouseName || ""} className="w-full p-2 border border-gray-300 rounded-md" />
+                    {id ?
+                        <input
+                            type="text"
+                            name="warehouseName"
+                            disabled
+                            value={importData?.warehouseName || ""}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                        />
+                        : <AutocompleteCommon
+                            name="warehouseId"
+                            value={selectedWarehouse}
+                            loading={warehouseLoading}
+                            options={warehouses}
+                            onSelect={(item) => handleChangeDropdown(item)}
+                            onSearch={fetchWarehouse}
+                            getOptionLabel={(option) => option.warehouseName}
+                            getOptionKey={(option) => option.warehouseId}
+                        />
+                    }
+                    {validWarehouseMessage && <span className="text-red-500">{validWarehouseMessage}</span>}
                 </div>
                 <div className="my-4">
                     <label className="block text-md font-bold">Nhà cung cấp</label>
-                    <input type="text" name="supplierName" disabled value={importData?.supplier?.supplierName || ""} className="w-full p-2 border border-gray-300 rounded-md" />
+                    {id ?
+                        <input
+                            type="text"
+                            name="supplierName"
+                            disabled
+                            value={importData?.supplier?.supplierName || ""}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                        />
+                        :
+                        <AutocompleteCommon
+                            name="supplierId"
+                            value={selectedSupplier}
+                            loading={supplierLoading}
+                            options={suppliers}
+                            onSelect={(item) => handleChangeDropdown(item)}
+                            onSearch={fetchSupplier}
+                            getOptionLabel={(option) => option.supplierName}
+                            getOptionKey={(option) => option.supplierId}
+                        />
+                    }
+                    {validSupplierMessage && <span className="text-red-500">{validSupplierMessage}</span>}
                 </div>
                 <div className="my-4">
                     <label className="block text-md font-bold">Ngày hết hạn</label>
-                    <DateInput className="w-full p-2 border border-gray-300 rounded-md" value={expireDate} onChange={(e) => setExpireDate(e)} disabled/>
+                    <DateInput className="w-full p-2 border border-gray-300 rounded-md" value={expireDate} onChange={(e) => setExpireDate(e)} disabled={id ? true : false} />
                     {/* <input
                         type="date"
                         name="expireDate"
@@ -428,7 +588,7 @@ export default function UpdateImport({ params }) {
                     Hoàn thành
                 </button>
             </div>
-            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), router.back() }} />
+            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), handleExit() }} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>
     );

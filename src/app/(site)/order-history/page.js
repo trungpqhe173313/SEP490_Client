@@ -86,7 +86,7 @@ export default function page() {
       key: "note",
       label: "Ghi chú",
       customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
-    }, 
+    },
     {
       key: "action",
       label: "Hành động",
@@ -167,7 +167,8 @@ export default function page() {
       setOrders(response.data.items);
       setTotalCount(response.data.totalCount);
     } catch (error) {
-      console.error("Error fetching orders:", error);
+      setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+      setModalFailedOpen(true);
     } finally {
       setLoading(false);
     }
@@ -300,7 +301,7 @@ export default function page() {
           </div>
           <div className="mt-2 w-full">
             <label className="mr-2">Giao dịch từ ngày:</label>
-            <DateInput value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+            <DateInput value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} className="w-full p-2 border border-gray-300 rounded" />
             {/* <input
               type="date"
               className="w-full p-2 border border-gray-300 rounded"
@@ -314,7 +315,7 @@ export default function page() {
           </div>
           <div className="mt-2 w-full">
             <label className="mr-2">Đến ngày:</label>
-            <DateInput value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+            <DateInput value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} className="w-full p-2 border border-gray-300 rounded" />
             {/* <input
               type="date"
               className="w-full p-2 border border-gray-300 rounded"

@@ -107,7 +107,8 @@ export default function Products() {
             setProducts(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            console.error("Error fetching products:", error);
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
         } finally {
             setLoading(false);
         }
@@ -424,7 +425,7 @@ export default function Products() {
                     <div className="my-2 w-full grid grid-cols-2 gap-2">
                         <div className="col-span-1">
                             <label className="mr-2">Ngày tạo từ</label>
-                            <DateInput value={filterFromCreatedDate} onChange={(d) => setFilterFromCreatedDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+                            <DateInput value={filterFromCreatedDate} onChange={(d) => setFilterFromCreatedDate(d)} className="w-full p-2 border border-gray-300 rounded" />
                             {/* <input
                                 type="date"
                                 className="w-full p-2 border border-gray-300 rounded"
@@ -438,7 +439,7 @@ export default function Products() {
                         </div>
                         <div className="col-span-1">
                             <label className="mr-2">Ngày tạo đến</label>
-                            <DateInput value={filterToCreatedDate} onChange={(d) => setFilterToCreatedDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
+                            <DateInput value={filterToCreatedDate} onChange={(d) => setFilterToCreatedDate(d)} className="w-full p-2 border border-gray-300 rounded" />
                             {/* <input
                                 type="date"
                                 className="w-full p-2 border border-gray-300 rounded"

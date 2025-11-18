@@ -8,7 +8,6 @@ import { useLoading } from "@/context/LoadingContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useLogin } from "@/context/LoginContext";
-import { formatDateToInput } from '@/lib/formatDateToInput';
 import DateInput from "@/components/Input/DateInput";
 
 import TableCommon from "@/components/Table/table";
@@ -277,7 +276,7 @@ export default function Exports() {
           <h1 className="text-2xl font-bold">Danh sách phiếu xuất</h1>
         </div>
         <div className="flex flex-col gap-2">
-          <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => navigate("/exports/create")}>Tạo phiếu xuất mới</button>
+          <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => navigate("/exports/modify/create")}>Tạo phiếu xuất mới</button>
         </div>
       </div>
 
