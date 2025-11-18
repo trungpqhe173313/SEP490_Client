@@ -68,9 +68,9 @@ export default function Products() {
 
     // Table headers
     const headerData = [
-        { key: "productId", label: "Mã sản phẩm", customValue: (item) => item.productId && <div>{item.productId}</div> },
+        { key: "productId", label: "ID sản phẩm", customValue: (item) => item.productId && <div>{item.productId}</div> },
         { key: "productName", label: "Tên sản phẩm", customValue: (item) => item.productName && <div>{item.productName}</div> },
-        { key: "code", label: "Mã", customValue: (item) => item.code && <div>{item.code}</div> },
+        { key: "code", label: "Mã sản phẩm", customValue: (item) => item.code && <div>{item.code}</div> },
         { key: "weightPerUnit", label: "Khối lượng", customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit}</div> },
         { key: "sellingPrice", label: "Giá bán", customValue: (item) => item.sellingPrice && <div>{formatLargeNumber(item.sellingPrice)}đ</div> },
         { key: "supplierName", label: "Nhà cung cấp", customValue: (item) => item.supplierName && <div>{item.supplierName}</div> },

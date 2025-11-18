@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
+import { formatLargeNumber } from "@/lib/formatLargeNumber";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 
 import { productService } from "@/services/product.service";
@@ -411,8 +412,9 @@ export default function UpdateImport({ params }) {
                             <TableRow className="background-primary">
                                 <TableCell sx={{ color: "white" }}>Mã hàng</TableCell>
                                 <TableCell sx={{ color: "white" }}>Tên hàng</TableCell>
+                                <TableCell sx={{ color: "white" }} align="center">Giá bán</TableCell>
                                 <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
-                                <TableCell sx={{ color: "white" }} align="center">Đơn giá (VND)</TableCell>
+                                <TableCell sx={{ color: "white" }} align="center">Đơn giá nhập (VND)</TableCell>
                                 <TableCell sx={{ color: "white" }} align="right">Thành tiền (VND)</TableCell>
                             </TableRow>
                         </TableHead>
@@ -430,6 +432,7 @@ export default function UpdateImport({ params }) {
                                     <TableRow key={r.productId} hover>
                                         <TableCell>{r.code}</TableCell>
                                         <TableCell>{r.productName}</TableCell>
+                                        <TableCell align="center">{formatLargeNumber(r.sellingPrice)}</TableCell>
                                         <TableCell align="center" >
                                             <IconButton
                                                 size="small"

@@ -11,6 +11,8 @@ import Loader from "@/components/Loader/loader";
 import { getImportStatus } from '@/lib/getImportStatus';
 import { formatLargeNumber } from '@/lib/formatLargeNumber';
 import { TableRow, TableCell } from '@mui/material';
+import SuccessModal from '@/components/Modal/successModal';
+import FailedModal from '@/components/Modal/failedModal';
 
 
 export default function ImportDetail({ params }) {
@@ -18,6 +20,12 @@ export default function ImportDetail({ params }) {
     const { id } = React.use(params);
     const router = useRouter();
     const { isLogin, user, refreshUserInfo } = useLogin();
+
+    const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
+    const [modalSuccessMessage, setModalSuccessMessage] = useState("");
+    const [modalFailedOpen, setModalFailedOpen] = useState(false);
+    const [modalFailedMessage, setModalFailedMessage] = useState("");
+    const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
 
     const [transaction, setTransaction] = useState({});
     const [supplier, setSupplier] = useState({});
@@ -69,7 +77,7 @@ export default function ImportDetail({ params }) {
     const headerData = [
         {
             key: "productId",
-            label: "Mã sản phẩm",
+            label: "ID sản phẩm",
             customValue: (item) => item.productId && <div>{item.productId}</div>
         },
         {
@@ -125,7 +133,7 @@ export default function ImportDetail({ params }) {
                 <TableCell />
                 <TableCell align="center">{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</TableCell>
                 <TableCell />
-                <TableCell align="center">{formatLargeNumber(transaction.totalPrice)} ₫</TableCell>
+                <TableCell align="center">{formatLargeNumber(transaction.totalCost)} ₫</TableCell>
             </TableRow>
         )
     }
@@ -134,8 +142,20 @@ export default function ImportDetail({ params }) {
         router.push(`/imports/modify/create/${id}`);
     }
 
-    const handleConfirm = () => {
-        console.log('confirm');
+    const handleConfirm = async () => {
+        setLoading(true);
+        try {
+            await importService.updateToChecked(id);
+            setModalSuccessMessage("Xác nhận kiểm đơn hàng thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const handleEdit = () => {
@@ -209,6 +229,8 @@ export default function ImportDetail({ params }) {
                     <h2>{numberToVietnamese(transaction.totalCost)}</h2>
                 </div>
             </div>
+            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
+            <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>
     )
 }

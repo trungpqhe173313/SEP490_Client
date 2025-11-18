@@ -46,4 +46,8 @@ export const importService = {
         const response = await API.put(`/stockinput/UpdateImportTransaction/${id}`, data);
         return response.data;
     },
+    updateToChecked: async (id) => {
+        const response = await API.put(`/stockinput/UpdateToCheckedStatus/${id}`);
+        return response.data;
+    },
 }

@@ -77,7 +77,7 @@ export default function ExportDetail({ params }) {
     const headerData = [
         {
             key: "productId",
-            label: "Mã sản phẩm",
+            label: "ID sản phẩm",
             customValue: (item) => item.productId && <div>{item.productId}</div>
         },
         {

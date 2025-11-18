@@ -99,11 +99,11 @@ export default function ProductDetail({ params }) {
                     <table className="w-full">
                         <tbody>
                             <tr>
-                                <td className="p-4">Mã sản phẩm</td>
+                                <td className="p-4">ID sản phẩm</td>
                                 <td className="p-4 w-8/10">{product.productId}</td>
                             </tr>
                             <tr>
-                                <td className="p-4">Mã</td>
+                                <td className="p-4">Mã sản phẩm</td>
                                 <td className="p-4 w-8/10">{product.code}</td>
                             </tr>
                             <tr>
