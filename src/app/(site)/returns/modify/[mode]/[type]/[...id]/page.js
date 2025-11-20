@@ -11,12 +11,12 @@ import FailedModal from "@/components/Modal/failedModal";
 
 
 export default function Returns({ params }) {
-    const { id } = React.use(params);
+    const { mode, type, id } = React.use(params);
     const { loading, setLoading } = useLoading();
     useEffect(() => {
         setLoading(false);
     })
     return (
-        <div>Return detail {id}</div>
+        <div>Return {mode} {type} {id}</div>
     )
 }

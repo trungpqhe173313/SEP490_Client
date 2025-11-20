@@ -103,6 +103,7 @@ export default function UpdateExport({ params }) {
             setNote(response.data.list[0].note);
             setTotalCost(response.data.totalCost);
             setSelectedCustomer(response.data.customer);
+            if (response.data.priceListId) fetchExactPriceList(response.data.priceListId);
         } catch (error) {
             setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
@@ -187,6 +188,19 @@ export default function UpdateExport({ params }) {
             setPriceListLoading(false);
         }
     };
+
+    const fetchExactPriceList = async (id) => {
+        try {
+            const response = await priceListService.getPriceListByID(id);
+            const priceListData = {
+                priceListId: response.data.priceListId,
+                priceListName: response.data.priceListName
+            }
+            setSelectedPriceList(priceListData);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const fetchPriceListDetail = async (id) => {
         setLoading(true);
@@ -287,6 +301,7 @@ export default function UpdateExport({ params }) {
             return { ...product, unitPrice: priceListDetail?.price || product.sellingPrice };
         })
         setCart(updatedCart);
+        setTotalCost(updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0));
     }, [selectedPriceListDetail]);
 
     const removeLeadingZero = (number) => {
@@ -324,6 +339,7 @@ export default function UpdateExport({ params }) {
         setLoading(true); const body = {
             note,
             totalCost: totalCost,
+            priceListId: selectedPriceList?.priceListId,
             listProductOrder: cart.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).map((p) => ({ productId: p.productId, quantity: p.orderQuantity, unitPrice: p.unitPrice })),
             status: type === "create" ? 1 : exportData.status
         };

@@ -106,7 +106,7 @@ export function CustomerForm({
                 break;
             case "phone":
                 const checkingPhone = value.trim().replace(/\s\s+/g, ' ');
-                const isExistingPhone = suppliers.find(supplier => supplier.phone.toLowerCase() === checkingPhone.toLowerCase() && supplier.phone !== initialData?.phone);
+                const isExistingPhone = customers.find(customer => customer.phone.toLowerCase() === checkingPhone.toLowerCase() && customer.phone !== initialData?.phone);
                 if (isExistingPhone) {
                     setValidPhone(false);
                     setErrorPhone(`Số ${checkingPhone} đã tồn tại, vui lòng điền số điện thoại khác`);
@@ -284,7 +284,7 @@ export function CustomerForm({
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Số điện thoại *</label>
-                                <p className="text-xs text-gray-500">Nhập số điện thoại nhà cung cấp</p>
+                                <p className="text-xs text-gray-500">Nhập số điện thoại khách hàng</p>
                             </div>
                             <input
                                 type="text"

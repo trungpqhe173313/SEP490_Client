@@ -118,7 +118,7 @@ export default function ExportDetail({ params }) {
                 <TableCell />
                 <TableCell align="center">{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</TableCell>
                 <TableCell />
-                <TableCell align="center">{formatLargeNumber(transaction.totalPrice)} ₫</TableCell>
+                <TableCell align="center">{formatLargeNumber(transaction.totalCost)} ₫</TableCell>
             </TableRow>
         )
     }

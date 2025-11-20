@@ -29,6 +29,9 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AddchartIcon from '@mui/icons-material/Addchart';
 import ForestIcon from '@mui/icons-material/Forest';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AirportShuttleIcon from '@mui/icons-material/AirportShuttle';
+import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
+
 
 
 const Navbar = () => {
@@ -161,6 +164,18 @@ const Navbar = () => {
           role: ["Manager"],
           icon: <LaunchIcon />
         },
+        {
+          name: "Trả hàng nhập kho",
+          link: "/returns/import",
+          role: ["Manager"],
+          icon: <AirportShuttleIcon/>
+        },
+        {
+          name: "Trả hàng xuất kho",
+          link: "/returns/export",
+          role: ["Manager"],
+          icon: <AssignmentReturnIcon />
+        },
         // {
         //   name: "Sản xuất",
         //   link: "/productions",
@@ -193,24 +208,24 @@ const Navbar = () => {
         }
       ]
     },
-    // {
-    //   label: "Quản lý",
-    //   icon: <ManageAccountsIcon />,
-    //   subItems: [
-    //     {
-    //       name: "Thống kê",
-    //       link: "/dashboard",
-    //       role: "admin",
-    //       icon: <AlignHorizontalLeftIcon />
-    //     },
-    //     {
-    //       name: "Quản lý người dùng",
-    //       link: "/management/users",
-    //       role: "admin",
-    //       icon: <GroupsIcon />
-    //     }
-    //   ]
-    // }
+    {
+      label: "Quản lý",
+      icon: <ManageAccountsIcon />,
+      subItems: [
+        {
+          name: "Thống kê",
+          link: "/dashboard",
+          role: ["Admin"],
+          icon: <AlignHorizontalLeftIcon />
+        },
+        {
+          name: "Quản lý người dùng",
+          link: "/management/accounts",
+          role: ["Admin"],
+          icon: <GroupsIcon />
+        }
+      ]
+    }
   ];
 
   return (
@@ -235,7 +250,7 @@ const Navbar = () => {
             <span className="font-bold">{item.label}</span>
             {hovered === index && (
               <div
-                className={`top-0 absolute left-full background-selected text-white shadow-lg w-40 z-20 animate-fade-in`}
+                className={`top-0 absolute left-full background-selected text-white shadow-lg w-50 z-20 animate-fade-in`}
                 onMouseEnter={() => setHovered(index)}
                 onMouseLeave={() => setHovered(null)}
               >

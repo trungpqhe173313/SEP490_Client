@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { Modal } from "@mui/material";
-import { employeeService } from "@/services/employee.service";
-import { Eye, EyeOff } from "lucide-react";
+import { adminService } from "@/services/admin.service";
 
-export function EmployeeForm({
+export function AccountForm({
     isOpen,
     onClose,
     onConfirm,
@@ -13,25 +12,33 @@ export function EmployeeForm({
     const [error, setError] = useState("");
 
     //data for check exist
-    const [employees, setEmployees] = useState([]);
-    const [showPassword, setShowPassword] = useState(false);
+    const [accounts, setAccounts] = useState([]);
+    const [roles, setRoles] = useState([]);
 
-    const fetchEmployees = async () => {
+    const fetchAccounts = async () => {
         try {
             const body = {
                 pageIndex: 1,
-                pageSize: 1000,
-                fullName: ""
+                pageSize: 1000
             };
-            const response = await employeeService.getAllEmployees(body);
-            const employeeData = response.data.items.map((employee) => ({
-                fullName: employee.fullName,
-                username: employee.username,
-                email: employee.email
+            const response = await adminService.getAllAccounts(body);
+            const accountData = response.data.items.map((account) => ({
+                fullName: account.fullName,
+                username: account.username,
+                email: account.email
             }));
-            setEmployees(employeeData);
+            setAccounts(accountData);
         } catch (error) {
-            console.error("Error fetching employees:", error);
+            console.error("Error fetching accounts:", error);
+        }
+    };
+
+    const fetchRoles = async () => {
+        try {
+            const response = await adminService.getAllRoles();
+            setRoles(response.data);
+        } catch (error) {
+            console.error("Error fetching roles:", error);
         }
     };
 
@@ -39,9 +46,8 @@ export function EmployeeForm({
         if (initialData) {
             setForm({
                 username: initialData.username || "",
-                password: initialData.password || "",
                 fullName: initialData.fullName || "",
-                image: initialData.image || "",
+                roles: initialData.roles || [],
                 email: initialData.email || "",
                 phone: initialData.phone || "",
                 isActive: initialData.isActive ?? true,
@@ -49,14 +55,15 @@ export function EmployeeForm({
         } else {
             setForm({
                 username: "",
-                image: "",
+                roles: [],
                 fullName: "",
                 email: "",
                 phone: "",
             });
         }
         setError("");
-        fetchEmployees();
+        fetchAccounts();
+        fetchRoles();
     }, [initialData, isOpen]);
 
     //Validation
@@ -64,13 +71,11 @@ export function EmployeeForm({
     const [validEmail, setValidEmail] = useState(true);
     const [validFullName, setValidFullName] = useState(true);
     const [validPhone, setValidPhone] = useState(true);
-    const [validPassword, setValidPassword] = useState(true);
 
     const [errorUsername, setErrorUsername] = useState("");
     const [errorEmail, setErrorEmail] = useState("");
     const [errorFullName, setErrorFullName] = useState("");
     const [errorPhone, setErrorPhone] = useState("");
-    const [errorPassword, setErrorPassword] = useState("");
 
     const handleChange = (name, value) => {
         let newValue = value;
@@ -83,7 +88,7 @@ export function EmployeeForm({
                 if (value.length > 60 || value.length < 6) {
                     setValidEmail(false);
                     setErrorEmail("Email phải trong khoảng 6 đến 60 ky tự.");
-                } else if (employees.find(employee => employee.email.toLowerCase() === checkingEmail.toLowerCase() && employee.email !== initialData?.email)) {
+                } else if (accounts.find(account => account.email.toLowerCase() === checkingEmail.toLowerCase() && account.email !== initialData?.email)) {
                     setValidEmail(false);
                     setErrorEmail(`Email ${checkingEmail} đã tồn tại, vui lòng nhập email khác.`);
                 } else {
@@ -96,7 +101,7 @@ export function EmployeeForm({
                 if (value.length > 60 || value.length < 6) {
                     setValidUsername(false);
                     setErrorUsername("Tên tài khoản phải trong khoảng 6 đến 60 ky tự.");
-                } else if (employees.find(employee => employee.username.toLowerCase() === checkingUsername.toLowerCase() && employee.username !== initialData?.username)) {
+                } else if (accounts.find(account => account.username.toLowerCase() === checkingUsername.toLowerCase() && account.username !== initialData?.username)) {
                     setValidUsername(false);
                     setErrorUsername(`Tài khoản ${checkingUsername} đã tồn tại, vui lòng nhập tên tài khoản khác.`);
                 } else {
@@ -106,7 +111,7 @@ export function EmployeeForm({
                 break;
             case "phone":
                 const checkingPhone = value.trim().replace(/\s\s+/g, ' ');
-                const isExistingPhone = employees.find(employee => employee.phone.toLowerCase() === checkingPhone.toLowerCase() && employee.phone !== initialData?.phone);
+                const isExistingPhone = accounts.find(account => account.phone.toLowerCase() === checkingPhone.toLowerCase() && account.phone !== initialData?.phone);
                 if (isExistingPhone) {
                     setValidPhone(false);
                     setErrorPhone(`Số ${checkingPhone} đã tồn tại, vui lòng điền số điện thoại khác`);
@@ -115,15 +120,14 @@ export function EmployeeForm({
                     setErrorPhone("");
                 }
                 break;
-            case "password":
-                const checkingPassword = value.trim();
-                const regex = /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\.-])[A-Za-z\d@$!%*?&_\.-]{8,}$/;
-                if (!regex.test(checkingPassword)) {
-                    setValidPassword(false);
-                    setErrorPassword("Mật khẩu phải có ít nhất 8 ký tự, chữ hoa, chữ thường, số và 1 trong các ký tự sau: @ $ ! % * ? & _ . -");
+            case "fullName":
+                const checkingFullName = value.trim().replace(/\s\s+/g, ' ');
+                if (accounts.find(account => account.fullName.toLowerCase() === checkingFullName.toLowerCase() && account.fullName !== initialData?.fullName)) {
+                    setValidFullName(false);
+                    setErrorFullName(`Tên người dùng ${checkingFullName} đã tồn tại, vui lòng nhập tên người dùng khác.`);
                 } else {
-                    setValidPassword(true);
-                    setErrorPassword("");
+                    setValidFullName(true);
+                    setErrorFullName("");
                 }
                 break;
             default:
@@ -137,11 +141,11 @@ export function EmployeeForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (form.fullName === "" || form.username === "") {
+        if (form.fullName === "" || form.username === "" || form.phone === "" || form.roles.length === 0) {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return;
         }
-        const invalidForms = !validFullName || !validUsername || !validEmail;
+        const invalidForms = !validFullName || !validUsername || !validEmail || !validPhone;
         if (invalidForms) {
             setError("Có nhập liệu không hợp lệ, vui lòng thử lại.");
             return;
@@ -151,18 +155,12 @@ export function EmployeeForm({
         onClose();
     };
 
-    const handleFileChange = (file) => {
-        if (!file) return;
-        const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-        if (!allowedImageTypes.includes(file.type)) {
-            setError("Chỉ chấp nhận định dạng ảnh: JPG, PNG, GIF, WEBP");
-            return;
-        }
-        setError("");
-        handleChange('image', file);
-    };
-
-    const formatImageUrl = (url) => typeof url === 'string' ? url : URL.createObjectURL(url);
+    const handleCheckboxChange = (name) => {
+    setForm((prev) => ({
+      ...prev,
+      roles: prev.roles.includes(name) ? prev.roles.filter((role) => role !== name) : [...prev.roles, name],
+    }))
+  };
 
     return (
         <Modal open={isOpen} onClose={onClose}>
@@ -170,7 +168,7 @@ export function EmployeeForm({
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-1/2 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
                     <div className="w-full background-primary text-white p-4 flex-row flex justify-between sticky top-0">
                         <h2 className="text-2xl font-bold my-auto">
-                            {initialData ? "Cập nhật nhân viên" : "Thêm nhân viên mới"}
+                            {initialData ? "Cập nhật tài khoản" : "Thêm tài khoản mới"}
                         </h2>
                         <button className="text-white cursor-pointer bg-red-600 hover:bg-red-700 p-1" onClick={onClose}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -179,39 +177,6 @@ export function EmployeeForm({
                         </button>
                     </div>
                     <form onSubmit={handleSubmit} className="space-y-4 p-8">
-                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
-                            <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Hình ảnh</label>
-                                <p className="text-xs text-gray-500">Chọn hình ảnh cho khách hàng (JPG, PNG, GIF, WEBP)</p>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <label
-                                    htmlFor="image"
-                                    className="px-3 py-2 rounded-md background-primary text-white cursor-pointer"
-                                >
-                                    Chọn hình ảnh
-                                </label>
-                                {form.image && <button
-                                    type="button"
-                                    className="px-3 py-2 rounded-md bg-red-600 text-white cursor-pointer"
-                                    onClick={() => handleChange("image", "")}
-                                >
-                                    Xóa hình ảnh
-                                </button>}
-                            </div>
-                            <input
-                                id="image"
-                                type="file"
-                                accept="image/jpeg,image/png,image/gif,image/webp"
-                                onChange={(e) => handleFileChange(e.target.files?.[0])}
-                                hidden
-                            />
-                            {form.image && (
-                                <div className="mt-2 flex justify-center">
-                                    <img src={formatImageUrl(form.image)} alt="Preview" className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
-                                </div>
-                            )}
-                        </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Tên tài khoản *</label>
@@ -227,34 +192,10 @@ export function EmployeeForm({
                             />
                             {errorUsername && <p className="text-red-500 text-xs italic">{errorUsername}</p>}
                         </div>
-                        {initialData &&
-                            <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 relative">
-                                <div>
-                                    <label className="block text-md font-bold">Mật khẩu *</label>
-                                    <p className="text-xs text-gray-500">Nhập mật khẩu tài khoản</p>
-                                </div>
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    name="password"
-                                    value={form.password}
-                                    onChange={(e) => handleChange("password", e.target.value)}
-                                    className={`w-full bg-white border rounded px-3 py-2 ${!validPassword ? "border-red-500" : "border-green-500"}`}
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-7 top-7/10 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                                >
-                                    {showPassword ? <EyeOff size={25} /> : <Eye size={25} />}
-                                </button>
-                            </div>
-                        }
-                        {errorPassword && <p className="text-red-500 text-xs italic">{errorPassword}</p>}
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
-                                <label className="block text-md font-bold">Tên nhân viên *</label>
-                                <p className="text-xs text-gray-500">Nhập tên nhân viên</p>
+                                <label className="block text-md font-bold">Tên người dùng *</label>
+                                <p className="text-xs text-gray-500">Nhập tên người dùng</p>
                             </div>
                             <input
                                 type="text"
@@ -269,7 +210,7 @@ export function EmployeeForm({
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Email </label>
-                                <p className="text-xs text-gray-500">Nhập Email nhân viên</p>
+                                <p className="text-xs text-gray-500">Nhập Email tài khoản</p>
                             </div>
                             <input
                                 type="email"
@@ -283,7 +224,7 @@ export function EmployeeForm({
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Số điện thoại *</label>
-                                <p className="text-xs text-gray-500">Nhập số điện thoại nhân viên</p>
+                                <p className="text-xs text-gray-500">Nhập số điện thoại tài khoản</p>
                             </div>
                             <input
                                 type="text"
@@ -298,10 +239,33 @@ export function EmployeeForm({
                             />
                             {errorPhone && <p className="text-red-500 text-xs italic">{errorPhone}</p>}
                         </div>
+                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
+                            <div>
+                                <label className="block text-md font-bold">Vai trò</label>
+                                <p className="text-xs text-gray-500">Chọn 1 hoặc nhiều vai trò</p>
+                            </div>
+                            {
+                                roles.map((role) => (
+                                    <label
+                                        key={role.roleId}
+                                        className="flex items-center my-2 px-4 py-2 border border-gray-300 rounded-xl cursor-pointer gap-4"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            value={role.roleName}
+                                            checked={form.roles.includes(role.roleName)}
+                                            onChange={() => handleCheckboxChange(role.roleName)}
+                                            className="w-6 h-6 accent-green-600 cursor-pointer"
+                                        />
+                                        <span className="text-md w-full">{role.description}</span>
+                                    </label>
+                                ))
+                            }
+                        </div>
                         {initialData && <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Trạng thái</label>
-                                <p className="text-xs text-gray-500">Chọn trạng thái nhân viên</p>
+                                <p className="text-xs text-gray-500">Chọn trạng thái tài khoản</p>
                             </div>
                             <select name="isActive" value={form.isActive ? "true" : "false"} onChange={(e) => handleChange("isActive", e.target.value)} className="w-full bg-white border border-gray-300 rounded px-3 py-2">
                                 <option value="true">Đang hoạt động</option>

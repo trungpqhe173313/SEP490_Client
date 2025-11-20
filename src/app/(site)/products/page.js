@@ -8,7 +8,6 @@ import { useLoading } from "@/context/LoadingContext";
 import { useRef } from "react";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
-import { formatDateToInput } from '@/lib/formatDateToInput';
 
 import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
