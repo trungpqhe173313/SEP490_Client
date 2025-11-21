@@ -13,6 +13,7 @@ import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 import { formatLargeNumber } from "@/lib/formatLargeNumber";
+import { formatDateToInput } from '@/lib/formatDateToInput';
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";

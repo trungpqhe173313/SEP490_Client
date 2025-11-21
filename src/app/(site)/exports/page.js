@@ -13,6 +13,7 @@ import DateInput from "@/components/Input/DateInput";
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 import { getExportStatus, getExportStatusText } from "@/lib/getExportStatus";
+import { formatDateToInput } from '@/lib/formatDateToInput';
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";

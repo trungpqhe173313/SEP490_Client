@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
 import { formatLargeNumber } from "@/lib/formatLargeNumber";
+import { formatDateToInput } from '@/lib/formatDateToInput';
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 
 import { productService } from "@/services/product.service";
@@ -160,7 +161,6 @@ export default function UpdateImport({ params }) {
                 setTotalCost(response.data.totalCost);
                 setSelectedSupplier(response.data.supplier);
                 fetchExactWarehouse(response.data.warehouseName);
-                console.log(response.data);
             })
             .catch((error) => {
                 console.log(error);
