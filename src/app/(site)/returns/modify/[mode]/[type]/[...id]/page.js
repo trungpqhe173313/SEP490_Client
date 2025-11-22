@@ -16,7 +16,10 @@ import {
     Paper,
     TextField,
     TablePagination,
+    IconButton,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
@@ -132,6 +135,13 @@ export default function Returns({ params }) {
         setFilteredRows(updatedProducts);
         setLoading(false);
     }
+
+    useEffect(() => {
+        const overQuantity = filteredRows.find((r) => r.returnQuantity > r.quantity);
+        if (overQuantity) {
+            handleChangeProduct(overQuantity.productId, "returnQuantity", overQuantity.quantity);
+        }
+    }, [rows]);
 
     const validateProducts = () => {
         if (rows.filter((r) => r.returnQuantity > 0).length === 0) {
@@ -308,19 +318,38 @@ export default function Returns({ params }) {
                                         <TableCell align="center">{formatLargeNumber(r.unitPrice)}</TableCell>
                                         <TableCell align="center">
                                             <div className="flex flex-col items-center gap-2">
-                                                <TextField
-                                                    type="number"
-                                                    size="small"
-                                                    inputProps={{
-                                                        min: 0,
-                                                        style: { width: 70, textAlign: "center", height: "10px" },
-                                                    }}
-                                                    error={r.returnQuantity < 0 || r.returnQuantity > r.quantity}
-                                                    value={removeLeadingZero(r.returnQuantity)}
-                                                    onChange={(e) => handleChangeProduct(r.productId, "returnQuantity", e.target.value)}
-                                                    variant="outlined"
-                                                />
-                                                <span className="text-lg     text-gray-500">/{r.quantity}</span>
+                                                <div>
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleChangeProduct(r.productId, "returnQuantity", r.returnQuantity - 1)}
+                                                        disabled={r.returnQuantity <= 0}
+                                                        sx={{ border: "1px solid #ccc", height: "28px" }}
+                                                    >
+                                                        <RemoveIcon fontSize="small" />
+                                                    </IconButton>
+                                                    <TextField
+                                                        type="number"
+                                                        size="small"
+                                                        inputProps={{
+                                                            min: 0,
+                                                            style: { width: 70, textAlign: "center", height: "10px" },
+                                                        }}
+                                                        sx={{marginX: '5px'}}
+                                                        error={r.returnQuantity < 0 || r.returnQuantity > r.quantity}
+                                                        value={removeLeadingZero(r.returnQuantity)}
+                                                        onChange={(e) => handleChangeProduct(r.productId, "returnQuantity", e.target.value)}
+                                                        variant="outlined"
+                                                    />
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleChangeProduct(r.productId, "returnQuantity", r.returnQuantity + 1)}
+                                                        disabled={r.returnQuantity >= r.quantity}
+                                                        sx={{ border: "1px solid #ccc", height: "28px" }}
+                                                    >
+                                                        <AddIcon fontSize="small" />
+                                                    </IconButton>
+                                                </div>
+                                                <span className="text-lg text-gray-500">/{r.quantity}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell align="right">
@@ -340,6 +369,7 @@ export default function Returns({ params }) {
                         onRowsPerPageChange={handleChangeRowsPerPage}
                         rowsPerPageOptions={[5, 10, 20]}
                         labelRowsPerPage="Số dòng mỗi trang:"
+                        labelDisplayedRows={({ from, to, count }) => `Từ ${from}-${to} trong tổng ${count} dòng`}
                     />
                 </TableContainer>
             </div>

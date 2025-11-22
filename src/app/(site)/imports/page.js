@@ -314,7 +314,7 @@ export default function Imports() {
             return filenameMatch[1];
         }
 
-        return "template.xlsx";
+        return "Mau_Phieu_Nhap_Kho_NutriBarn.xlsx";
     };
 
     const handleDownloadTemplate = async () => {

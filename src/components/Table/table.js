@@ -110,10 +110,8 @@ export default function TableCommon({
                     page={pageIndex}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowPerPage}
-                    labelRowsPerPage="Số hàng mỗi trang:"
-                    labelDisplayedRows={({ from, to, count }) =>
-                        `${from}–${to} trong tổng ${count !== -1 ? count : `hơn ${to}`}`
-                    }
+                    labelRowsPerPage="Số dòng mỗi trang:"
+                    labelDisplayedRows={({ from, to, count }) => `Từ ${from}-${to} trong tổng ${count} dòng`}
                 />
             )}
             <TableContainer
@@ -230,10 +228,8 @@ export default function TableCommon({
                     page={pageIndex}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowPerPage}
-                    labelRowsPerPage="Số hàng mỗi trang:"
-                    labelDisplayedRows={({ from, to, count }) =>
-                        `${from}–${to} trong tổng ${count !== -1 ? count : `hơn ${to}`}`
-                    }
+                    labelRowsPerPage="Số dòng mỗi trang:"
+                    labelDisplayedRows={({ from, to, count }) => `Từ ${from}-${to} trong tổng ${count} dòng`}
                 />
             )}
         </div>

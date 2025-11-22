@@ -31,6 +31,7 @@ export default function Products() {
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
+    const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
 
     // Filter state
     const [filterProductName, setFilterProductName] = useState("");
@@ -317,6 +318,65 @@ export default function Products() {
 
     const pageRole = ["Manager"];
 
+    const getFileNameFromDisposition = (disposition) => {
+            if (!disposition) return "template.xlsx";
+    
+            // First try filename* (RFC 5987)
+            const filenameStarMatch = disposition.match(/filename\*\=UTF-8''(.+?)(;|$)/);
+            if (filenameStarMatch && filenameStarMatch[1]) {
+                return decodeURIComponent(filenameStarMatch[1]);
+            }
+    
+            // Fallback: normal filename=
+            const filenameMatch = disposition.match(/filename="?(.+?)"?(;|$)/);
+            if (filenameMatch && filenameMatch[1]) {
+                return filenameMatch[1];
+            }
+    
+            return "template.xlsx";
+        };
+    
+        const handleDownloadTemplate = async () => {
+            setLoading(true);
+            try {
+                // const response = await importService.downloadTemplate();
+    
+                // const disposition = response.headers["content-disposition"];
+                // const filename = getFileNameFromDisposition(disposition);
+    
+                // const url = window.URL.createObjectURL(new Blob([response.data]));
+                // const link = document.createElement("a");
+                // link.href = url;
+                // link.setAttribute("download", filename);
+                // document.body.appendChild(link);
+                // link.click();
+    
+                // link.remove();
+                // window.URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        const handleExcelImport = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+    
+            try {
+                setLoading(true);
+
+                fetchProducts();
+            } catch (error) {
+                setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+                setModalFailedSubMessages(error.response.data.error.messages);
+                setModalFailedOpen(true);
+            } finally {
+                setLoading(false);
+            }
+        };
+
     if (!pageReady) {
         return <Loader />;
     }
@@ -327,8 +387,24 @@ export default function Products() {
                 <div className="flex flex-col mr-4">
                     <h1 className="text-2xl font-bold">Danh sách sản phẩm</h1>
                 </div>
-                <div className="flex flex-col">
-                    <button className="background-primary text-white cursor-pointer rounded-xl px-4 py-2" onClick={handleCreate}>Thêm sản phẩm</button>
+                <div className="flex flex-col gap-1">
+                    <button className="background-primary text-white cursor-pointer rounded-xl px-4 py-2 font-semibold" onClick={handleCreate}>Thêm sản phẩm</button>
+
+                    <label
+                        htmlFor="excel-upload"
+                        className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto text-center p-2 hover:bg-green-500"
+                    >
+                        Tải sản phẩm lên từ Excel
+                    </label>
+                    <input
+                        id="excel-upload"
+                        type="file"
+                        accept=".xlsx,.xls"
+                        className="hidden"
+                        onChange={handleExcelImport}
+                    />
+
+                    <button className="block border bg-blue-500 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => handleDownloadTemplate()}>Tải xuống mẫu nhập sản phẩm</button>
                 </div>
             </div>
 
@@ -491,7 +567,7 @@ export default function Products() {
                 initialData={editingProduct}
             />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
-            <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} onClose={() => setModalFailedOpen(false)} />
+            <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>
     );
 }

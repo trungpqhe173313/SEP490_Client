@@ -494,6 +494,7 @@ export default function UpdateImport({ params }) {
                         onRowsPerPageChange={handleChangeRowsPerPage}
                         rowsPerPageOptions={[5, 10, 20]}
                         labelRowsPerPage="Số dòng mỗi trang:"
+                        labelDisplayedRows={({ from, to, count }) => `Từ ${from}-${to} trong tổng ${count} dòng`}
                     />
                 </TableContainer>
             </div>
