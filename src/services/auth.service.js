@@ -68,12 +68,6 @@ class AuthService {
   getAccessToken() {
     return localStorage.getItem("accessToken");
   }
-
-  // Get refresh token
-  getRefreshToken() {
-    return localStorage.getItem("refreshToken");
-  }
-
   // Check if user is authenticated
   isAuthenticated() {
     const token = this.getAccessToken();
