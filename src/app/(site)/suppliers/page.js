@@ -77,7 +77,7 @@ export default function Suppliers() {
             key: "createdAt",
             label: "Ngày tạo",
             customValue: (item) => item.createdAt &&
-                <div>{new Date(item.createdAt).toLocaleDateString('vi-VN')}</div>
+                <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div>
         }
     ];
 

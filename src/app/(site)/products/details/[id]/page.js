@@ -136,7 +136,7 @@ export default function ProductDetail({ params }) {
                             </tr>
                             <tr>
                                 <td className="p-4">Ngày tạo</td>
-                                <td className="p-4 w-8/10">{new Date(product.createdAt).toLocaleDateString('vi-VN')}</td>
+                                <td className="p-4 w-8/10">{new Date(product.createdAt).toLocaleString('vi-VN')}</td>
                             </tr>       
                         </tbody>
                     </table>

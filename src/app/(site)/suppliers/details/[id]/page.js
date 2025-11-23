@@ -116,7 +116,7 @@ export default function SupplierDetail({ params }) {
                         </tr>
                         <tr>
                             <td className="p-4">Ngày tạo</td>
-                            <td className="p-4 w-8/10">{new Date(supplier.createdAt).toLocaleDateString('vi-VN')}</td>
+                            <td className="p-4 w-8/10">{new Date(supplier.createdAt).toLocaleString('vi-VN')}</td>
                         </tr>
                     </tbody>
                 </table>

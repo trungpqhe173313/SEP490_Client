@@ -80,7 +80,7 @@ export default function page() {
     {
       key: "transactionDate",
       label: "Ngày giao dịch",
-      customValue: (item) => item.transactionDate && <div>{new Date(item.transactionDate).toLocaleDateString('vi-VN')}</div>
+      customValue: (item) => item.transactionDate && <div>{new Date(item.transactionDate).toLocaleString('vi-VN')}</div>
     },
     {
       key: "note",

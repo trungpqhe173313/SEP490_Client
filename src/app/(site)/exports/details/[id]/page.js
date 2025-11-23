@@ -204,7 +204,7 @@ export default function ExportDetail({ params }) {
                 <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Chi tiết phiếu xuất</h1>
                     <p className='my-2'>Mã giao dịch: {transaction.transactionId}</p>
-                    <p className='my-2'>Ngày giao dịch: {new Date(transaction.transactionDate).toLocaleDateString('vi-VN')}</p>
+                    <p className='my-2'>Ngày giao dịch: {new Date(transaction.transactionDate).toLocaleString('vi-VN')}</p>
                     <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
                     <div className='my-2 flex flex-row gap-2'>
                         <p>Trạng thái: </p>

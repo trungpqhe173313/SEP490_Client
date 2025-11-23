@@ -122,7 +122,7 @@ export default function CustomerDetail({ params }) {
                             </tr>
                             <tr>
                                 <td className="p-4">Ngày tạo</td>
-                                <td className="p-4 w-6/10">{new Date(customer.createdAt).toLocaleDateString('vi-VN')}</td>
+                                <td className="p-4 w-6/10">{new Date(customer.createdAt).toLocaleString('vi-VN')}</td>
                             </tr>
                         </tbody>
                     </table>

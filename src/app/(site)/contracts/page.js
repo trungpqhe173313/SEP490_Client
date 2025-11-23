@@ -111,12 +111,12 @@ export default function Contracts() {
         {
             key: "createdAt",
             label: "Ngày tạo",
-            customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleDateString('vi-VN')}</div>
+            customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div>
         },
         {
             key: "updatedAt",
             label: "Ngày cập nhật",
-            customValue: (item) => item.updatedAt && <div>{new Date(item.updatedAt).toLocaleDateString('vi-VN')}</div>
+            customValue: (item) => item.updatedAt && <div>{new Date(item.updatedAt).toLocaleString('vi-VN')}</div>
         },
     ]
 

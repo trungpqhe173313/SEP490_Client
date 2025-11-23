@@ -87,11 +87,11 @@ export default function ContractDetails({ params }) {
                         </tr>
                         <tr>
                             <td className="p-4">Ngày tạo</td>
-                            <td className="p-4 w-8/10">{new Date(contract.createdAt).toLocaleDateString('vi-VN')}</td>
+                            <td className="p-4 w-8/10">{new Date(contract.createdAt).toLocaleString('vi-VN')}</td>
                         </tr>
                         <tr>
                             <td className="p-4">Ngày cập nhật</td>
-                            <td className="p-4 w-8/10">{new Date(contract.updatedAt).toLocaleDateString('vi-VN')}</td>
+                            <td className="p-4 w-8/10">{new Date(contract.updatedAt).toLocaleString('vi-VN')}</td>
                         </tr>
                         {customer &&
                             <React.Fragment>

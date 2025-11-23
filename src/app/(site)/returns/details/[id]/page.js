@@ -126,7 +126,7 @@ export default function ReturnDetail({ params }) {
                 <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Chi tiết phiếu nhập</h1>
                     <p className='my-2'>Mã trả hàng: {returnTransaction.returnTransactionId}</p>
-                    <p className='my-2'>Ngày trả hàng: {new Date(returnTransaction.createdAt).toLocaleDateString('vi-VN')}</p>
+                    <p className='my-2'>Ngày trả hàng: {new Date(returnTransaction.createdAt).toLocaleString('vi-VN')}</p>
                     <p className='my-2'>Nhà kho: {returnTransaction.warehouseName}</p>
                 </div>
                 {supplier &&

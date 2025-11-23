@@ -82,7 +82,7 @@ export default function Products() {
         { key: "supplierName", label: "Nhà cung cấp", customValue: (item) => item.supplierName && <div>{item.supplierName}</div> },
         { key: "categoryName", label: "Danh mục", customValue: (item) => item.categoryName && <div>{item.categoryName}</div> },
         { key: "isAvailable", label: "Trạng thái", customValue: (item) => item.isAvailable === true ? <div className="text-green-600">Còn hàng</div> : <div className="text-red-600">Hết hàng</div> },
-        { key: "createdAt", label: "Ngày tạo", customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleDateString('vi-VN')}</div> }
+        { key: "createdAt", label: "Ngày tạo", customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div> }
     ];
 
     // Pagination handlers

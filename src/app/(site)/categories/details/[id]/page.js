@@ -112,11 +112,11 @@ export default function CategoryDetail({ params }) {
                         </tr>
                         <tr>
                             <td className="p-4">Ngày tạo</td>
-                            <td className="p-4 w-8/10">{new Date(category.createdAt).toLocaleDateString('vi-VN')}</td>
+                            <td className="p-4 w-8/10">{new Date(category.createdAt).toLocaleString('vi-VN')}</td>
                         </tr>
                         <tr>
                             <td className="p-4">Ngày cập nhật</td>
-                            <td className="p-4 w-8/10">{new Date(category.updateAt).toLocaleDateString('vi-VN')}</td>
+                            <td className="p-4 w-8/10">{new Date(category.updateAt).toLocaleString('vi-VN')}</td>
                         </tr>
                     </tbody>
                 </table>
