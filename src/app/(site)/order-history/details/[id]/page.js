@@ -118,7 +118,7 @@ export default function ExportDetail({ params }) {
                 <TableCell />
                 <TableCell align="center">{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</TableCell>
                 <TableCell />
-                <TableCell align="center">{formatLargeNumber(transaction.totalCost)} ₫</TableCell>
+                <TableCell align="center">{!transaction.totalCost ? formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</TableCell>
             </TableRow>
         )
     }
@@ -165,11 +165,11 @@ export default function ExportDetail({ params }) {
                 </div>
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h2 className='w-1/3 text-left'>Tổng tiền:</h2>
-                    <h2>{formatLargeNumber(transaction.totalCost)}₫</h2>
+                    <h2>{!transaction.totalCost ? formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</h2>
                 </div>
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h2 className='w-1/3 text-left'>Bằng chữ: </h2>
-                    <h2>{numberToVietnamese(transaction.totalCost)}</h2>
+                    <h2>{!transaction.totalCost ? numberToVietnamese(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : numberToVietnamese(transaction.totalCost)}₫</h2>
                 </div>
             </div>
         </div>

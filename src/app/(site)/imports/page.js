@@ -44,7 +44,6 @@ export default function Imports() {
     const [filterSupplierId, setFilterSupplierId] = useState(null);
     const [filterWarehouseId, setFilterWarehouseId] = useState(null);
     const [filterStatus, setFilterStatus] = useState(null);
-    const [filterType, setFilterType] = useState("");
     const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
     const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
 
@@ -178,7 +177,7 @@ export default function Imports() {
                 supplierId: filterSupplierId || null,
                 warehouseId: filterWarehouseId || null,
                 status: parseInt(filterStatus) || null,
-                type: filterType || null,
+                type: 'Import',
                 transactionFromDate: filterTransactionFromDate || null,
                 transactionToDate: filterTransactionToDate || null
             };
@@ -271,7 +270,6 @@ export default function Imports() {
         setFilterWarehouseId(null);
         setSelectedWarehouse(null);
         setFilterStatus(null);
-        setFilterType("");
         setFilterTransactionFromDate("");
         setFilterTransactionToDate("");
         setErrorToTransactionDate("");
@@ -300,7 +298,7 @@ export default function Imports() {
     };
 
     const getFileNameFromDisposition = (disposition) => {
-        if (!disposition) return "template.xlsx";
+        if (!disposition) return "Mau_Phieu_Nhap_Kho_NutriBarn.xlsx";
 
         // First try filename* (RFC 5987)
         const filenameStarMatch = disposition.match(/filename\*\=UTF-8''(.+?)(;|$)/);
@@ -424,9 +422,7 @@ export default function Imports() {
                             getOptionKey={(option) => option.warehouseId}
                         />
                     </div>
-                </div>
-                <div className="flex items-center my-4 gap-4">
-                    <div className="mt-2 w-full">
+                    <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Trạng thái:</label>
                         <select
                             className="w-full p-2 border border-gray-300 rounded"
@@ -440,20 +436,9 @@ export default function Imports() {
                             <option value={3}>{getImportStatusText(3)}</option>
                         </select>
                     </div>
-                    <div className="mt-2 w-full">
-                        <label className="mr-2">Loại phiếu:</label>
-                        <select
-                            className="w-full p-2 border border-gray-300 rounded"
-                            value={filterType}
-                            onChange={(e) => setFilterType(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                        >
-                            <option value="">Tất cả</option>
-                            <option value="Import">Phiếu nhập kho</option>
-                            <option value="Transfer">Phiếu chuyển kho</option>
-                        </select>
-                    </div>
-                    <div className="mt-2 w-full">
+                </div>
+                <div className="flex items-center my-4 gap-4">
+                    <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Giao dịch từ ngày:</label>
                         <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} />
                         {/* <input
@@ -467,7 +452,7 @@ export default function Imports() {
                             onKeyDown={handleKeyDown}
                         /> */}
                     </div>
-                    <div className="mt-2 w-full">
+                    <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Đến ngày:</label>
                         <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} />
                         {/* <input

@@ -101,7 +101,6 @@ export function ProductForm({
                 description: initialData.description || "",
                 isAvailable: initialData.isAvailable ?? true,
                 quantity: initialData.quantity || 0,
-                warehouseId: initialData.warehouseId || 1,
                 supplierId: suppliers.find(supplier => supplier.supplierName === initialData.supplierName)?.supplierId || "",
                 categoryId: categories.find(category => category.categoryName === initialData.categoryName)?.categoryId || "",
                 updatedAt: today
@@ -117,7 +116,6 @@ export function ProductForm({
                 sellingPrice: 0,
                 description: "",
                 isAvailable: true,
-                warehouseId: 1,
                 supplierId: "",
                 categoryId: "",
             });

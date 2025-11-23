@@ -148,7 +148,7 @@ const Navbar = () => {
       subItems: [
         {
           name: "Kiểm kho",
-          link: "/warehouses",
+          link: "/inventory",
           role: ["Manager"],
           icon: <ContentPasteSearchIcon />
         },

@@ -42,7 +42,6 @@ export default function Exports() {
   const [filterSupplierId, setFilterSupplierId] = useState(null);
   const [filterWarehouseId, setFilterWarehouseId] = useState(null);
   const [filterStatus, setFilterStatus] = useState(null);
-  const [filterType, setFilterType] = useState("");
   const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
   const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
 
@@ -186,7 +185,7 @@ export default function Exports() {
         supplierId: filterSupplierId || null,
         warehouseId: filterWarehouseId || null,
         status: parseInt(filterStatus) || null,
-        type: filterType || null,
+        type: 'Export',
         transactionFromDate: filterTransactionFromDate || null,
         transactionToDate: filterTransactionToDate || null
       };
@@ -259,7 +258,6 @@ export default function Exports() {
     setFilterWarehouseId(null);
     setSelectedWarehouse(null);
     setFilterStatus(null);
-    setFilterType("");
     setFilterTransactionFromDate("");
     setFilterTransactionToDate("");
     setErrorToTransactionDate("");
@@ -311,9 +309,7 @@ export default function Exports() {
               getOptionKey={(option) => option.warehouseId}
             />
           </div>
-        </div>
-        <div className="flex items-center my-4 gap-4">
-          <div className="mt-2 w-full">
+          <div className="mt-2 w-[24.25%]">
             <label className="mr-2">Trạng thái:</label>
             <select
               className="w-full p-2 border border-gray-300 rounded"
@@ -330,19 +326,9 @@ export default function Exports() {
               <option value={6}>{getExportStatusText(6)}</option>
             </select>
           </div>
-          <div className="mt-2 w-full">
-            <label className="mr-2">Loại phiếu:</label>
-            <select
-              className="w-full p-2 border border-gray-300 rounded"
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-            >
-              <option value="">Tất cả</option>
-              <option value="Import">Phiếu xuất kho</option>
-              <option value="Transfer">Phiếu chuyển kho</option>
-            </select>
-          </div>
-          <div className="mt-2 w-full">
+        </div>
+        <div className="flex items-center my-4 gap-4">
+          <div className="mt-2 w-[24.25%]">
             <label className="mr-2">Giao dịch từ ngày:</label>
             <DateInput
               className="w-full p-1.5 border border-gray-300 rounded block"
@@ -360,7 +346,7 @@ export default function Exports() {
               onKeyDown={handleKeyDown}
             /> */}
           </div>
-          <div className="mt-2 w-full">
+          <div className="mt-2 w-[24.25%]">
             <label className="mr-2">Đến ngày:</label>
             <DateInput
               className="w-full p-1.5 border border-gray-300 rounded block"

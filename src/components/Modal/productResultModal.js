@@ -1,24 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
 import TableCommon from "@/components/Table/table";
 
-export default function importResultModal({ isOpen, message, onClose, data }) {
+export default function ProductResultModal({ isOpen, message, onClose, data }) {
 
     if (!isOpen) return null;
 
     const handleClose = () => onClose();
 
     const headerData = [
-        { key: "batchId", label: "Mã lô", customValue: (item) => item.batchId && <div>{item.batchId}</div> },
-        { key: "warehouseName", label: "Tên nhà kho", customValue: (item) => item.warehouseName && <div>{item.warehouseName}</div> },
+        { key: "productId", label: "ID sản phẩm", customValue: (item) => item.productId && <div>{item.productId}</div> },
         { key: "productName", label: "Tên sản phẩm", customValue: (item) => item.productName && <div>{item.productName}</div> },
-        { key: "transactionId", label: "Mã giao dịch", customValue: (item) => item.transactionId && <div>{item.transactionId}</div> },
-        { key: "batchCode", label: "Code lô", customValue: (item) => item.batchCode && <div>{item.batchCode}</div> },
-        { key: "importDate", label: "Ngày nhập", customValue: (item) => item.importDate && <div>{new Date(item.importDate).toLocaleString()}</div> },
-        { key: "expireDate", label: "Ngày hết hạn", customValue: (item) => item.expireDate && <div>{new Date(item.expireDate).toLocaleString()}</div> },
-        { key: "quantityIn", label: "Số lượng nhập", customValue: (item) => item.quantityIn && <div>{item.quantityIn}</div> },
-        { key: "isActive", label: "Trạng thái", customValue: (item) => item.isActive ? "Đang hoạt động" : "Dừng hoạt động" },
-        { key: "note", label: "Ghi chú", customValue: (item) => item.note && <div>{item.note}</div> },
+        { key: "productCode", label: "Mã sản phẩm", customValue: (item) => item.productCode && <div>{item.productCode}</div> },
+        { key: "categoryName", label: "Danh mục", customValue: (item) => item.categoryName && <div>{item.categoryName}</div> },
+        { key: "supplierName", label: "Nhà cung cấp", customValue: (item) => item.supplierName && <div>{item.supplierName}</div> },
+        { key: "weightPerUnit", label: "Khối lượng (kg)", customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit}</div> },
+        { key: "sellingPrice", label: "Giá bán", customValue: (item) => item.sellingPrice && <div>{item.sellingPrice}</div> },
+        { key: "description", label: "Ghi chú", customValue: (item) => item.description && <div>{item.description}</div> },
     ];
 
     const [rowPerPage, setRowPerPage] = useState(5);
@@ -38,7 +36,7 @@ export default function importResultModal({ isOpen, message, onClose, data }) {
         <Modal open={isOpen} aria-labelledby="modal-success-title" aria-describedby="modal-success-description">
             <Box
                 sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', bgcolor: 'background.paper', border: '1px solid #000', boxShadow: 24, }}
-                className="p-4 rounded-xl text-center "
+                className="p-4 rounded-xl text-center"
             >
                 <Typography id="modal-success-title" variant="h5" component="h2">
                     Thành công
@@ -49,7 +47,7 @@ export default function importResultModal({ isOpen, message, onClose, data }) {
                 <TableCommon
                     headers={headerData}
                     tableData={data}
-                    defaultSortColumn="batchId"
+                    defaultSortColumn="productId"
                     rowPerPage={rowPerPage}
                     pageIndex={pageIndex}
                     totalCount={totalCount}

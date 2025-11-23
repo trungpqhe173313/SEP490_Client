@@ -17,6 +17,7 @@ import { formatDateToInput } from '@/lib/formatDateToInput';
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
+import ProductResultModal from "@/components/Modal/productResultModal";
 import Loader from "@/components/Loader/loader";
 import DateInput from "@/components/Input/DateInput";
 
@@ -32,6 +33,9 @@ export default function Products() {
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
     const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
+    const [modalImportData, setModalImportData] = useState([]);
+    const [modalImportOpen, setModalImportOpen] = useState(false);
+    const [modalImportMessage, setModalImportMessage] = useState("");
 
     // Filter state
     const [filterProductName, setFilterProductName] = useState("");
@@ -66,6 +70,7 @@ export default function Products() {
     const router = useRouter();
     const buttonRef = useRef(null);
     const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
 
     // Table headers
     const headerData = [
@@ -316,10 +321,8 @@ export default function Products() {
         }
     };
 
-    const pageRole = ["Manager"];
-
     const getFileNameFromDisposition = (disposition) => {
-            if (!disposition) return "template.xlsx";
+            if (!disposition) return "Mau_Phieu_San_Pham_NutriBarn.xlsx";
     
             // First try filename* (RFC 5987)
             const filenameStarMatch = disposition.match(/filename\*\=UTF-8''(.+?)(;|$)/);
@@ -333,26 +336,26 @@ export default function Products() {
                 return filenameMatch[1];
             }
     
-            return "template.xlsx";
+            return "Mau_Phieu_San_Pham_NutriBarn.xlsx";
         };
     
         const handleDownloadTemplate = async () => {
             setLoading(true);
             try {
-                // const response = await importService.downloadTemplate();
+                const response = await productService.downloadProductTemplate();
     
-                // const disposition = response.headers["content-disposition"];
-                // const filename = getFileNameFromDisposition(disposition);
+                const disposition = response.headers["content-disposition"];
+                const filename = getFileNameFromDisposition(disposition);
     
-                // const url = window.URL.createObjectURL(new Blob([response.data]));
-                // const link = document.createElement("a");
-                // link.href = url;
-                // link.setAttribute("download", filename);
-                // document.body.appendChild(link);
-                // link.click();
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", filename);
+                document.body.appendChild(link);
+                link.click();
     
-                // link.remove();
-                // window.URL.revokeObjectURL(url);
+                link.remove();
+                window.URL.revokeObjectURL(url);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -366,7 +369,10 @@ export default function Products() {
     
             try {
                 setLoading(true);
-
+                const result = await productService.importFromExcel(file);
+                setModalImportData(result.data.importedProducts);
+                setModalImportMessage("Tạo sản phẩm thành công");
+                setModalImportOpen(true);
                 fetchProducts();
             } catch (error) {
                 setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
@@ -566,6 +572,7 @@ export default function Products() {
                 onConfirm={handleConfirm}
                 initialData={editingProduct}
             />
+            <ProductResultModal isOpen={modalImportOpen} message={modalImportMessage} data={modalImportData} onClose={() => setModalImportOpen(false)} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>
