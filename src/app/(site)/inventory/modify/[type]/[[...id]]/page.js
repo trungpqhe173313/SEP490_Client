@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { productService } from "@/services/product.service";
 import { inventoryService } from "@/services/inventory.service";
 import { warehouseService } from "@/services/warehouse.service";
@@ -17,14 +17,11 @@ import {
     IconButton,
     TextField,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { formatLargeNumber } from '@/lib/formatLargeNumber';
 
 export default function ModifyInventory({ params }) {
     const router = useRouter();

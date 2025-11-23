@@ -8,7 +8,6 @@ import {
     TablePagination,
     TableRow,
     TableSortLabel,
-    Button
 } from '@mui/material';
 import ConfirmModal from '@/components/Modal/confirmModal';
 import EditIcon from '@mui/icons-material/Edit';
@@ -35,7 +34,7 @@ export default function TableCommon({
     fePagination,
     extraRow,
     useDetail,
-    handleFetchDetail
+    tableDetail
 }) {
     const [sortType, setSortType] = useState(defaultSortType || 'asc');
     const [sortColumn, setSortColumn] = useState(defaultSortColumn || headers[0].key);
@@ -93,7 +92,7 @@ export default function TableCommon({
     }
 
     return (
-        <div className="bg-white rounded-2xl max-h-[80vh] overflow-scroll overflow-x-hidden">
+        <div className="bg-white rounded-2xl overflow-scroll overflow-x-hidden">
             <ConfirmModal
                 isOpen={isOpenPopupConfirmDelete}
                 onClose={() => setIsOpenPopupConfirmDelete(false)}
@@ -114,26 +113,14 @@ export default function TableCommon({
                     labelDisplayedRows={({ from, to, count }) => `Từ ${from}-${to} trong tổng ${count} dòng`}
                 />
             )}
-            <TableContainer
-                sx={{
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                }}>
+            <TableContainer sx={{ borderRadius: "12px", overflow: "hidden" }}>
                 <Table>
-
                     <TableHead className="background-primary">
                         <TableRow>
                             {headers.map((header, index) => (
                                 <TableCell key={index} sx={{ color: "white" }} className="!text-center">
                                     <TableSortLabel
-                                        sx={{
-                                            "&.Mui-active": {
-                                                color: "white",
-                                            },
-                                            "&.Mui-active .MuiTableSortLabel-icon": {
-                                                color: "white !important",
-                                            }
-                                        }}
+                                        sx={{ "&.Mui-active": { color: "white" }, "&.Mui-active .MuiTableSortLabel-icon": { color: "white !important" } }}
                                         active={sortColumn === header.key}
                                         direction={sortColumn === header.key ? sortType : 'asc'}
                                         onClick={() => handleSort(header.key)}
@@ -148,69 +135,44 @@ export default function TableCommon({
                     <TableBody>
                         {displayedData.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={headers.length + 1} className="!text-center">
+                                <TableCell colSpan={useAction ? headers.length + 1 : headers.length} className="!text-center">
                                     Không có dữ liệu
                                 </TableCell>
                             </TableRow>
                         ) : (
                             displayedData.map((item, index) =>
-                                // useDetail ? (
-                                //     <React.Fragment key={item.id || index}>
-                                //         <TableRow key={item.id || index} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"} onClick={() => toggleExpand(index)}>
-                                //             {headers.map((header, indexColumn) => (
-                                //                 <TableCell key={indexColumn} className="!text-center">
-                                //                     {getValueToDisplayOnTable(indexColumn, item)}
-                                //                 </TableCell>
-                                //             ))}
-                                //         </TableRow>
-                                //         {expandIndices.includes(index) && (
-                                //             <TableRow>
-                                //                 <TableCell>
-                                //                     Expand
-                                //                 </TableCell>
-                                //                 {useAction && (
-                                //                     <TableCell align="center" verticalalign="middle">
-                                //                         <button className="bg-cyan-500 text-white px-2 py-1 rounded" onClick={() => navigateDetail(item)}>
-                                //                             <AssignmentIcon />
-                                //                         </button>
-                                //                         <button className="bg-yellow-500 mx-2 text-white px-2 py-1 rounded" onClick={() => handleEdit(item)}>
-                                //                             <EditIcon />
-                                //                         </button>
-                                //                         <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => {
-                                //                             setIsOpenPopupConfirmDelete(true);
-                                //                             setIdDeleting(item);
-                                //                         }}>
-                                //                             <DeleteIcon />
-                                //                         </button>
-                                //                     </TableCell>
-                                //                 )}
-                                //             </TableRow>
-                                //         )}
-                                //     </React.Fragment>
-                                // ) : ( )
-                                <TableRow key={item.id || index} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
-                                    {headers.map((header, indexColumn) => (
-                                        <TableCell key={indexColumn} className="!text-center">
-                                            {getValueToDisplayOnTable(indexColumn, item)}
-                                        </TableCell>
-                                    ))}
-                                    {useAction && (
-                                        <TableCell align="center" verticalalign="middle">
-                                            <button className="bg-cyan-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => navigateDetail(item)}>
-                                                <AssignmentIcon />
-                                            </button>
-                                            <button className="bg-yellow-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => handleEdit(item)}>
-                                                <EditIcon />
-                                            </button>
-                                            <button className="bg-red-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => {
-                                                setIsOpenPopupConfirmDelete(true);
-                                                setIdDeleting(item);
-                                            }}>
-                                                <DeleteIcon />
-                                            </button>
-                                        </TableCell>
+                                <React.Fragment key={index}>
+                                    <TableRow className={`${index % 2 === 0 ? "bg-white" : "bg-gray-100"} ${useDetail && "cursor-pointer"}`} onClick={() => toggleExpand(index)}>
+                                        {headers.map((header, indexColumn) => (
+                                            <TableCell key={indexColumn} className="!text-center">
+                                                {getValueToDisplayOnTable(indexColumn, item)}
+                                            </TableCell>
+                                        ))}
+                                        {useAction && (
+                                            <TableCell align="center" verticalalign="middle">
+                                                <button className="bg-cyan-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => navigateDetail(item)}>
+                                                    <AssignmentIcon />
+                                                </button>
+                                                <button className="bg-yellow-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => handleEdit(item)}>
+                                                    <EditIcon />
+                                                </button>
+                                                <button className="bg-red-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => {
+                                                    setIsOpenPopupConfirmDelete(true);
+                                                    setIdDeleting(item);
+                                                }}>
+                                                    <DeleteIcon />
+                                                </button>
+                                            </TableCell>
+                                        )}
+                                    </TableRow>
+                                    {useDetail && tableDetail && expandIndices.includes(index) && (
+                                        <TableRow>
+                                            <TableCell colSpan={headers.length} sx={{ padding: 0 }}>
+                                                {tableDetail(displayedData[index][headers[0].key])}
+                                            </TableCell>
+                                        </TableRow>
                                     )}
-                                </TableRow>
+                                </React.Fragment>
                             )
                         )}
                         {extraRow && (

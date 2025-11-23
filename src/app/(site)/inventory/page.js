@@ -17,6 +17,7 @@ import { formatDateToInput } from '@/lib/formatDateToInput';
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import Loader from "@/components/Loader/loader";
+import { TableRow, TableCell } from '@mui/material';
 
 export default function Inventory() {
     const router = useRouter();
@@ -28,6 +29,7 @@ export default function Inventory() {
 
     //Data state
     const [inventories, setInventories] = useState([]);
+    const [inventoryDetails, setInventoryDetails] = useState([]);
 
     //Modal state
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
@@ -103,11 +105,6 @@ export default function Inventory() {
             label: "Ngày xác nhận",
             customValue: (item) => item.resolvedAt ? <div>{new Date(item.resolvedAt).toLocaleString('vi-VN')} </div> : <div>Chưa có</div>
         },
-        {
-            key: "action",
-            label: "Hành động",
-            customValue: (item) => item.adjustmentId ? <button className="text-white bg-cyan-500 px-4 py-2 rounded-xl" onClick={() => navigate(`/inventory/details/${item.adjustmentId}`)}>Chi tiết</button> : <div>Không có</div>
-        },
     ]
 
     const handleChangePage = (event, newPage) => setPageIndex(newPage);
@@ -164,6 +161,55 @@ export default function Inventory() {
         }
     }
 
+    const fetchInventoryDetails = async (id) => {
+        try {
+            const response = await inventoryService.getStockAdjustmentDetail(id);
+            setInventoryDetails((prev) => [...prev, response.data]);
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
+        }
+    }
+
+    useEffect(() => {
+        if (!inventories || inventoryDetails.length > 0) return;
+        inventories.forEach((inventory) => {
+            fetchInventoryDetails(inventory.adjustmentId);
+        });
+    }, [inventories, inventoryDetails]);
+
+    const getDifference = (difference) => {
+        if (!difference || isNaN(difference)) return;
+        if (difference === 0) {
+            return <div style={{ color: "green" }}>Số lượng chính xác</div>
+        }
+        if (difference > 0) {
+            return <div style={{ color: "blue" }}>Thừa {difference} sản phẩm</div>
+        } else if (difference < 0) {
+            return <div style={{ color: "red" }}>Thiếu {difference * -1} sản phẩm</div>
+        }
+    }
+
+    const handleUpdateResolve = async (id) => {
+        setLoading(true);
+        try {
+            await inventoryService.resolveStockAdjustment(id);
+            setModalSuccessMessage("Xác nhận phiếu kiểm thành công");
+            setModalSuccessOpen(true);
+            fetchInventories();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleEdit = (id) => {
+        window.open(`/inventory/modify/update/${id}`, "_blank");
+    }
+
     useEffect(() => {
         if (!pageReady) return;
         fetchInventories();
@@ -216,6 +262,77 @@ export default function Inventory() {
         setErrorToDate("");
         setPageIndex(0);
     };
+
+    const tableDetail = (id) => {
+        const inventory = inventoryDetails.find((inventory) => inventory.adjustmentId === id);
+
+        const headers = [
+            {
+                key: "productId",
+                label: "ID sản phẩm",
+                customValue: (item) => item.productId && <div>{item.productId}</div>
+            },
+            {
+                key: "productName",
+                label: "Tên sản phẩm",
+                customValue: (item) => item.productName && <div>{item.productName}</div>
+            },
+            {
+                key: "systemQuantity",
+                label: "Tồn kho",
+                customValue: (item) => item.systemQuantity && <div>{item.systemQuantity}</div>
+            },
+            {
+                key: "actualQuantity",
+                label: "Thực tế",
+                customValue: (item) => item.actualQuantity && <div>{item.actualQuantity}</div>
+            },
+            {
+                key: "difference",
+                label: "Chênh lệch",
+                customValue: (item) => item.difference && <div>{getDifference(item.difference)}</div>
+            },
+            {
+                key: "note",
+                label: "Ghi chú",
+                customValue: (item) => item.note && <div>{item.note}</div>
+            },
+            {
+                key: "createdAt",
+                label: "Ngày kiểm",
+                customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div>
+            }
+        ]
+
+        return (
+            <div className='flex flex-col gap-4 w-full border border-black'>
+                <div className='w-full text-lg'>
+                    <div className='bg-white px-4 py-2'>
+                        <p className='my-2'>Mã phiếu kiểm: {inventory.adjustmentId}</p>
+                        <p className='my-2'>Ngày tạo phiếu kiểm: {new Date(inventory.createdAt).toLocaleString('vi-VN')}</p>
+                        <p className='my-2'>Nhà kho: {inventory.warehouseName}</p>
+                        <div className='my-2 flex flex-row gap-2'>
+                            <p>Trạng thái: </p>
+                            {getInventoryStatus(inventory.status)}
+                        </div>
+                    </div>
+                </div>
+
+                <div className='w-auto rounded-xl h-auto bg-white px-4 py-2'>
+                    <TableCommon
+                        headers={headers}
+                        tableData={inventory.details}
+                    />
+                    <div className='flex flex-row justify-between items-center p-4'>
+                        <div className='flex flex-row items-center gap-2'>
+                            {inventory && inventory.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={() => handleEdit(inventory.adjustmentId)}>Chỉnh sửa</button>}
+                            {inventory && inventory.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={() => handleUpdateResolve(inventory.adjustmentId)}>Xác nhận kiểm kho</button>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     if (!pageReady) {
         return <Loader />;
@@ -336,6 +453,8 @@ export default function Inventory() {
                 handleChangePage={handleChangePage}
                 handleChangeRowPerPage={handleChangeRowPerPage}
                 usePagination={true}
+                useDetail={true}
+                tableDetail={tableDetail}
             />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
