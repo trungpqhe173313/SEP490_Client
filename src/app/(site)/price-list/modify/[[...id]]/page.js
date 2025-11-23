@@ -238,7 +238,7 @@ export default function ModifyPriceList({ params }) {
     };
 
     const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number)) return 0;
+        if (number === null || isNaN(number) || number == 0) return 0;
         return number.toString().replace(/^0+/, '');
     }
 

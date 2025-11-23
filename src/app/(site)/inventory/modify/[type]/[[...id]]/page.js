@@ -205,7 +205,7 @@ export default function ModifyInventory({ params }) {
     }, [selectedWarehouse]);
 
     useEffect(() => {
-        if (cart.filter((item) => item.actualQuantity !== 0).length === 0) {
+        if (cart.length === 0) {
             setErrors("Sản phẩm không được để trống");
         } else if (cart.find((item) => item.actualQuantity < 0)) {
             setErrors("Số lượng sản phẩm không thể là số âm");
@@ -260,7 +260,7 @@ export default function ModifyInventory({ params }) {
     };
 
     const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number)) return 0;
+        if (number === null || isNaN(number) || number == 0) return 0;
         return number.toString().replace(/^0+/, '');
     }
 
@@ -269,7 +269,7 @@ export default function ModifyInventory({ params }) {
             setValidWarehouseMessage("Vui lòng chọn kho");
             return;
         }
-        if (cart.filter((item) => item.actualQuantity !== 0).length === 0) {
+        if (cart.length === 0) {
             setErrors("Sản phẩm không được để trống");
             return;
         }
@@ -280,7 +280,7 @@ export default function ModifyInventory({ params }) {
         setLoading(true);
         const body = {
             warehouseId: selectedWarehouse.warehouseId,
-            details: cart.filter((item) => item.actualQuantity !== 0).map((item) => ({
+            details: cart.map((item) => ({
                 productId: item.productId,
                 actualQuantity: item.actualQuantity,
                 systemQuantity: item.systemQuantity,

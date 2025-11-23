@@ -41,13 +41,13 @@ export default function TableCommon({
     const [data, setData] = useState(tableData);
     const [isOpenPopupConfirmDelete, setIsOpenPopupConfirmDelete] = useState(false);
     const [idDeleting, setIdDeleting] = useState('');
-    const [expandIndices, setExpandIndices] = useState([]);
+    const [expandedIndex, setExpandedIndex] = useState([]);
 
     const toggleExpand = (id) => {
-        if (expandIndices.includes(id)) {
-            setExpandIndices(expandIndices.filter((index) => index !== id));
+        if (expandedIndex === id) {
+            setExpandedIndex([]);
         } else {
-            setExpandIndices([...expandIndices, id]);
+            setExpandedIndex(id);
         }
     };
 
@@ -165,7 +165,7 @@ export default function TableCommon({
                                             </TableCell>
                                         )}
                                     </TableRow>
-                                    {useDetail && tableDetail && expandIndices.includes(index) && (
+                                    {useDetail && tableDetail && expandedIndex === index && (
                                         <TableRow>
                                             <TableCell colSpan={headers.length} sx={{ padding: 0 }}>
                                                 {tableDetail(displayedData[index][headers[0].key])}

@@ -17,7 +17,6 @@ import { formatDateToInput } from '@/lib/formatDateToInput';
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import Loader from "@/components/Loader/loader";
-import { TableRow, TableCell } from '@mui/material';
 
 export default function Inventory() {
     const router = useRouter();
@@ -306,7 +305,7 @@ export default function Inventory() {
 
         return (
             <div className='flex flex-col gap-4 w-full border border-black'>
-                <div className='w-full text-lg'>
+                <div className='w-full text-md'>
                     <div className='bg-white px-4 py-2'>
                         <p className='my-2'>Mã phiếu kiểm: {inventory.adjustmentId}</p>
                         <p className='my-2'>Ngày tạo phiếu kiểm: {new Date(inventory.createdAt).toLocaleString('vi-VN')}</p>
