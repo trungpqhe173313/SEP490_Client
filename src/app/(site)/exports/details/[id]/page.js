@@ -233,10 +233,10 @@ export default function ExportDetail({ params }) {
                         {transaction && transaction.status === 3 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDone}>Hoàn thành giao hàng</button>}
                         <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép đơn</button>
                         {transaction && transaction.status > 3 && transaction.status < 6 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
+                        {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2 justify-end'>
-                        {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
-                        {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleDelete}>Xóa</button>}
+                        {/* {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleDelete}>Xóa</button>} */}
                     </div>
 
                 </div>

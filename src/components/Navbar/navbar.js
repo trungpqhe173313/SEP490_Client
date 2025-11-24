@@ -176,12 +176,12 @@ const Navbar = () => {
           role: ["Manager"],
           icon: <AssignmentReturnIcon />
         },
-        // {
-        //   name: "Sản xuất",
-        //   link: "/productions",
-        //   role: "all",
-        //   icon: <FactoryIcon />
-        // }
+        {
+          name: "Sản xuất",
+          link: "/productions",
+          role: ["Manager"],
+          icon: <FactoryIcon />
+        }
       ],
     },
     {
@@ -250,7 +250,8 @@ const Navbar = () => {
             <span className="font-bold">{item.label}</span>
             {hovered === index && (
               <div
-                className={`top-0 absolute left-full background-selected text-white shadow-lg w-50 z-20 animate-fade-in`}
+                className={`top-0 absolute left-full background-selected text-white shadow-lg max-h-42 z-20 animate-fade-in flex flex-col flex-wrap`}
+                style={{ width: `${Math.ceil(visibleSubItems.length / 3) * 180}px` }}
                 onMouseEnter={() => setHovered(index)}
                 onMouseLeave={() => setHovered(null)}
               >

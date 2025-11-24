@@ -336,7 +336,7 @@ export default function ModifyInventory({ params }) {
     }
 
     const handleExit = () => {
-        (type === "create") ? router.push("/inventory") : router.back();
+        router.push("/inventory")
     }
 
     const getDifference = (system, actual) => {
