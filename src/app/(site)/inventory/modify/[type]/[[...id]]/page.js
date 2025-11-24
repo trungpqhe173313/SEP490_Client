@@ -100,7 +100,7 @@ export default function ModifyInventory({ params }) {
         await productService.getProductAvailable(body)
             .then((response) => {
                 setProducts(response.data.items);
-                setProductsForSearch(response.data.items);
+                setProductsForSearch(response.data.items.sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
             })
             .catch((error) => {
                 console.log(error);
@@ -136,7 +136,7 @@ export default function ModifyInventory({ params }) {
             if (exportProduct) {
                 return {
                     productId: product.productId,
-                    code: product.code,
+                    productCode: product.productCode,
                     productName: product.productName,
                     actualQuantity: exportProduct.actualQuantity,
                     systemQuantity: exportProduct.systemQuantity
@@ -152,9 +152,9 @@ export default function ModifyInventory({ params }) {
         try {
             setProductLoading(true);
             setProductsForSearch(products.filter((p) =>
-                p.code.toLowerCase().includes(name.toLowerCase()) ||
+                p.productCode.toLowerCase().includes(name.toLowerCase()) ||
                 p.productName.toLowerCase().includes(name.toLowerCase())
-            ));
+            ).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
         } catch (error) {
             console.log(error);
         } finally {
@@ -220,7 +220,7 @@ export default function ModifyInventory({ params }) {
         setLoading(true);
         const newProduct = {
             productId: product.productId,
-            code: product.code,
+            productCode: product.productCode,
             productName: product.productName,
             actualQuantity: 0,
             systemQuantity: await getProductQuantity(product.productId) || 0,
@@ -372,7 +372,7 @@ export default function ModifyInventory({ params }) {
                             options={productsForSearch}
                             onSelect={(item) => handleChangeDropdown(item, "productId")}
                             onSearch={searchProducts}
-                            getOptionLabel={(option) => `${option.code} - ${option.productName}`}
+                            getOptionLabel={(option) => `${option.productCode} - ${option.productName}`}
                             getOptionKey={(option) => option.productId}
                         />
                     </div>
@@ -400,7 +400,7 @@ export default function ModifyInventory({ params }) {
                                 ) : (
                                     cart.map((product) => (
                                         <TableRow key={product.productId} hover>
-                                            <TableCell>{product.code}</TableCell>
+                                            <TableCell>{product.productCode}</TableCell>
                                             <TableCell>{product.productName}</TableCell>
                                             <TableCell align="center">{product.systemQuantity}</TableCell>
                                             <TableCell align="center" >

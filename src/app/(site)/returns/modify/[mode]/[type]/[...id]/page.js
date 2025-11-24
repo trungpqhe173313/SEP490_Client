@@ -272,6 +272,14 @@ export default function Returns({ params }) {
         return number.toString().replace(/^0+/, '');
     }
 
+    const handleExit = () => {
+        if (type === "import") {
+            router.push("/returns/import");
+        } else {
+            router.push("/returns/export");
+        }
+    }
+
     if (!pageReady) return <Loader />
 
     return (
@@ -441,7 +449,7 @@ export default function Returns({ params }) {
                     Hoàn thành
                 </button>
             </div>
-            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), router.back() }} />
+            <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), handleExit() }} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>
     )

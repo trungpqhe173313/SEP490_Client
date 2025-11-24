@@ -193,7 +193,7 @@ export default function ExportDetail({ params }) {
     }
 
     const handleReturn = () => {
-        router.push(`/returns/modify/create/export/${id}`);
+        window.open(`/returns/modify/create/export/${id}`, "_blank");
     }
 
     if (!pageReady) return <Loader />;

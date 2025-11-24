@@ -167,7 +167,7 @@ export default function ImportDetail({ params }) {
     }
 
     const handleReturn = () => {
-        router.push(`/returns/modify/create/import/${id}`);
+        window.open(`/returns/modify/create/import/${id}`, "_blank");
     }
 
     if (!pageReady) return <Loader />;

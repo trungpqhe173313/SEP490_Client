@@ -117,7 +117,7 @@ export default function UpdateExport({ params }) {
         await productService.getProductAvailable(body)
             .then((response) => {
                 setProducts(response.data.items);
-                setProductsForSearch(response.data.items);
+                setProductsForSearch(response.data.items.sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
             })
             .catch((error) => {
                 console.log(error);
@@ -144,9 +144,9 @@ export default function UpdateExport({ params }) {
         try {
             setProductLoading(true);
             setProductsForSearch(products.filter((p) =>
-                p.code.toLowerCase().includes(name.toLowerCase()) ||
+                p.productCode.toLowerCase().includes(name.toLowerCase()) ||
                 p.productName.toLowerCase().includes(name.toLowerCase())
-            ));
+            ).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
         } catch (error) {
             console.log(error);
         } finally {
@@ -402,7 +402,7 @@ export default function UpdateExport({ params }) {
                             options={productsForSearch}
                             onSelect={(item) => handleChangeDropdown(item, "productId")}
                             onSearch={searchProducts}
-                            getOptionLabel={(option) => `${option.code} - ${option.productName}`}
+                            getOptionLabel={(option) => `${option.productCode} - ${option.productName}`}
                             getOptionKey={(option) => option.productId}
                         />
                     </div>
@@ -430,7 +430,7 @@ export default function UpdateExport({ params }) {
                                 ) : (
                                     cart.map((product) => (
                                         <TableRow key={product.productId} hover>
-                                            <TableCell>{product.code}</TableCell>
+                                            <TableCell>{product.productCode}</TableCell>
                                             <TableCell>{product.productName}</TableCell>
                                             <TableCell align="center" >
                                                 <IconButton

@@ -124,7 +124,7 @@ export default function ReturnDetail({ params }) {
         <div className='flex flex-col gap-4 w-full'>
             <div className='grid grid-cols-3 p-4 gap-4 w-full h-50'>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
-                    <h1 className='text-xl font-bold'>Chi tiết phiếu nhập</h1>
+                    <h1 className='text-xl font-bold'>Chi tiết phiếu trả hàng</h1>
                     <p className='my-2'>Mã trả hàng: {returnTransaction.returnTransactionId}</p>
                     <p className='my-2'>Ngày trả hàng: {new Date(returnTransaction.createdAt).toLocaleString('vi-VN')}</p>
                     <p className='my-2'>Nhà kho: {returnTransaction.warehouseName}</p>
