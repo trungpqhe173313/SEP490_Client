@@ -1,26 +1,23 @@
-'use client';
-import { inventoryService } from '@/services/inventory.service';
-import { warehouseService } from '@/services/warehouse.service';
+"use client";
+import { inventoryService } from "@/services/inventory.service";
+import { productService } from "@/services/product.service";
+import { warehouseService } from "@/services/warehouse.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
+import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
-import { useLogin } from "@/context/LoginContext";
-import DateInput from "@/components/Input/DateInput";
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
-import { getInventoryStatus, getInventoryStatusText } from '@/lib/getInventoryStatus';
-import { formatDateToInput } from '@/lib/formatDateToInput';
+import Loader from "@/components/Loader/loader";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
-import Loader from "@/components/Loader/loader";
 
-export default function Inventory() {
+export default function page() {
     const router = useRouter();
-    const { isLogin, user, refreshUserInfo } = useLogin();
 
     const navigate = (path) => {
         router.push(path);
@@ -28,56 +25,75 @@ export default function Inventory() {
 
     //Data state
     const [inventories, setInventories] = useState([]);
-    const [inventoryDetails, setInventoryDetails] = useState([]);
+    const [pageReady, setPageReady] = useState(false);
+    const pageRole = ["Manager"];
 
     //Modal state
+    const [modalOpen, setModalOpen] = useState(false);
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
-
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
-    const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
 
     //Filter state
     const [filterWarehouseId, setFilterWarehouseId] = useState(null);
-    const [filterStatus, setFilterStatus] = useState(null);
-    const [filterFromDate, setFilterFromDate] = useState("");
-    const [filterToDate, setFilterToDate] = useState("");
+    const [filterProductId, setFilterProductId] = useState(null);
 
-    const [errorToDate, setErrorToDate] = useState("");
+    //Autocomplete
+    const [warehouses, setWarehouses] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [warehouseLoading, setWarehouseLoading] = useState(false);
+    const [productLoading, setProductLoading] = useState(false);
 
     //Pagination state
     const [pageIndex, setPageIndex] = useState(0);
     const [rowPerPage, setRowPerPage] = useState(20);
     const [totalCount, setTotalCount] = useState(0);
 
-    //Autocomplete
-    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
-    const [warehouses, setWarehouses] = useState([]);
-    const [warehouseLoading, setWarehouseLoading] = useState(false);
-
+    //Loading state
     const { loading, setLoading } = useLoading();
+    const { isLogin, user, refreshUserInfo } = useLogin();
     const buttonRef = useRef(null);
-    const [pageReady, setPageReady] = useState(false);
 
-    const pageRole = ["Manager"];
+    // Check authorization
+    useEffect(() => {
+        refreshUserInfo();
+    }, []);
 
     useEffect(() => {
         if (loading) return;
-        if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
-            setPageReady(true);
-        } else if (!isLogin) {
+
+        if (!isLogin) {
             router.push("/login");
-        } else if (!user?.roles?.some((r) => pageRole.includes(r))) {
+            return;
+        }
+
+        if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
+            setPageReady(true);
+        } else {
             router.push("/");
         }
-    }, [isLogin, user, router]);
 
+    }, [isLogin, user, loading]);
+
+    //Table headers
     const headerData = [
         {
-            key: "adjustmentId",
-            label: "Mã kiểm kho",
-            customValue: (item) => item.adjustmentId && <div>{item.adjustmentId}</div>
+            key: "productId",
+            label: "ID sản phẩm",
+            customValue: (item) => item.productId && <div>{item.productId}</div>
+        },
+        {
+            key: "productName",
+            label: "Tên sản phẩm",
+            customValue: (item) => item.productName && <div>{item.productName}</div>
+        },
+        {
+            key: "productCode",
+            label: "Mã sản phẩm",
+            customValue: (item) => item.productCode && <div>{item.productCode}</div>
         },
         {
             key: "warehouseName",
@@ -85,71 +101,28 @@ export default function Inventory() {
             customValue: (item) => item.warehouseName && <div>{item.warehouseName}</div>
         },
         {
-            key: "statusName",
-            label: "Trạng thái",
-            customValue: (item) => getInventoryStatus(item.status)
+            key: "totalQuantity",
+            label: "Số lượng",
+            customValue: (item) => item.totalQuantity && <div>{item.totalQuantity}</div>
         },
         {
-            key: "totalProducts",
-            label: "Số sản phẩm của phiếu",
-            customValue: (item) => item.totalProducts && <div>{item.totalProducts}</div>
-        },
-        {
-            key: "createdAt",
-            label: "Ngày tạo",
-            customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div>
-        },
-        {
-            key: "resolvedAt",
-            label: "Ngày xác nhận",
-            customValue: (item) => item.resolvedAt ? <div>{new Date(item.resolvedAt).toLocaleString('vi-VN')} </div> : <div>Chưa có</div>
-        },
-    ]
-
-    const handleChangePage = (event, newPage) => setPageIndex(newPage);
-    const handleChangeRowPerPage = (event) => {
-        setRowPerPage(parseInt(event.target.value, 10));
-        setPageIndex(0);
-    };
-
-    const fetchWarehouses = async (value) => {
-        try {
-            setWarehouseLoading(true);
-            const body = {
-                pageIndex: 1,
-                pageSize: 1000,
-                warehouseName: value
-            };
-            const response = await warehouseService.getAllWarehouses(body);
-            const warehouseData = response.data.items.map((warehouse) => ({
-                warehouseId: warehouse.warehouseId,
-                warehouseName: warehouse.warehouseName
-            }));
-            setWarehouses(warehouseData);
-        } catch (error) {
-            console.error("Error fetching warehouses:", error);
-        } finally {
-            setWarehouseLoading(false);
+            key: "lastUpdated",
+            label: "Ngày cập nhật",
+            customValue: (item) => item.lastUpdated && <div>{new Date(item.lastUpdated).toLocaleString('vi-VN')}</div>
         }
-    }
+    ];
 
-    useEffect(() => {
-        if (!pageReady) return;
-        fetchWarehouses("");
-    }, [pageReady]);
-
+    // Fetch data
     const fetchInventories = async () => {
         setLoading(true);
         try {
             const body = {
                 pageIndex: pageIndex + 1,
                 pageSize: rowPerPage,
-                warehouseId: filterWarehouseId || null,
-                status: parseInt(filterStatus) || null,
-                fromDate: filterFromDate || null,
-                toDate: filterToDate || null
+                warehouseId: filterWarehouseId,
+                productId: filterProductId
             };
-            const response = await inventoryService.getAllStockAdjustments(body);
+            const response = await inventoryService.getAllInventories(body);
             setInventories(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
@@ -158,55 +131,36 @@ export default function Inventory() {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
-    const fetchInventoryDetails = async (id) => {
+    const fetchProducts = async (value) => {
+        setProductLoading(true);
         try {
-            const response = await inventoryService.getStockAdjustmentDetail(id);
-            setInventoryDetails((prev) => [...prev, response.data]);
+            const body = { pageIndex: 1, pageSize: 1000, productName: value };
+            const response = await productService.getProductAvailable(body);
+            const products = response.data.items.sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((item) => ({ productId: item.productId, productName: item.productName, productCode: item.productCode }));
+            setProducts(products);
         } catch (error) {
             setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
+        } finally {
+            setProductLoading(false);
         }
-    }
+    };
 
-    useEffect(() => {
-        if (!inventories || inventoryDetails.length > 0) return;
-        inventories.forEach((inventory) => {
-            fetchInventoryDetails(inventory.adjustmentId);
-        });
-    }, [inventories, inventoryDetails]);
-
-    const getDifference = (difference) => {
-        if (!difference || isNaN(difference)) return;
-        if (difference === 0) {
-            return <div style={{ color: "green" }}>Số lượng chính xác</div>
-        }
-        if (difference > 0) {
-            return <div style={{ color: "blue" }}>Thừa {difference} sản phẩm</div>
-        } else if (difference < 0) {
-            return <div style={{ color: "red" }}>Thiếu {difference * -1} sản phẩm</div>
-        }
-    }
-
-    const handleUpdateResolve = async (id) => {
-        setLoading(true);
+    const fetchWarehouses = async (value) => {
+        setWarehouseLoading(true);
         try {
-            await inventoryService.resolveStockAdjustment(id);
-            setModalSuccessMessage("Xác nhận phiếu kiểm thành công");
-            setModalSuccessOpen(true);
-            fetchInventories();
+            const body = { pageIndex: 1, pageSize: 1000, warehouseName: value };
+            const response = await warehouseService.getAllWarehouses(body);
+            const warehouses = response.data.items.map((item) => ({ warehouseId: item.warehouseId, warehouseName: item.warehouseName }));
+            setWarehouses(warehouses);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
-            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
-            setLoading(false);
+            setWarehouseLoading(false);
         }
-    }
-
-    const handleEdit = (id) => {
-        window.open(`/inventory/modify/update/${id}`, "_blank");
     }
 
     useEffect(() => {
@@ -214,214 +168,96 @@ export default function Inventory() {
         fetchInventories();
     }, [pageIndex, rowPerPage, pageReady]);
 
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            buttonRef.current?.click();
-        }
-    };
-
-    const handleChangeDropdown = (item) => {
-        if (item) {
-            setSelectedWarehouse(item);
-            setFilterWarehouseId(item.warehouseId);
-
-        } else {
-            setSelectedWarehouse(null);
-            setFilterWarehouseId(null);
-        }
-    };
-
     useEffect(() => {
-        validateFields();
-    }, [filterFromDate, filterToDate]);
+        if (!pageReady) return;
+        fetchProducts(null);
+        fetchWarehouses(null);
+    }, [pageReady]);
 
-    const validateFields = () => {
-        if (filterToDate && filterFromDate > filterToDate) {
-            setErrorToDate("Ngày giao dịch đến phải lớn hơn ngày giao dịch từ");
-            return false;
-        }
-        setErrorToDate("");
-        return true;
-    };
-
-    const handleApplyFilter = () => {
-        if (validateFields()) {
-            setPageIndex(0);
-            fetchInventories();
-        }
-    };
-
-    const handleClearFilter = () => {
-        setFilterWarehouseId(null);
-        setSelectedWarehouse(null);
-        setFilterStatus(null);
-        setFilterFromDate("");
-        setFilterToDate("");
-        setErrorToDate("");
+    // Pagination handlers
+    const handleChangePage = (event, newPage) => setPageIndex(newPage);
+    const handleChangeRowPerPage = (event) => {
+        setRowPerPage(parseInt(event.target.value, 10));
         setPageIndex(0);
     };
 
-    const tableDetail = (id) => {
-        const inventory = inventoryDetails.find((inventory) => inventory.adjustmentId === id);
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            buttonRef.current?.click();
+        }
+    }
 
-        const headers = [
-            {
-                key: "productId",
-                label: "ID sản phẩm",
-                customValue: (item) => item.productId && <div>{item.productId}</div>
-            },
-            {
-                key: "productName",
-                label: "Tên sản phẩm",
-                customValue: (item) => item.productName && <div>{item.productName}</div>
-            },
-            {
-                key: "systemQuantity",
-                label: "Tồn kho",
-                customValue: (item) => item.systemQuantity && <div>{item.systemQuantity}</div>
-            },
-            {
-                key: "actualQuantity",
-                label: "Thực tế",
-                customValue: (item) => item.actualQuantity && <div>{item.actualQuantity}</div>
-            },
-            {
-                key: "difference",
-                label: "Chênh lệch",
-                customValue: (item) => item.difference && <div>{getDifference(item.difference)}</div>
-            },
-            {
-                key: "note",
-                label: "Ghi chú",
-                customValue: (item) => item.note && <div>{item.note}</div>
-            },
-            {
-                key: "createdAt",
-                label: "Ngày kiểm",
-                customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div>
+    const handleChangeDropdown = (item, field) => {
+        if (item) {
+            if (item.warehouseId) {
+                setSelectedWarehouse(item);
+                setFilterWarehouseId(item.warehouseId);
+            } else if (item.productId) {
+                setSelectedProduct(item);
+                setFilterProductId(item.productId);
             }
-        ]
+        } else {
+            if (field === "warehouseId") {
+                setSelectedWarehouse(null);
+                setFilterWarehouseId(null);
+            } else if (field === "productId") {
+                setSelectedProduct(null);
+                setFilterProductId(null);
+            }
+        }
+    };
 
-        return (
-            <div className='flex flex-col gap-4 w-full border border-black'>
-                <div className='w-full text-md'>
-                    <div className='bg-white px-4 py-2'>
-                        <p className='my-2'>Mã phiếu kiểm: {inventory.adjustmentId}</p>
-                        <p className='my-2'>Ngày tạo phiếu kiểm: {new Date(inventory.createdAt).toLocaleString('vi-VN')}</p>
-                        <p className='my-2'>Nhà kho: {inventory.warehouseName}</p>
-                        <div className='my-2 flex flex-row gap-2'>
-                            <p>Trạng thái: </p>
-                            {getInventoryStatus(inventory.status)}
-                        </div>
-                    </div>
-                </div>
+    const handleApplyFilter = () => {
+        setPageIndex(0);
+        fetchInventories();
+    };
 
-                <div className='w-auto rounded-xl h-auto bg-white px-4 py-2'>
-                    <TableCommon
-                        headers={headers}
-                        tableData={inventory.details}
-                    />
-                    <div className='flex flex-row justify-between items-center p-4'>
-                        <div className='flex flex-row items-center gap-2'>
-                            {inventory && inventory.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={() => handleEdit(inventory.adjustmentId)}>Chỉnh sửa</button>}
-                            {inventory && inventory.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={() => handleUpdateResolve(inventory.adjustmentId)}>Xác nhận kiểm kho</button>}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        )
+    const handleClearFilter = () => {
+        setSelectedWarehouse(null);
+        setSelectedProduct(null);
+        setFilterWarehouseId(null);
+        setFilterProductId(null);
+        setPageIndex(0);
     }
 
-    if (!pageReady) {
-        return <Loader />;
-    }
+    if (!pageReady) return <Loader />;
 
     return (
-        <div className="flex flex-col p-4">
-            <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4 justify-between">
-                <div className="flex flex-col mr-4">
-                    <h1 className="text-2xl font-bold">Danh sách phiếu kiểm</h1>
-                </div>
-                <div className="flex flex-col gap-2">
-                    <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => navigate("/inventory/modify/create")}>Tạo phiếu kiểm mới</button>
-                </div>
-            </div>
-
+        <div className="grid grid-cols-4 p-8 gap-4">
             {/* Filter sidebar */}
-            <div className="p-4 rounded-2xl bg-white h-auto w-full mb-4">
-                <h2 className="text-xl font-bold">Lọc phiếu kiểm</h2>
-                <div className="flex items-center my-4 gap-4">
-                    <div className="mt-2 w-[24.25%]">
-                        <label className="mr-2">Nhà kho:</label>
-                        <AutocompleteCommon
-                            name="warehouseId"
-                            value={selectedWarehouse}
-                            loading={warehouseLoading}
-                            options={warehouses}
-                            onSelect={(item) => handleChangeDropdown(item, "warehouseId")}
-                            onSearch={fetchWarehouses}
-                            getOptionLabel={(option) => option.warehouseName}
-                            getOptionKey={(option) => option.warehouseId}
-                        />
+            <div className="col-span-1">
+                <div className="p-4 rounded-2xl bg-white h-auto sticky top-0">
+                    <h2 className="text-xl font-bold">Lọc tồn kho</h2>
+                    <div className="flex flex-col items-center my-4">
+                        <div className="my-2 w-full">
+                            <label className="mr-2">Nhà kho:</label>
+                            <AutocompleteCommon
+                                name="warehouseId"
+                                value={selectedWarehouse}
+                                loading={warehouseLoading}
+                                options={warehouses}
+                                onSelect={(item) => handleChangeDropdown(item, "warehouseId")}
+                                onSearch={fetchWarehouses}
+                                getOptionLabel={(option) => option.warehouseName}
+                                getOptionKey={(option) => option.warehouseId}
+                            />
+                        </div>
+                        <div className="my-2 w-full">
+                            <label className="mr-2">Sản phẩm:</label>
+                            <AutocompleteCommon
+                                name="productId"
+                                value={selectedProduct}
+                                loading={productLoading}
+                                options={products}
+                                onSelect={(item) => handleChangeDropdown(item, "productId")}
+                                onSearch={fetchProducts}
+                                getOptionLabel={(option) => option.productName}
+                                getOptionKey={(option) => option.productId}
+                            />
+                        </div>
                     </div>
-                    <div className="mt-2 w-[24.25%]">
-                        <label className="mr-2">Trạng thái:</label>
-                        <select
-                            className="w-full p-2 border border-gray-300 rounded"
-                            value={filterStatus || ""}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                        >
-                            <option value="">Tất cả</option>
-                            <option value={1}>{getInventoryStatusText(1)}</option>
-                            <option value={2}>{getInventoryStatusText(2)}</option>
-                        </select>
-                    </div>
-                    <div className="mt-2 w-[24.25%]">
-                        <label className="mr-2">Lọc từ ngày:</label>
-                        <DateInput
-                            className="w-full p-1.5 border border-gray-300 rounded block"
-                            value={filterFromDate}
-                            onChange={(e) => setFilterFromDate(e)}
-                        />
-                        {/* <input
-                            type="date"
-                            className="w-full p-2 border border-gray-300 rounded"
-                            value={filterFromDate && formatDateToInput(filterFromDate)}
-                            onChange={(e) => {
-                                const date = new Date(e.target.value);
-                                setFilterFromDate(date);
-                            }}
-                            onKeyDown={handleKeyDown}
-                        /> */}
-                    </div>
-                    <div className="mt-2 w-[24.25%]">
-                        <label className="mr-2">Đến ngày:</label>
-                        <DateInput
-                            className="w-full p-1.5 border border-gray-300 rounded block"
-                            value={filterToDate}
-                            onChange={(e) => setFilterToDate(e)}
-                            onKeyDown={handleKeyDown}
-                        />
-                        {/* <input
-                            type="date"
-                            className="w-full p-2 border border-gray-300 rounded"
-                            value={filterToDate && formatDateToInput(filterToDate)}
-                            onChange={(e) => {
-                                const date = new Date(e.target.value);
-                                setFilterToDate(date);
-                            }}
-                            onKeyDown={handleKeyDown}
-                        /> */}
-                    </div>
-                </div>
-                {/* <div className="flex items-center my-4 gap-4">
-
-                </div> */}
-                <div className="flex flex-col justify-center">
-                    {errorToDate && <span className="text-red-500 text-center mb-2">{errorToDate}</span>}
-                    <div className="flex flex-row items-center justify-center gap-4">
+                    <div className="flex justify-center gap-2">
                         <button
                             className="px-4 py-2 background-primary text-white rounded cursor-pointer"
                             onClick={() => handleApplyFilter()}
@@ -429,34 +265,33 @@ export default function Inventory() {
                         >
                             Lọc
                         </button>
-                        <button
-                            className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer"
-                            onClick={() => handleClearFilter()}
-                        >
-                            Xóa bộ lọc
-                        </button>
+                        <button className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer" onClick={() => handleClearFilter()}>Xóa bộ lọc</button>
                     </div>
                 </div>
             </div>
-
             {/* Main content */}
-            <TableCommon
-                headers={headerData}
-                tableData={inventories}
-                defaultSortColumn="createdAt"
-                defaultSortType="desc"
-                rowPerPage={rowPerPage}
-                pageIndex={pageIndex}
-                totalCount={totalCount}
-                rowPerPageOptions={[5, 10, 20]}
-                handleChangePage={handleChangePage}
-                handleChangeRowPerPage={handleChangeRowPerPage}
-                usePagination={true}
-                useDetail={true}
-                tableDetail={tableDetail}
-            />
+            <div className="col-span-3">
+                <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4">
+                    <div className="flex flex-col w-3/4 mr-4">
+                        <h1 className="text-2xl font-bold">Danh sách tồn kho</h1>
+                    </div>
+                </div>
+                <TableCommon
+                    headers={headerData}
+                    tableData={inventories}
+                    defaultSortColumn="lastUpdated"
+                    defaultSortType="desc"
+                    rowPerPage={rowPerPage}
+                    pageIndex={pageIndex}
+                    totalCount={totalCount}
+                    rowPerPageOptions={[5, 10, 20]}
+                    handleChangePage={handleChangePage}
+                    handleChangeRowPerPage={handleChangeRowPerPage}
+                    usePagination={true}
+                />
+            </div>
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
-            <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
+            <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} onClose={() => setModalFailedOpen(false)} />
         </div>
     )
 }

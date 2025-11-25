@@ -336,7 +336,7 @@ export default function ModifyInventory({ params }) {
     }
 
     const handleExit = () => {
-        router.push("/inventory")
+        router.push("/stock-adjustment")
     }
 
     const getDifference = (system, actual) => {

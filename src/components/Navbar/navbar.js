@@ -31,6 +31,7 @@ import ForestIcon from '@mui/icons-material/Forest';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AirportShuttleIcon from '@mui/icons-material/AirportShuttle';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
+import BentoIcon from '@mui/icons-material/Bento';
 
 
 
@@ -147,10 +148,10 @@ const Navbar = () => {
       icon: <WarehouseIcon />,
       subItems: [
         {
-          name: "Kiểm kho",
+          name: "Tồn kho",
           link: "/inventory",
           role: ["Manager"],
-          icon: <ContentPasteSearchIcon />
+          icon: <BentoIcon />
         },
         {
           name: "Nhập kho",
@@ -163,6 +164,12 @@ const Navbar = () => {
           link: "/exports",
           role: ["Manager"],
           icon: <LaunchIcon />
+        },
+        {
+          name: "Kiểm kho",
+          link: "/stock-adjustment",
+          role: ["Manager"],
+          icon: <ContentPasteSearchIcon />
         },
         {
           name: "Trả hàng nhập kho",

@@ -181,7 +181,7 @@ export default function Contracts() {
             const response = await customerService.getAllCustomers(body);
             const customerData = response.data.items.map((customer) => ({
                 customerId: customer.customerId,
-                customerName: customer.customerName
+                customerName: customer.fullName
             }));
             setCustomers(customerData);
         } catch (error) {
@@ -344,7 +344,7 @@ export default function Contracts() {
                                 options={customers}
                                 onSelect={(item) => handleChangeDropdown(item, "customerId")}
                                 onSearch={fetchCustomers}
-                                getOptionLabel={(option) => option.fullName}
+                                getOptionLabel={(option) => option.customerName}
                                 getOptionKey={(option) => option.customerId}
                             />
                         </div>

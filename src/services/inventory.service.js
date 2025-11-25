@@ -1,8 +1,8 @@
 import API from "@/utils/axios";
 
 export const inventoryService = {
-    getAllInventories: async (id) => {
-        const response = await API.get(`/Inventory/GetInventoryData/?warehouseId=${id}`);
+    getAllInventories: async (data) => {
+        const response = await API.post(`/Inventory/GetInventoryData`, data);
         return response.data;
     },
 
@@ -30,6 +30,11 @@ export const inventoryService = {
 
     updateStockAdjustment: async (id, data) => {
         const response = await API.put(`/stock-adjustment/draft/${id}`, data);
+        return response.data;
+    },
+
+    deleteStockAdjustment: async (id) => {
+        const response = await API.delete(`/stock-adjustment/draft/${id}`);
         return response.data;
     },
 
