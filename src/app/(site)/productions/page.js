@@ -132,25 +132,30 @@ export default function Productions() {
         }
     }
 
-    const fetchProductionsDetails = async (id) => {
-        setLoading(true);
-        try {
-            const response = await productionService.getProductionDetail(id);
-            setProductionDetails((prev) => [...prev, response.data]);
-        } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
-            setModalFailedOpen(true);
-        } finally {
-            setLoading(false);
+    // Fetch details for all productions
+    const fetchAllProductionDetails = async (productionList) => {
+        const detailsArr = [];
+        for (const production of productionList) {
+            try {
+                const response = await productionService.getProductionDetail(production.id);
+                detailsArr.push(response.data);
+            } catch (error) {
+                setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                setModalFailedOpen(true);
+            }
         }
-    }
+        setProductionDetails(detailsArr);
+    };
 
+    // Fetch details when productions change (including on first load)
     useEffect(() => {
-        if (!productions || productionDetails.length > 0) return;
-        productions.forEach((p) => {
-            fetchProductionsDetails(p.id);
-        })
-    }, [productions, productionDetails])
+        if (!productions || productions.length === 0) {
+            setProductionDetails([]);
+            return;
+        }
+        fetchAllProductionDetails(productions);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [productions])
 
     useEffect(() => {
         if (!pageReady) return;
@@ -207,6 +212,8 @@ export default function Productions() {
     const handleUpdateToProcessing = async (id) => {
         try {
             await productionService.updateProductionToProcessing(id);
+            setModalSuccessMessage(`Sản phẩm đang được sản xuất`);
+            setModalSuccessOpen(true);
             fetchProductions();
         } catch (error) {
             setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
@@ -221,6 +228,8 @@ export default function Productions() {
     const handleUpdateToCancel = async (id) => {
         try {
             await productionService.updateProductionToCancel(id);
+            setModalSuccessMessage(`Hủy sản xuất thành công`);
+            setModalSuccessOpen(true);
             fetchProductions();
         } catch (error) {
             setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
@@ -275,11 +284,11 @@ export default function Productions() {
                         <p className='my-2'>Nhà kho: {material.warehouseName}</p>
                         <p className='my-2'>Số lượng: {material.quantity}</p>
                     </div>
-                    <div className='bg-white px-4 py-2'>
+                    <div className='bg-white px-4 py-2 w-[120%]'>
                         <div className='flex flex-row items-center gap-2'>
                             {production?.status === 0 && <button className='rounded-xl px-4 py-2 bg-blue-500 text-white' onClick={() => handleUpdateToProcessing(production.id)}>Bắt đầu sản xuất</button>}
                             {production?.status === 1 && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={() => handleUpdateToFinish(production.id)}>Hoàn thành sản xuất</button>}
-                            {production?.status === 2 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={() => handleUpdateToCancel(production.id)}>Hủy phiếu</button>}
+                            {production?.status === 0 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={() => handleUpdateToCancel(production.id)}>Hủy phiếu</button>}
                         </div>
                     </div>
                 </div>
@@ -315,12 +324,12 @@ export default function Productions() {
                 <div className="flex items-center my-4 gap-4">
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Ngày bắt đầu từ:</label>
-                        <DateInput
+                        {/* <DateInput
                             className="w-full p-1.5 border border-gray-300 rounded block"
                             value={filterStartDateFrom}
                             onChange={(e) => setFilterStartDateFrom(e)}
-                        />
-                        {/* <input
+                        /> */}
+                        <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterStartDateFrom && formatDateToInput(filterStartDateFrom)}
@@ -329,17 +338,17 @@ export default function Productions() {
                                 setFilterStartDateFrom(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        /> */}
+                        />
                     </div>
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Đến:</label>
-                        <DateInput
+                        {/* <DateInput
                             className="w-full p-1.5 border border-gray-300 rounded block"
                             value={filterStartDateTo}
                             onChange={(e) => setFilterStartDateTo(e)}
                             onKeyDown={handleKeyDown}
-                        />
-                        {/* <input
+                        /> */}
+                        <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterStartDateTo && formatDateToInput(filterStartDateTo)}
@@ -348,16 +357,16 @@ export default function Productions() {
                                 setFilterStartDateTo(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        /> */}
+                        />
                     </div>
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Ngày hoàn thành từ:</label>
-                        <DateInput
+                        {/* <DateInput
                             className="w-full p-1.5 border border-gray-300 rounded block"
                             value={filterEndDateFrom}
                             onChange={(e) => setFilterEndDateFrom(e)}
-                        />
-                        {/* <input
+                        /> */}
+                        <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterEndDateFrom && formatDateToInput(filterEndDateFrom)}
@@ -366,17 +375,17 @@ export default function Productions() {
                                 setFilterEndDateFrom(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        /> */}
+                        />
                     </div>
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Đến:</label>
-                        <DateInput
+                        {/* <DateInput
                             className="w-full p-1.5 border border-gray-300 rounded block"
                             value={filterEndDateTo}
                             onChange={(e) => setFilterEndDateTo(e)}
                             onKeyDown={handleKeyDown}
-                        />
-                        {/* <input
+                        /> */}
+                        <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterEndDateTo && formatDateToInput(filterEndDateTo)}
@@ -385,7 +394,7 @@ export default function Productions() {
                                 setFilterEndDateTo(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        /> */}
+                        />
                     </div>
                 </div>
                 <div className="flex items-center my-4 gap-4">

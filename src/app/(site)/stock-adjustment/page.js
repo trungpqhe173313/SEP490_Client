@@ -418,16 +418,17 @@ export default function Inventory() {
                             <option value="">Tất cả</option>
                             <option value={1}>{getInventoryStatusText(1)}</option>
                             <option value={2}>{getInventoryStatusText(2)}</option>
+                            <option value={3}>{getInventoryStatusText(3)}</option>
                         </select>
                     </div>
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Lọc từ ngày:</label>
-                        <DateInput
+                        {/* <DateInput
                             className="w-full p-1.5 border border-gray-300 rounded block"
                             value={filterFromDate}
                             onChange={(e) => setFilterFromDate(e)}
-                        />
-                        {/* <input
+                        /> */}
+                        <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterFromDate && formatDateToInput(filterFromDate)}
@@ -436,17 +437,17 @@ export default function Inventory() {
                                 setFilterFromDate(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        /> */}
+                        />
                     </div>
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Đến ngày:</label>
-                        <DateInput
+                        {/* <DateInput
                             className="w-full p-1.5 border border-gray-300 rounded block"
                             value={filterToDate}
                             onChange={(e) => setFilterToDate(e)}
                             onKeyDown={handleKeyDown}
-                        />
-                        {/* <input
+                        /> */}
+                        <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterToDate && formatDateToInput(filterToDate)}
@@ -455,7 +456,7 @@ export default function Inventory() {
                                 setFilterToDate(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        /> */}
+                        />
                     </div>
                 </div>
                 {/* <div className="flex items-center my-4 gap-4">

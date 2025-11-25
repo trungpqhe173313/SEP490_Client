@@ -301,8 +301,8 @@ export default function page() {
           </div>
           <div className="mt-2 w-full">
             <label className="mr-2">Giao dịch từ ngày:</label>
-            <DateInput value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} className="w-full p-2 border border-gray-300 rounded" />
-            {/* <input
+            {/* <DateInput value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} className="w-full p-2 border border-gray-300 rounded" /> */}
+            <input
               type="date"
               className="w-full p-2 border border-gray-300 rounded"
               value={filterTransactionFromDate ? formatDateToInput(new Date(filterTransactionFromDate)) : ""}
@@ -311,12 +311,12 @@ export default function page() {
                 setFilterTransactionFromDate(date);
               }}
               onKeyDown={handleKeyDown}
-            /> */}
+            />
           </div>
           <div className="mt-2 w-full">
             <label className="mr-2">Đến ngày:</label>
-            <DateInput value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} className="w-full p-2 border border-gray-300 rounded" />
-            {/* <input
+            {/* <DateInput value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} className="w-full p-2 border border-gray-300 rounded" /> */}
+            <input
               type="date"
               className="w-full p-2 border border-gray-300 rounded"
               value={filterTransactionToDate ? formatDateToInput(new Date(filterTransactionToDate)) : ""}
@@ -325,7 +325,7 @@ export default function page() {
                 setFilterTransactionToDate(date);
               }}
               onKeyDown={handleKeyDown}
-            /> */}
+            />
           </div>
         </div>
         <div className="flex flex-col justify-center">

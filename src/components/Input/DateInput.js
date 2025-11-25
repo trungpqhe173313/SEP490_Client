@@ -131,7 +131,3 @@ export default function DateInput({
         </div>
     );
 }
-
-// Example usage:
-// <DateInput value={new Date()} onChange={(d, raw) => console.log(d, raw)} />
-// <DateInput value="05/09/2025" onChange={(d) => console.log(d)} />

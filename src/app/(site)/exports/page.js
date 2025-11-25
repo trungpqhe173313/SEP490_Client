@@ -330,12 +330,12 @@ export default function Exports() {
         <div className="flex items-center my-4 gap-4">
           <div className="mt-2 w-[24.25%]">
             <label className="mr-2">Giao dịch từ ngày:</label>
-            <DateInput
+            {/* <DateInput
               className="w-full p-1.5 border border-gray-300 rounded block"
               value={filterTransactionFromDate}
               onChange={(e) => setFilterTransactionFromDate(e)}
-            />
-            {/* <input
+            /> */}
+            <input
               type="date"
               className="w-full p-2 border border-gray-300 rounded"
               value={filterTransactionFromDate && formatDateToInput(filterTransactionFromDate)}
@@ -344,17 +344,17 @@ export default function Exports() {
                 setFilterTransactionFromDate(date);
               }}
               onKeyDown={handleKeyDown}
-            /> */}
+            />
           </div>
           <div className="mt-2 w-[24.25%]">
             <label className="mr-2">Đến ngày:</label>
-            <DateInput
+            {/* <DateInput
               className="w-full p-1.5 border border-gray-300 rounded block"
               value={filterTransactionToDate}
               onChange={(e) => setFilterTransactionToDate(e)}
               onKeyDown={handleKeyDown}
-            />
-            {/* <input
+            /> */}
+            <input
               type="date"
               className="w-full p-2 border border-gray-300 rounded"
               value={filterTransactionToDate && formatDateToInput(filterTransactionToDate)}
@@ -363,7 +363,7 @@ export default function Exports() {
                 setFilterTransactionToDate(date);
               }}
               onKeyDown={handleKeyDown}
-            /> */}
+            />
           </div>
         </div>
         <div className="flex flex-col justify-center">

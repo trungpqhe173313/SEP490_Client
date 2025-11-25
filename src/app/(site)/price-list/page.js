@@ -265,8 +265,8 @@ export default function PriceList() {
                         <div className="my-2 w-full grid grid-cols-2 gap-2">
                         <div className="col-span-1">
                             <label className="mr-2">Ngày tạo từ</label>
-                            <DateInput value={filterStartDate} onChange={(d) => setFilterStartDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
-                            {/* <input
+                            {/* <DateInput value={filterStartDate} onChange={(d) => setFilterStartDate(d)} className="w-full p-2 border border-gray-300 rounded"/> */}
+                            <input
                                 type="date"
                                 className="w-full p-2 border border-gray-300 rounded"
                                 value={filterStartDate && formatDateToInput(filterStartDate)}
@@ -275,12 +275,12 @@ export default function PriceList() {
                                     setFilterStartDate(date);
                                 }}
                                 onKeyDown={handleKeyDown}
-                            /> */}
+                            />
                         </div>
                         <div className="col-span-1">
                             <label className="mr-2">Ngày tạo đến</label>
-                            <DateInput value={filterEndDate} onChange={(d) => setFilterEndDate(d)} className="w-full p-2 border border-gray-300 rounded"/>
-                            {/* <input
+                            {/* <DateInput value={filterEndDate} onChange={(d) => setFilterEndDate(d)} className="w-full p-2 border border-gray-300 rounded"/> */}
+                            <input
                                 type="date"
                                 className="w-full p-2 border border-gray-300 rounded"
                                 value={filterEndDate && formatDateToInput(filterEndDate)}
@@ -289,7 +289,7 @@ export default function PriceList() {
                                     setFilterEndDate(date);
                                 }}
                                 onKeyDown={handleKeyDown}
-                            /> */}
+                            />
                         </div>
                         {errorEndDate && <span className="text-red-500">{errorEndDate}</span>}
                     </div>

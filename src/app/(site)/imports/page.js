@@ -440,8 +440,8 @@ export default function Imports() {
                 <div className="flex items-center my-4 gap-4">
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Giao dịch từ ngày:</label>
-                        <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} />
-                        {/* <input
+                        {/* <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} /> */}
+                        <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterTransactionFromDate && formatDateToInput(filterTransactionFromDate)}
@@ -450,12 +450,12 @@ export default function Imports() {
                                 setFilterTransactionFromDate(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        /> */}
+                        />
                     </div>
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Đến ngày:</label>
-                        <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} />
-                        {/* <input
+                        {/* <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} /> */}
+                        <input
                             type="date"
                             className="w-full p-2 border border-gray-300 rounded"
                             value={filterTransactionToDate && formatDateToInput(filterTransactionToDate)}
@@ -464,7 +464,7 @@ export default function Imports() {
                                 setFilterTransactionToDate(date);
                             }}
                             onKeyDown={handleKeyDown}
-                        /> */}
+                        />
                     </div>
                 </div>
                 <div className="flex flex-col justify-center">

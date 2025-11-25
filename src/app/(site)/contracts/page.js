@@ -351,8 +351,8 @@ export default function Contracts() {
                         <div className="my-2 w-full grid grid-cols-2 gap-2">
                             <div className="col-span-1">
                                 <label className="mr-2">Ngày tạo từ</label>
-                                <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterFromDate} onChange={(d) => setFilterFromDate(d)} />
-                                {/* <input
+                                {/* <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterFromDate} onChange={(d) => setFilterFromDate(d)} /> */}
+                                <input
                                     type="date"
                                     className="w-full p-2 border border-gray-300 rounded"
                                     value={filterFromDate && formatDateToInput(filterFromDate)}
@@ -361,12 +361,12 @@ export default function Contracts() {
                                         setFilterFromDate(date);
                                     }}
                                     onKeyDown={handleKeyDown}
-                                /> */}
+                                />
                             </div>
                             <div className="col-span-1">
                                 <label className="mr-2">Ngày tạo đến</label>
-                                <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterToDate} onChange={(d) => setFilterToDate(d)} />
-                                {/* <input
+                                {/* <DateInput className="w-full p-2 border border-gray-300 rounded" value={filterToDate} onChange={(d) => setFilterToDate(d)} /> */}
+                                <input
                                     type="date"
                                     className="w-full p-2 border border-gray-300 rounded"
                                     value={filterToDate && formatDateToInput(filterToDate)}
@@ -375,7 +375,7 @@ export default function Contracts() {
                                         setFilterToDate(date);
                                     }}
                                     onKeyDown={handleKeyDown}
-                                /> */}
+                                />
                             </div>
                         </div>
                         {errorToDate && <span className="text-red-500">{errorToDate}</span>}

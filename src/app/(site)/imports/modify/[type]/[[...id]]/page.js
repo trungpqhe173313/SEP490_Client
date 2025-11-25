@@ -570,18 +570,18 @@ export default function UpdateImport({ params }) {
                 </div>
                 <div className="my-4">
                     <label className="block text-md font-bold">Ngày hết hạn</label>
-                    <DateInput className="w-full p-2 border border-gray-300 rounded-md" value={expireDate} onChange={(e) => setExpireDate(e)} disabled={id && type === "update"} />
-                    {/* <input
+                    {/* <DateInput className="w-full p-2 border border-gray-300 rounded-md" value={expireDate} onChange={(e) => setExpireDate(e)} disabled={id && type === "update"} /> */}
+                    <input
                         type="date"
                         name="expireDate"
-                        disabled
+                        disabled={id && type === "update"} 
                         value={expireDate && formatDateToInput(expireDate)}
                         onChange={(e) => {
                             const date = new Date(e.target.value);
                             setExpireDate(date);
                         }}
                         className="w-full p-2 border border-gray-300 rounded-md"
-                    /> */}
+                    />
                     {validExpireDateMessage && <span className="text-red-500">{validExpireDateMessage}</span>}
                 </div>
                 <div className="my-4">
