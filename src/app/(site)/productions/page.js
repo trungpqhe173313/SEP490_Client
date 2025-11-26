@@ -19,7 +19,7 @@ import Loader from "@/components/Loader/loader";
 
 export default function Productions() {
     const router = useRouter();
-    const { isLogin, user, refreshUserInfo } = useLogin();
+    const { isLogin, user, refreshUserInfo } = new useLogin();
 
     const navigate = (path) => {
         router.push(path);
@@ -154,7 +154,6 @@ export default function Productions() {
             return;
         }
         fetchAllProductionDetails(productions);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [productions])
 
     useEffect(() => {

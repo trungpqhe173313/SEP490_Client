@@ -2,9 +2,7 @@ import React from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
 import TableCommon from "@/components/Table/table";
 
-export default function importResultModal({ isOpen, message, onClose, data }) {
-
-    if (!isOpen) return null;
+export default function ImportResultModal({ isOpen, message, onClose, data }) {
 
     const handleClose = () => onClose();
 

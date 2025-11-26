@@ -16,7 +16,7 @@ import Loader from "@/components/Loader/loader";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 
-export default function page() {
+export default function InventoryPage() {
     const router = useRouter();
 
     const navigate = (path) => {

@@ -156,11 +156,11 @@ export function AccountForm({
     };
 
     const handleCheckboxChange = (name) => {
-    setForm((prev) => ({
-      ...prev,
-      roles: prev.roles.includes(name) ? prev.roles.filter((role) => role !== name) : [...prev.roles, name],
-    }))
-  };
+        setForm((prev) => ({
+            ...prev,
+            roles: prev.roles.includes(name) ? prev.roles.filter((role) => role !== name) : [...prev.roles, name],
+        }))
+    };
 
     return (
         <Modal open={isOpen} onClose={onClose}>

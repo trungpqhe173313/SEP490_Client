@@ -187,7 +187,6 @@ export default function Inventory() {
             return;
         }
         fetchAllInventoryDetails(inventories);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inventories]);
 
     const getDifference = (difference) => {

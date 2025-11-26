@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
 				setModalMessage("Đã gửi mã OTP. Vui lòng kiểm tra email.");
 				setShowSuccessModal(true);
 				setTimeout(() => {
-					router.push(`/verify-otp?email=${encodeURIComponent(email.trim())}`);
+					router.push(`/verify-otp/${encodeURIComponent(email.trim())}`);
 				}, 1200);
 			} else {
 				const errorMessage = res?.error?.message || 

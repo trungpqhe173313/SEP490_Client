@@ -43,8 +43,8 @@ export default function PriceList() {
     const [rowPerPage, setRowPerPage] = useState(20);
     const [totalCount, setTotalCount] = useState(0);
 
-    const { loading, setLoading } = useLoading();
-    const { isLogin, user, refreshUserInfo } = useLogin();
+    const { loading, setLoading } = new useLoading();
+    const { isLogin, user, refreshUserInfo } = new useLogin();
     const router = useRouter();
     const buttonRef = useRef(null);
 

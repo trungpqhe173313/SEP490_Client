@@ -10,8 +10,9 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { ProfileForm } from "@/components/Form/profileForm";
 import { PasswordForm } from "@/components/Form/passwordForm";
+import Image from 'next/image';
 
-export default function page() {
+export default function ProfilePage() {
   const [profile, setProfile] = useState({});
   const { loading, setLoading } = useLoading();
   const router = useRouter();

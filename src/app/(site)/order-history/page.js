@@ -16,7 +16,7 @@ import { getExportStatus, getExportStatusText } from "@/lib/getExportStatus";
 import Loader from "@/components/Loader/loader";
 import DateInput from "@/components/Input/DateInput";
 
-export default function page() {
+export default function OrderHistory() {
   const router = useRouter();
   const { loading, setLoading } = useLoading();
   const { isLogin, user, refreshUserInfo } = useLogin();

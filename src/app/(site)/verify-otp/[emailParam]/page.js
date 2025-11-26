@@ -7,8 +7,8 @@ import AuthService from "@/services/auth.service";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function VerifyOtpPage() {
-	const searchParams = useSearchParams();
+export default function VerifyOtpPage({ params }) {
+	const { emailParam } = React.use(params);
 	const router = useRouter();
 	const [email, setEmail] = useState("");
 	const [otp, setOtp] = useState("");
@@ -18,9 +18,8 @@ export default function VerifyOtpPage() {
 	const [modalMessage, setModalMessage] = useState("");
 
 	useEffect(() => {
-		const emailParam = searchParams.get("email");
 		if (emailParam) setEmail(emailParam);
-	}, [searchParams]);
+	}, []);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();

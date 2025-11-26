@@ -4,8 +4,6 @@ import TableCommon from "@/components/Table/table";
 
 export default function ProductResultModal({ isOpen, message, onClose, data }) {
 
-    if (!isOpen) return null;
-
     const handleClose = () => onClose();
 
     const headerData = [

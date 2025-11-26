@@ -58,7 +58,6 @@ export default function DateInput({
         } else if (value === null) {
             if (text !== "") setText("");
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value]);
 
     function handleRawChange(e) {

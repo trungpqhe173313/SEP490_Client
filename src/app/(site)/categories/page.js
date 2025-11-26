@@ -76,7 +76,7 @@ export default function Categories() {
         {
             key: "description",
             label: "Mô tả",
-            customValue: (item) => item.description ? <div>{item.description}</div> : <div>"Chưa có"</div>
+            customValue: (item) => item.description ? <div>{item.description}</div> : <div>Chưa có</div>
         },
         {
             key: "isActive",
