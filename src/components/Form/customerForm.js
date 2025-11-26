@@ -27,7 +27,8 @@ export function CustomerForm({
             const customerData = response.data.items.map((customer) => ({
                 fullName: customer.fullName,
                 username: customer.username,
-                email: customer.email
+                email: customer.email,
+                phone: customer.phone
             }));
             setCustomers(customerData);
         } catch (error) {
@@ -103,7 +104,7 @@ export function CustomerForm({
                     setValidUsername(true);
                     setErrorUsername("");
                 }
-                break;
+                break;  
             case "phone":
                 const checkingPhone = value.trim().replace(/\s\s+/g, ' ');
                 const isExistingPhone = customers.find(customer => customer.phone.toLowerCase() === checkingPhone.toLowerCase() && customer.phone !== initialData?.phone);
@@ -137,11 +138,11 @@ export function CustomerForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (form.fullName === "" || form.username === "") {
+        if (form.fullName === "" || form.username === "" || form.phone === "") {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return;
         }
-        const invalidForms = !validFullName || !validUsername || !validEmail;
+        const invalidForms = !validFullName || !validUsername || !validEmail || !validPhone || !validPassword;
         if (invalidForms) {
             setError("Có nhập liệu không hợp lệ, vui lòng thử lại.");
             return;

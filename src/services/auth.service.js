@@ -99,11 +99,7 @@ class AuthService {
 
   async updatePassword(data) {
     try {
-      const response = await API.post("/Account/change-password", data, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      });
+      const response = await API.post("/Account/change-password", data);
       return response.data;
     } catch (error) {
       throw error;

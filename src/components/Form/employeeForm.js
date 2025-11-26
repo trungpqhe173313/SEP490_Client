@@ -27,7 +27,8 @@ export function EmployeeForm({
             const employeeData = response.data.items.map((employee) => ({
                 fullName: employee.fullName,
                 username: employee.username,
-                email: employee.email
+                email: employee.email,
+                phone: employee.phone
             }));
             setEmployees(employeeData);
         } catch (error) {
@@ -137,11 +138,11 @@ export function EmployeeForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (form.fullName === "" || form.username === "") {
+        if (form.fullName === "" || form.username === "" || form.phone === "") {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return;
         }
-        const invalidForms = !validFullName || !validUsername || !validEmail;
+        const invalidForms = !validFullName || !validUsername || !validEmail || !validPhone || !validPassword;
         if (invalidForms) {
             setError("Có nhập liệu không hợp lệ, vui lòng thử lại.");
             return;
