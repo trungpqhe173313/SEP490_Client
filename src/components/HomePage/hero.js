@@ -1,17 +1,16 @@
 "use client";
 import { Button } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Hero = () => {
+  const router = useRouter();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img
-          src="/herowarehouse.jpg"
-          alt="Modern warehouse with inventory management"
-          className="w-full h-full object-cover"
-        />
+        <Image src="/herowarehouse.jpg" alt="Modern warehouse with inventory management" fill className="w-full h-full object-cover"/>
         <div className="absolute inset-0 bg-gray-600/80" />
       </div>
       {/* Content */}
@@ -29,15 +28,9 @@ const Hero = () => {
             endIcon={<ArrowForwardIcon />}
             className="!text-lg !px-8 !py-3 !background-primary !text-white !background-selected"
             sx={{ backgroundColor: "#016630" }}
+            onClick={() => router.push("/login")}
           >
             Bắt đầu ngay
-          </Button>
-          <Button
-            variant="outlined"
-            size="large"
-            className="!text-lg !px-8 !py-3 !border-white !text-white hover:!bg-white/10 hover:!border-white"
-          >
-            Xem Demo
           </Button>
         </div>
       </div>

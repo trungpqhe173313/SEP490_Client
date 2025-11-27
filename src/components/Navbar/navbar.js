@@ -32,8 +32,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AirportShuttleIcon from '@mui/icons-material/AirportShuttle';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import BentoIcon from '@mui/icons-material/Bento';
-
-
+import SyncAltIcon from '@mui/icons-material/SyncAlt';
 
 const Navbar = () => {
   const router = useRouter();
@@ -188,6 +187,12 @@ const Navbar = () => {
           link: "/productions",
           role: ["Manager"],
           icon: <FactoryIcon />
+        },
+        {
+          name: "Chuyển kho",
+          link: "/transfers",
+          role: ["Manager"],
+          icon: <SyncAltIcon />
         }
       ],
     },

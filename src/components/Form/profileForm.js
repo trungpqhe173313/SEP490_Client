@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal } from "@mui/material";
+import Image from "next/image";
 
 export function ProfileForm({
     isOpen,
@@ -163,7 +164,7 @@ export function ProfileForm({
                             />
                             {form.image && (
                                 <div className="mt-2 flex justify-center">
-                                    <img src={formatImageUrl(form.image)} alt="Preview" className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
+                                    <Image src={formatImageUrl(form.image)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
                                 </div>
                             )}
                         </div>

@@ -8,6 +8,7 @@ import { EmployeeForm } from "@/components/Form/employeeForm";
 import Loader from "@/components/Loader/loader";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
+import Image from 'next/image';
 
 export default function EmployeeDetail({ params }) {
     const { id } = React.use(params);
@@ -44,7 +45,7 @@ export default function EmployeeDetail({ params }) {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
 
@@ -94,7 +95,7 @@ export default function EmployeeDetail({ params }) {
 
             <div className="w-full bg-white p-4 rounded-xl grid grid-cols-3 gap-4">
                 <div className="col-span-1 flex items-center justify-center">
-                    <img src={employee.image} alt="avatar" className="w-80 aspect-square object-cover rounded-full border border-black" />
+                    {employee.image && <Image src={employee.image} alt="avatar" className="w-80 aspect-square object-cover rounded-full border border-black" width={400} height={400} />}
                 </div>
                 <div className="col-span-1">
                     <h1 className="text-2xl font-bold mb-4">Thông tin nhân viên</h1>

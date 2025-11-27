@@ -3,6 +3,7 @@ import { Modal } from "@mui/material";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 import { supplierService } from "@/services/supplier.service";
 import { customerService } from "@/services/customer.service";
+import Image from "next/image";
 
 export function ContractForm({
   isOpen,
@@ -259,7 +260,7 @@ export function ContractForm({
               />
               {form.image && (
                 <div className="mt-2">
-                  <img src={formatImageURL(form.image)} alt="Preview" className="w-full h-auto" />
+                  <Image src={formatImageURL(form.image)} alt="Preview" width={400} height={400} className="w-full h-auto"/>
                 </div>
               )}
             </div>

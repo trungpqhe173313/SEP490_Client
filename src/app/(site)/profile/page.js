@@ -41,11 +41,14 @@ export default function ProfilePage() {
   }, [pageReady]);
 
   const fetchProfile = async () => {
+    setLoading(true)
     try {
       const response = await authService.getProfile();
       setProfile(response.data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -96,7 +99,9 @@ export default function ProfilePage() {
 
       <div className="w-full bg-white p-4 rounded-xl grid grid-cols-3 gap-4">
         <div className="col-span-1 flex flex-col items-center justify-center gap-4">
-          <img src={profile.image} alt="avatar" className="w-80 aspect-square object-cover rounded-full border border-black" />
+          {profile.image &&
+            <Image src={profile.image} alt="avatar" className="w-80 aspect-square object-cover rounded-full border border-black" width={600} height={600} />
+          }
           <div className="flex gap-4">
             <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalProfileOpen(true)}>Chỉnh sửa hồ sơ</button>
             <button className='bg-blue-600 text-white px-4 py-2 rounded-md' onClick={() => setModalPasswordOpen(true)}>Đổi mật khẩu</button>

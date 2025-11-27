@@ -5,6 +5,7 @@ import { useLoading } from '@/context/LoadingContext';
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
+import Image from 'next/image';
 
 export default function ContractDetails({ params }) {
     const { id } = React.use(params);
@@ -133,9 +134,9 @@ export default function ContractDetails({ params }) {
                         </tr>
                     </tbody>
                 </table>
-                {showImage &&
+                {showImage && contract.image &&
                     <div className='w-full bg-white p-4 rounded-xl'>
-                        <img src={contract?.image} className='h-screen w-auto mx-auto border-1 border-black rounded-xl' alt="Ảnh hợp đồng" />
+                        <Image src={contract?.image} alt="Ảnh hợp đồng" width={500} height={500} className='h-screen w-auto mx-auto border-1 border-black rounded-xl'/>
                     </div>
                 }
             </div>

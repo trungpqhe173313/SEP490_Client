@@ -1,6 +1,7 @@
 import { Card, CardContent, IconButton } from "@mui/material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import Image from "next/image";
 
 
 const team = [
@@ -61,9 +62,11 @@ const AboutUs = () => {
             >
               <CardContent className="p-0">
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src={member.image} 
+                  <Image 
+                    src={member.image}
                     alt={`${member.name} - ${member.role}`}
+                    width={400}
+                    height={400}
                     className="w-full h-full object-cover transition-transform duration-300"
                   />
                 </div>
