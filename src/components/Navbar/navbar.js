@@ -30,6 +30,7 @@ import AddchartIcon from '@mui/icons-material/Addchart';
 import ForestIcon from '@mui/icons-material/Forest';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AirportShuttleIcon from '@mui/icons-material/AirportShuttle';
+import AssignmentAddIcon from '@mui/icons-material/AssignmentAdd';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import BentoIcon from '@mui/icons-material/Bento';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
@@ -104,18 +105,24 @@ const Navbar = () => {
           role: ["Manager"],
           icon: <AccessibilityNewIcon />
         },
+        {
+          name: "Chấm công",
+          link: "/worklogs",
+          role: ["Manager"],
+          icon: <CalendarMonthIcon />
+        },
         // {
         //   name: "Chấm công",
-        //   link: "/worklogs",
-        //   role: "all",
+        //   link: "/worklogs/check-in",
+        //   role: ["Manager"],
         //   icon: <CalendarMonthIcon />
         // },
-        // {
-        //   name: "Bảng lương",
-        //   link: "/salaries",
-        //   role: "all",
-        //   icon: <AddchartIcon />
-        // }
+        {
+          name: "Bảng lương",
+          link: "/payrolls",
+          role: ["Manager"],
+          icon: <AddchartIcon />
+        }
       ],
     },
     {

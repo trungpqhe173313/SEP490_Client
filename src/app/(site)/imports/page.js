@@ -8,12 +8,12 @@ import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
-import { formatDateToInput } from '@/lib/formatDateToInput';
+import { formatDateToInput } from '@/lib/formattingLib';
 import DateInput from "@/components/Input/DateInput";
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
-import { getImportStatus, getImportStatusText } from "@/lib/getImportStatus";
+import { getImportStatus, getImportStatusText } from "@/lib/getStatus";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import ImportResultModal from "@/components/Modal/importResultModal";

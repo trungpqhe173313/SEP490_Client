@@ -2,7 +2,7 @@
 import { contractService } from "@/services/contract.service";
 import { customerService } from "@/services/customer.service";
 import { supplierService } from "@/services/supplier.service";
-import { formatDateToInput } from '@/lib/formatDateToInput';
+import { formatDateToInput } from '@/lib/formattingLib';
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";

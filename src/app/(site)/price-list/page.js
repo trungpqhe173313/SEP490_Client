@@ -10,7 +10,7 @@ import { useRef } from "react";
 import { PriceListForm } from "@/components/Form/priceListForm";
 import TableCommon from "@/components/Table/table";
 import Loader from "@/components/Loader/loader";
-import { formatDateToInput } from '@/lib/formatDateToInput';
+import { formatDateToInput } from '@/lib/formattingLib';
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";

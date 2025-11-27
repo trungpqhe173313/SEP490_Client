@@ -2,14 +2,13 @@
 import React, { useState, useEffect } from 'react'
 import { importService } from '@/services/import.service';
 import { numberToVietnamese } from '@/lib/numberToVietnamese';
-import { convertKgToTon } from '@/lib/convertToTon';
+import { convertKgToTon, formatLargeNumber } from '@/lib/formattingLib';
 import { useLoading } from '@/context/LoadingContext';
 import TableCommon from "@/components/Table/table";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
-import { getImportStatus } from '@/lib/getImportStatus';
-import { formatLargeNumber } from '@/lib/formatLargeNumber';
+import { getImportStatus } from '@/lib/getStatus';
 import { TableRow, TableCell } from '@mui/material';
 import SuccessModal from '@/components/Modal/successModal';
 import FailedModal from '@/components/Modal/failedModal';

@@ -10,8 +10,8 @@ import DateInput from "@/components/Input/DateInput";
 
 import TableCommon from "@/components/Table/table";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
-import { getProductionStatus, getProductionStatusText } from '@/lib/getProductionStatus';
-import { formatDateToInput } from '@/lib/formatDateToInput';
+import { getProductionStatus, getProductionStatusText } from '@/lib/getStatus';
+import { formatDateToInput } from '@/lib/formattingLib';
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Modal } from "@mui/material";
 import { priceListService } from "@/services/priceList.service";
 import { supplierService } from '@/services/supplier.service';
-import { formatDateToInput } from '@/lib/formatDateToInput';
+import { formatDateToInput } from '@/lib/formattingLib';
 import DateInput from '../Input/DateInput';
 
 export function PriceListForm({

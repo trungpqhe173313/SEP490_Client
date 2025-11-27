@@ -6,7 +6,7 @@ import TableCommon from "@/components/Table/table";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
-import { formatLargeNumber } from '@/lib/formatLargeNumber';
+import { formatLargeNumber } from '@/lib/formattingLib';
 
 export default function PriceDetail({ params }) {
     const { loading, setLoading } = useLoading();

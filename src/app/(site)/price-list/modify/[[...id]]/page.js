@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { priceListService } from '@/services/priceList.service';
 import { productService } from '@/services/product.service';
-import { formatLargeNumber } from '@/lib/formatLargeNumber';
+import { formatLargeNumber } from '@/lib/formattingLib';
 
 import { useLoading } from '@/context/LoadingContext';
 import { useLogin } from '@/context/LoginContext';

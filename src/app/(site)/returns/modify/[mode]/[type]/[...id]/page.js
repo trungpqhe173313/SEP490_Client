@@ -24,7 +24,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { formatLargeNumber } from '@/lib/formatLargeNumber';
+import { formatLargeNumber } from '@/lib/formattingLib';
 
 
 export default function Returns({ params }) {

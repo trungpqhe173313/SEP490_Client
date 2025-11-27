@@ -1,15 +1,14 @@
 'use client';
 import React, { useState, useEffect } from 'react'
 import { customerOrderService } from '@/services/customerOrder.service';
-import { getExportStatus } from '@/lib/getExportStatus';
+import { getExportStatus } from '@/lib/getStatus';
 import { numberToVietnamese } from '@/lib/numberToVietnamese';
-import { convertKgToTon } from '@/lib/convertToTon';
+import { convertKgToTon, formatLargeNumber } from '@/lib/formattingLib';
 import { useLoading } from '@/context/LoadingContext';
 import TableCommon from "@/components/Table/table";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
-import { formatLargeNumber } from '@/lib/formatLargeNumber';
 import { TableRow, TableCell } from '@mui/material';
 
 export default function ExportDetail({ params }) {
