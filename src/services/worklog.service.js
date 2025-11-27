@@ -2,7 +2,7 @@ import API from "@/utils/axios";
 
 export const worklogService = {
     getAllWorklogs: async (data) => {
-        const response = await API.post('/worklogs/GetData', data);
+        const response = await API.post('/worklogs/GetDataByDate', data);
         return response.data;
     },
     getWorklogById: async (id) => {
@@ -15,6 +15,10 @@ export const worklogService = {
     },
     updateWorklog: async (data) => {
         const response = await API.put(`/worklogs/update`, data);
+        return response.data;
+    },
+    checkIn: async (data) => {
+        const response = await API.post('/worklogs/confirm', data);
         return response.data;
     },
 }

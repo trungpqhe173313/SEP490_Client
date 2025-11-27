@@ -129,11 +129,11 @@ export const getProductionStatusText = (status) => {
 export const getTransferStatus = (status) => {
     if (!status && status !== 0) return <p className="text-black">Không có trạng thái</p>
     switch (status) {
-        case 1:
+        case 9:
             return <p className="text-yellow-600">Đang vận chuyển</p>
-        case 2:
+        case 10:
             return <p className="text-green-600">Đã vận chuyển</p>
-        case 3:
+        case 6:
             return <p className="text-red-600">Đã hủy</p>
         default:
             return <p className="text-black">{status}: Không rõ</p>
@@ -143,11 +143,11 @@ export const getTransferStatus = (status) => {
 export const getTransferStatusText = (status) => {
     if (!status && status !== 0) return "Không có trạng thái"
     switch (status) {
-        case 1:
+        case 9:
             return "Đang vận chuyển"
-        case 2:
+        case 10:
             return "Đã vận chuyển"
-        case 3:
+        case 6:
             return "Đã hủy"
         default:
             return `${status}: Không rõ`

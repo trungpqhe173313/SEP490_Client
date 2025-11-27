@@ -256,7 +256,6 @@ export default function UpdateImport({ params }) {
                 supplierId: selectedSupplier.supplierId,
                 expireDate: expireDate,
                 note: note,
-                totalCost: totalCost,
                 products: cart
                     .filter((r) => r.importQuantity !== 0 && r.unitPrice !== 0)
                     .map((r) => ({
@@ -287,7 +286,6 @@ export default function UpdateImport({ params }) {
                         unitPrice: r.unitPrice
                     })),
                 expireDate: expireDate,
-                totalCost: totalCost,
                 note: note
             }
             await importService.updateImport(id, body)

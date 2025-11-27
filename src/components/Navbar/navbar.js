@@ -197,7 +197,7 @@ const Navbar = () => {
         },
         {
           name: "Chuyển kho",
-          link: "/transfers",
+          link: "/transfer",
           role: ["Manager"],
           icon: <SyncAltIcon />
         }

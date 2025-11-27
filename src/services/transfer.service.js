@@ -17,6 +17,10 @@ export const transferService = {
         const response = await API.put(`/stocktransfer/UpdateTransferOrder/${id}`, data);
         return response.data;
     },
+    completeTransfer: async (id) => {
+        const response = await API.put(`/stocktransfer/UpdateToTransferredStatus/${id}`);
+        return response.data;  
+    },
     cancelTransfer: async (id) => {
         const response = await API.put(`/stocktransfer/CancelTransferOrder/${id}`);
         return response.data;

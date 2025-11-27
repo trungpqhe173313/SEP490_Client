@@ -97,6 +97,50 @@ export default function Worklog() {
         }
     };
 
+    const fetchEmployeeList = () => {
+        if (!worklogData || worklogData.length === 0) {
+            setEmployeeList([]);
+            return;
+        }
+
+        // Group worklogData by employeeId
+        const employeeMap = {};
+
+        worklogData.forEach((entry) => {
+            if (!employeeMap[entry.employeeId]) {
+                employeeMap[entry.employeeId] = {
+                    userId: entry.employeeId,
+                    fullName: entry.employeeName,
+                    phone: getPhone(entry.employeeId),
+                    job: [],
+                    quantity: 1,
+                    note: "",
+                    isActive: entry.isActive
+                };
+            }
+            // Add jobId to job array if not present
+            if (!employeeMap[entry.employeeId].job.includes(entry.jobId)) {
+                employeeMap[entry.employeeId].job.push(entry.jobId);
+            }
+            // If jobId is 2 (Bốc vác), set quantity
+            if (entry.jobId === 2) {
+                employeeMap[entry.employeeId].quantity = entry.quantity;
+            }
+            // Prefer note from job 2, else from job 1
+            if (entry.note && entry.note !== "") {
+                employeeMap[entry.employeeId].note = entry.note;
+            }
+        });
+
+        setEmployeeList(Object.values(employeeMap));
+    };
+
+    useEffect(() => {
+        if (worklogData && employees && employees.length > 0) {
+            fetchEmployeeList();
+        }
+    }, [worklogData, employees]);
+
     const fetchEmployees = async () => {
         try {
             const body = {
@@ -177,6 +221,11 @@ export default function Worklog() {
         setFilteredEmployees(filtered);
     };
 
+    const getPhone = (id) => {
+        const employee = employees.find((emp) => emp.userId === id);
+        return employee?.phone
+    }
+
     const validation = () => {
         if (!pageReady) return
         if (employeeList.length === 0) {
@@ -204,66 +253,89 @@ export default function Worklog() {
     }, [employeeList]);
 
 
-    const handleCreate = async () => {
-        if (!validation()) return;
+    const handleSubmit = async () => {
+        if (!validation() || employeeList.length === 0) return;
         setLoading(true);
-        try {
-            employeeList.map(async (employee) => {
-                const body = {
-                    employeeId: employee.userId,
-                    workDate: selectedDate,
-                    jobs: employee.job.map((job) => ({
-                        jobId: job,
-                        quantity: job === 2 ? parseInt(employee.quantity) : 1,
-                        note: employee.note
-                    }))
-                }
-                await worklogService.createWorklog(body);
-            });
-            await fetchWorklog(selectedDate);
-            setModalSuccessMessage("Phân công thành công");
-            setModalSuccessOpen(true);
-        } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
-            setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
-            setModalFailedOpen(true);
-        }
-        finally {
-            setLoading(false);
-        }
-    };
 
-    const handleUpdate = async () => {
-        if (!validation() || worklogData.length === 0) return;
-        setLoading(true);
         try {
-            employeeList.map(async (employee) => {
-                if (worklogData.find((worklog) => worklog.userId === employee.userId)) {
-                    const body = {
-                        employeeId: employee.userId,
-                        workDate: selectedDate,
-                        jobs: employee.job.map((job) => ({
+            const promises = [];
+
+            employeeList.filter(employee => !employee.isActive).forEach(employee => {
+                const existed = worklogData.filter(w => w.employeeId === employee.userId);
+
+                // Build the jobs array only once
+                const jobsPayload = employee.job.map(job => ({
+                    jobId: job,
+                    quantity: job === 2 ? parseInt(employee.quantity) : 1,
+                    note: employee.note
+                }));
+
+                if (existed.length > 0) {
+                    // Existing employee: update existing jobs, create new jobs if needed
+                    employee.job.forEach(job => {
+                        const jobExisted = existed.find(w => w.jobId === job);
+                        const body = {
+                            employeeId: employee.userId,
+                            workDate: selectedDate,
                             jobId: job,
                             quantity: job === 2 ? parseInt(employee.quantity) : 1,
                             note: employee.note
-                        }))
-                    }
-                    await worklogService.updateWorklog(body);
+                        };
+                        if (jobExisted) {
+                            // Update existing job
+                            promises.push(worklogService.updateWorklog(body));
+                        } else {
+                            // Create new job for this employee
+                            promises.push(worklogService.createWorklog({
+                                employeeId: employee.userId,
+                                workDate: selectedDate,
+                                jobs: [{
+                                    jobId: job,
+                                    quantity: job === 2 ? parseInt(employee.quantity) : 1,
+                                    note: employee.note
+                                }]
+                            }));
+                        }
+                    });
                 } else {
+                    // New employee: create all jobs
                     const body = {
                         employeeId: employee.userId,
                         workDate: selectedDate,
-                        jobs: employee.job.map((job) => ({
-                            jobId: job,
-                            quantity: job === 2 ? parseInt(employee.quantity) : 1,
-                            note: employee.note
-                        }))
-                    }
-                    await worklogService.createWorklog(body);
+                        jobs: jobsPayload
+                    };
+                    promises.push(worklogService.createWorklog(body));
                 }
             });
+
+            // FAIL ALL IF ANY REQUEST FAILS
+            await Promise.all(promises);
+
             await fetchWorklog(selectedDate);
-            setModalSuccessMessage("Chỉnh sửa chấm công thành công");
+            setModalSuccessMessage("Lưu chấm công thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            setModalFailedMessage(
+                `Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`
+            );
+            setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCheckIn = async (id) => {
+        if (!selectedDate) return;
+        setLoading(true);
+        try {
+            const body = {
+                employeeId: id,
+                workDate: selectedDate
+            }
+            await worklogService.checkIn(body);
+            await fetchWorklog(selectedDate);
+            setModalSuccessMessage("Chấm công thanh công");
             setModalSuccessOpen(true);
         } catch (error) {
             setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
@@ -273,10 +345,6 @@ export default function Worklog() {
         finally {
             setLoading(false);
         }
-    };
-
-    const handleCheckIn = async () => {
-        if (!pageReady) return;
     };
 
     const removeLeadingZero = (number) => {
@@ -314,13 +382,14 @@ export default function Worklog() {
                                     <TableCell sx={{ color: "white" }} align="center">Công việc</TableCell>
                                     <TableCell sx={{ color: "white" }} align="center">Số lượng bốc vác (tấn)</TableCell>
                                     <TableCell sx={{ color: "white" }} align="center">Ghi chú</TableCell>
+                                    <TableCell sx={{ color: "white" }} align="center">Trạng thái</TableCell>
                                     <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {employeeList.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} align="center">
+                                        <TableCell colSpan={8} align="center">
                                             <p className="text-lg my-10">
                                                 Chưa có chấm công
                                             </p>
@@ -342,6 +411,7 @@ export default function Worklog() {
                                                             <input
                                                                 type="checkbox"
                                                                 value={job.jobId}
+                                                                disabled={employee.isActive}
                                                                 checked={employee.job.includes(job.jobId)}
                                                                 onChange={() => handleCheckboxChange(employee.userId, job.jobId)}
                                                                 className="w-6 h-6 accent-green-600 cursor-pointer"
@@ -355,7 +425,7 @@ export default function Worklog() {
                                                 <TextField
                                                     type="number"
                                                     size="small"
-                                                    disabled={!employee.job.includes(2)}
+                                                    disabled={!employee.job.includes(2) || employee.isActive}
                                                     inputProps={{
                                                         min: 0,
                                                         style: {
@@ -374,16 +444,26 @@ export default function Worklog() {
                                                 <textarea
                                                     className="w-full h-10 p-2 border border-gray-300 rounded-md"
                                                     value={employee.note}
+                                                    disabled={employee.isActive}
                                                     onChange={(e) => handleChangeEmployeeList(employee.userId, "note", e.target.value)}
                                                 />
                                             </TableCell>
+                                            <TableCell align="center">{employee.isActive ? <p className="text-green-600">Đã chấm công</p> : <p className="text-red-600">Chưa chấm công</p>}</TableCell>
                                             <TableCell align="center">
-                                                {worklogData.length > 0 ? (
-                                                    <button
-                                                        className="bg-cyan-600 px-4 py-2 text-white rounded-md"
-                                                        onClick={() => { setModalOpen(true); setSelectedEmployee(employee) }}>
-                                                        Chấm công
-                                                    </button>
+                                                {worklogData.find(w => w.employeeId === employee.userId) ? (
+                                                    !employee.isActive ?
+                                                        <button
+                                                            className="bg-cyan-600 px-4 py-2 text-white rounded-md"
+                                                            onClick={() => { handleCheckIn(employee.userId) }}
+                                                        >
+                                                            Chấm công
+                                                        </button> :
+                                                        <button
+                                                            className="bg-green-600 px-4 py-2 text-white rounded-md"
+                                                            disabled
+                                                        >
+                                                            Đã chấm công
+                                                        </button>
                                                 ) : (
                                                     <IconButton
                                                         size="small"
@@ -407,13 +487,13 @@ export default function Worklog() {
                         {worklogData.length > 0 ?
                             <button
                                 className="bg-yellow-500 px-4 py-2 text-white rounded-xl"
-                                onClick={handleUpdate}
+                                onClick={handleSubmit}
                             >
                                 Hoàn thành chỉnh sửa
                             </button>
                             : <button
                                 className="background-primary background-hovered px-4 py-2 text-white rounded-xl"
-                                onClick={handleCreate}
+                                onClick={handleSubmit}
                             >
                                 Chấm công
                             </button>}

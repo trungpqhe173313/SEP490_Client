@@ -4,8 +4,10 @@ export const Calendar = ({ value, onChange }) => {
     // Expect "value" to be a Date()
     const selectedDate = value instanceof Date ? value : new Date();
 
-    const month = selectedDate.getMonth();
-    const year = selectedDate.getFullYear();
+    const month = selectedDate.getUTCMonth();
+    const year = selectedDate.getUTCFullYear();
+    const day = selectedDate.getUTCDate();
+
 
     const weekdays = ["CN", "Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy"];
 
@@ -21,17 +23,17 @@ export const Calendar = ({ value, onChange }) => {
     const offset = firstDay === 0 ? 6 : firstDay - 1;
 
     const changeMonth = (newMonth) => {
-        const updated = new Date(year, newMonth, selectedDate.getDate());
+        const updated = new Date(Date.UTC(year, newMonth, selectedDate.getUTCDate()));
         onChange(updated);
     };
 
     const changeYear = (newYear) => {
-        const updated = new Date(newYear, month, selectedDate.getDate());
+        const updated = new Date(Date.UTC(newYear, month, selectedDate.getUTCDate()));
         onChange(updated);
     };
 
     const selectDay = (day) => {
-        const updated = new Date(year, month, day);
+        const updated = new Date(Date.UTC(year, month, day));
         onChange(updated);
     };
 
@@ -41,7 +43,11 @@ export const Calendar = ({ value, onChange }) => {
 
     for (let d = 1; d <= daysInMonth; d++) {
         const isSelected = d === selectedDate.getDate();
-        const isToday = d === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
+        const now = new Date();
+        const isToday =
+            d === now.getUTCDate() &&
+            month === now.getUTCMonth() &&
+            year === now.getUTCFullYear();
 
         dayCells.push(
             <div
