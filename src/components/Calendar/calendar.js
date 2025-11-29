@@ -37,6 +37,16 @@ export const Calendar = ({ value, onChange }) => {
         onChange(updated);
     };
 
+    const nextMonth = () => {
+        const updated = new Date(Date.UTC(year, month + 1, 1));
+        onChange(updated);
+    };
+
+    const prevMonth = () => {
+        const updated = new Date(Date.UTC(year, month - 1, 1));
+        onChange(updated);
+    };
+
     const dayCells = [];
 
     for (let i = 0; i < offset; i++) dayCells.push(<div key={"e" + i} />);
@@ -69,26 +79,38 @@ export const Calendar = ({ value, onChange }) => {
 
     return (
         <div className="p-4 flex flex-col items-center gap-4 rounded-xl bg-white">
-            <div className="flex gap-4">
-                <select
-                    value={month}
-                    onChange={(e) => changeMonth(Number(e.target.value))}
-                    className="px-4 py-2 rounded-lg background-primary text-white"
-                >
-                    {months.map((m, i) => (
-                        <option key={i} value={i}>{m}</option>
-                    ))}
-                </select>
+            <div className="flex justify-between px-2 w-full">
+                <button onClick={prevMonth} className="px-4 py-2 rounded-lg background-primary text-white" >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <div className="flex gap-2">
+                    <select
+                        value={month}
+                        onChange={(e) => changeMonth(Number(e.target.value))}
+                        className="px-4 py-2 rounded-lg background-primary text-white"
+                    >
+                        {months.map((m, i) => (
+                            <option key={i} value={i}>{m}</option>
+                        ))}
+                    </select>
 
-                <select
-                    value={year}
-                    onChange={(e) => changeYear(Number(e.target.value))}
-                    className="px-4 py-2 rounded-lg background-primary text-white"
-                >
-                    {Array.from({ length: 11 }, (_, i) => year - 5 + i).map((y) => (
-                        <option key={y} value={y}>{y}</option>
-                    ))}
-                </select>
+                    <select
+                        value={year}
+                        onChange={(e) => changeYear(Number(e.target.value))}
+                        className="px-4 py-2 rounded-lg background-primary text-white"
+                    >
+                        {Array.from({ length: 11 }, (_, i) => year - 5 + i).map((y) => (
+                            <option key={y} value={y}>{y}</option>
+                        ))}
+                    </select>
+                </div>
+                <button onClick={nextMonth} className="px-4 py-2 rounded-lg background-primary text-white" >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
             </div>
 
             <div className="grid grid-cols-7 gap-2">

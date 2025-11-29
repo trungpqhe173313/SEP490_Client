@@ -25,7 +25,7 @@ export default function EmployeeDetail({ params }) {
     const [employee, setEmployee] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Manager"];
+    const pageRole = ["Admin"];
 
     // Check authorization
     useEffect(() => {

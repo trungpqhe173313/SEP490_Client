@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
 import TableCommon from "@/components/Table/table";
 

@@ -33,7 +33,7 @@ export default function Employees() {
     const [rowPerPage, setRowPerPage] = useState(20);
     const [totalCount, setTotalCount] = useState(0);
 
-    const pageRole = ["Manager"];
+    const pageRole = ["Admin"];
     const { loading, setLoading } = useLoading();
     const { isLogin, user, refreshUserInfo } = useLogin();
     const router = useRouter();

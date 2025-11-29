@@ -16,6 +16,7 @@ export default function LoginPage() {
     password: ""
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [roles, setRoles] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showFailedModal, setShowFailedModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -51,7 +52,7 @@ export default function LoginPage() {
 
         // Refresh user info in context
         refreshUserInfo();
-
+        setRoles(response.data.userInfo.roles);
         setModalMessage("Đăng nhập thành công!");
         setShowSuccessModal(true);
 
@@ -81,6 +82,23 @@ export default function LoginPage() {
       setShowFailedModal(true);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleExit = () => {
+    switch (roles[0]) {
+      case 'Admin':
+        router.push('/dashboard');
+        break;
+      case 'Manager':
+        router.push('/worklogs');
+        break;
+      case 'Customer':
+        router.push('/order-history');
+        break;
+      default:
+        router.push('/');
+        break;
     }
   };
 
@@ -168,7 +186,7 @@ export default function LoginPage() {
       <SuccessModal
         isOpen={showSuccessModal}
         message={modalMessage}
-        onClose={() => { setShowSuccessModal(false), router.push("/") }}
+        onClose={() => { setShowSuccessModal(false), handleExit() }}
       />
 
       <FailedModal

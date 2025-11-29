@@ -102,7 +102,7 @@ const Navbar = () => {
         {
           name: "Nhân viên",
           link: "/employees",
-          role: ["Manager"],
+          role: ["Admin"],
           icon: <AccessibilityNewIcon />
         },
         {

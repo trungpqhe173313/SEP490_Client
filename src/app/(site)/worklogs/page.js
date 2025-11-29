@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { employeeService } from "@/services/employee.service";
 import { worklogService } from "@/services/worklog.service";
+import { jobService } from "@/services/job.service";
 
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
@@ -13,12 +14,11 @@ import {
     TableHead,
     TableRow,
     Paper,
-    IconButton,
     TextField,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
+import ConfirmModal from "@/components/Modal/confirmModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
 import { Calendar } from "@/components/Calendar/calendar";
@@ -28,7 +28,7 @@ export default function Worklog() {
     const { isLogin, user, refreshUserInfo } = useLogin();
     const { loading, setLoading } = useLoading();
 
-    const jobs = [{ jobId: 1, jobName: "Lái xe" }, { jobId: 2, jobName: "Bốc vác" }];
+    const [jobs, setJobs] = useState([]);
 
     const [employeeList, setEmployeeList] = useState([]);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -43,6 +43,9 @@ export default function Worklog() {
 
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
+
+    const [modalConfirmOpen, setModalConfirmOpen] = useState(false);
+    const [modalConfirmMessage, setModalConfirmMessage] = useState("");
 
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
@@ -141,6 +144,15 @@ export default function Worklog() {
         }
     }, [worklogData, employees]);
 
+    const fetchJobs = async () => {
+        try {
+            const response = await jobService.getAllJobs();
+            setJobs(response.data.filter(job => job.isActive));
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const fetchEmployees = async () => {
         try {
             const body = {
@@ -195,13 +207,6 @@ export default function Worklog() {
         setEmployeeList(updatedEmployeeList);
     };
 
-    const handleRemoveEmployeeList = (id) => {
-        const updatedEmployeeList = employeeList.filter(
-            (employee) => employee.userId !== id
-        );
-        setEmployeeList(updatedEmployeeList);
-    };
-
     const removeVietnameseTones = (str) => {
         return str
             .normalize("NFD")
@@ -226,93 +231,32 @@ export default function Worklog() {
         return employee?.phone
     }
 
-    const validation = () => {
-        if (!pageReady) return
-        if (employeeList.length === 0) {
-            setErrors("Danh sách nhân viên không được để trống");
-            return false;
-        }
-        if (employeeList.find((employee) => employee.job.length === 0)) {
-            setErrors("Có nhân viên chưa được giao việc");
-            return false;
-        }
-        if (employeeList.find((employee) => employee.job.includes(2) && employee.quantity === 0)) {
-            setErrors("Số lượng bốc vác phải khác 0");
-            return false;
-        }
-        if (employeeList.find((employee) => employee.quantity < 0)) {
-            setErrors("Số lượng bốc vác không thể là số âm");
-            return false;
-        }
-        setErrors("");
-        return true;
-    }
-
-    useEffect(() => {
-        validation();
-    }, [employeeList]);
-
-
-    const handleSubmit = async () => {
-        if (!validation() || employeeList.length === 0) return;
+    const handleCreate = async (employee) => {
         setLoading(true);
-
+        if (employee.job.length === 0) {
+            setModalFailedMessage(`Lỗi: Nhân viên này chưa được giao việc`);
+            setModalFailedOpen(true);
+            return;
+        }
+        if (employee.job.includes(2) && (employee.quantity === 0 || employee.quantity < 0)) {
+            setModalFailedMessage(`Lỗi: Số lượng bốc vác không hợp lệ`);
+            setModalFailedOpen(true);
+            return;
+        }
         try {
-            const promises = [];
-
-            employeeList.filter(employee => !employee.isActive).forEach(employee => {
-                const existed = worklogData.filter(w => w.employeeId === employee.userId);
-
-                // Build the jobs array only once
-                const jobsPayload = employee.job.map(job => ({
-                    jobId: job,
-                    quantity: job === 2 ? parseInt(employee.quantity) : 1,
-                    note: employee.note
-                }));
-
-                if (existed.length > 0) {
-                    // Existing employee: update existing jobs, create new jobs if needed
-                    employee.job.forEach(job => {
-                        const jobExisted = existed.find(w => w.jobId === job);
-                        const body = {
-                            employeeId: employee.userId,
-                            workDate: selectedDate,
-                            jobId: job,
-                            quantity: job === 2 ? parseInt(employee.quantity) : 1,
-                            note: employee.note
-                        };
-                        if (jobExisted) {
-                            // Update existing job
-                            promises.push(worklogService.updateWorklog(body));
-                        } else {
-                            // Create new job for this employee
-                            promises.push(worklogService.createWorklog({
-                                employeeId: employee.userId,
-                                workDate: selectedDate,
-                                jobs: [{
-                                    jobId: job,
-                                    quantity: job === 2 ? parseInt(employee.quantity) : 1,
-                                    note: employee.note
-                                }]
-                            }));
-                        }
-                    });
-                } else {
-                    // New employee: create all jobs
-                    const body = {
-                        employeeId: employee.userId,
-                        workDate: selectedDate,
-                        jobs: jobsPayload
-                    };
-                    promises.push(worklogService.createWorklog(body));
-                }
-            });
-
-            // FAIL ALL IF ANY REQUEST FAILS
-            await Promise.all(promises);
-
+            const jobsPayload = employee.job.map(job => ({
+                jobId: job,
+                quantity: job === 2 ? parseInt(employee.quantity) : 1,
+                note: employee.note
+            }));
+            const body = {
+                employeeId: employee.userId,
+                workDate: selectedDate,
+                jobs: jobsPayload
+            };
+            await worklogService.createWorklog(body);
             await fetchWorklog(selectedDate);
-            setModalSuccessMessage("Lưu chấm công thành công");
+            setModalSuccessMessage("Tạo công thành công");
             setModalSuccessOpen(true);
         } catch (error) {
             setModalFailedMessage(
@@ -325,17 +269,73 @@ export default function Worklog() {
         }
     };
 
-    const handleCheckIn = async (id) => {
+    const handleUpdate = async (employee) => {
+        if (employee.job.length === 0) {
+            setSelectedEmployee(employee);
+            setModalConfirmMessage(`Công việc đang trống, lưu thay đổi sẽ xóa công của nhân viên ${employee.fullName}`);
+            setModalConfirmOpen(true);
+            return;
+        }
+        if (employee.job.includes(2) && employee.quantity <= 0) {
+            setModalFailedMessage(`Lỗi: Số lượng bốc vác không hợp lệ`);
+            setModalFailedOpen(true);
+            return;
+        }
+        await handleConfirmUpdate(employee, true);
+    }
+
+    const handleConfirmUpdate = async (employee, modal) => {
+        setLoading(true);
+        try {
+            const jobsPayload = employee.job.length === 0 ? [] : employee.job.map(job => ({
+                jobId: job,
+                quantity: job === 2 ? parseInt(employee.quantity) : 1,
+                note: employee.note
+            }));
+            const body = {
+                employeeId: employee.userId,
+                workDate: selectedDate,
+                jobs: jobsPayload
+            };
+            await worklogService.updateWorklog(body);
+            await fetchWorklog(selectedDate);
+            if (modal === true) {
+                setModalSuccessMessage("Chỉnh sửa chấm công thành công");
+                setModalSuccessOpen(true);
+            }
+        } catch (error) {
+            setModalFailedMessage(
+                `Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`
+            );
+            setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleCheckIn = async (employee) => {
         if (!selectedDate) return;
+        if (employee.job.length === 0) {
+            setModalFailedMessage(`Lỗi: Nhân viên chưa được phân công`);
+            setModalFailedOpen(true);
+            return;
+        }
+        if (employee.job.includes(2) && employee.quantity <= 0) {
+            setModalFailedMessage(`Lỗi: Số lượng bốc vác không hợp lệ`);
+            setModalFailedOpen(true);
+            return;
+        }
+        await handleConfirmUpdate(employee, false);
         setLoading(true);
         try {
             const body = {
-                employeeId: id,
+                employeeId: employee.userId,
                 workDate: selectedDate
             }
             await worklogService.checkIn(body);
             await fetchWorklog(selectedDate);
-            setModalSuccessMessage("Chấm công thanh công");
+            setModalSuccessMessage("Chấm công thành công");
             setModalSuccessOpen(true);
         } catch (error) {
             setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
@@ -355,6 +355,7 @@ export default function Worklog() {
     useEffect(() => {
         if (!pageReady) return;
         fetchEmployees();
+        fetchJobs();
     }, [pageReady]);
 
     useEffect(() => {
@@ -401,22 +402,22 @@ export default function Worklog() {
                                             <TableCell align="center">{employee.userId}</TableCell>
                                             <TableCell align="center">{employee.fullName}</TableCell>
                                             <TableCell align="center">{employee.phone}</TableCell>
-                                            <TableCell align="center">
-                                                <div className="flex flex-row items-center gap-4 justify-center">
+                                            <TableCell align="center" sx={{ width: '12rem' }}>
+                                                <div className="flex flex-row items-center justify-center flex-wrap">
                                                     {jobs.map((job) => (
                                                         <label
-                                                            key={job.jobId}
-                                                            className="flex items-center my-2 rounded-xl cursor-pointer gap-2"
+                                                            key={job.id}
+                                                            className="flex items-center my-1 rounded-xl cursor-pointer gap-2 w-full"
                                                         >
                                                             <input
                                                                 type="checkbox"
-                                                                value={job.jobId}
+                                                                value={job.id}
                                                                 disabled={employee.isActive}
-                                                                checked={employee.job.includes(job.jobId)}
-                                                                onChange={() => handleCheckboxChange(employee.userId, job.jobId)}
+                                                                checked={employee.job.includes(job.id)}
+                                                                onChange={() => handleCheckboxChange(employee.userId, job.id)}
                                                                 className="w-6 h-6 accent-green-600 cursor-pointer"
                                                             />
-                                                            <span className="text-md">{job.jobName}</span>
+                                                            <span className="text-sm">{job.jobName}</span>
                                                         </label>
                                                     ))}
                                                 </div>
@@ -448,30 +449,40 @@ export default function Worklog() {
                                                     onChange={(e) => handleChangeEmployeeList(employee.userId, "note", e.target.value)}
                                                 />
                                             </TableCell>
-                                            <TableCell align="center">{employee.isActive ? <p className="text-green-600">Đã chấm công</p> : <p className="text-red-600">Chưa chấm công</p>}</TableCell>
-                                            <TableCell align="center">
+                                            <TableCell align="center" sx={{ width: '10rem' }}>{employee.isActive ? <p className="text-green-600">Đã chấm công</p> : <p className="text-red-600">Chưa chấm công</p>}</TableCell>
+                                            <TableCell align="center" sx={{ width: '10rem' }}>
                                                 {worklogData.find(w => w.employeeId === employee.userId) ? (
                                                     !employee.isActive ?
+                                                        <div className="flex flex-col gap-1">
+                                                            <button
+                                                                className="bg-cyan-600 px-4 py-2 text-white rounded-md"
+                                                                onClick={() => { handleUpdate(employee) }}
+                                                            >
+                                                                Lưu thay đổi
+                                                            </button>
+                                                            {selectedDate.toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
+                                                                <button
+                                                                    className="bg-green-600 px-4 py-2 text-white rounded-md"
+                                                                    onClick={() => { handleCheckIn(employee) }}
+                                                                >
+                                                                    Chấm công
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        :
                                                         <button
-                                                            className="bg-cyan-600 px-4 py-2 text-white rounded-md"
-                                                            onClick={() => { handleCheckIn(employee.userId) }}
-                                                        >
-                                                            Chấm công
-                                                        </button> :
-                                                        <button
-                                                            className="bg-green-600 px-4 py-2 text-white rounded-md"
+                                                            className="bg-gray-600 px-4 py-2 text-white rounded-md"
                                                             disabled
                                                         >
                                                             Đã chấm công
                                                         </button>
-                                                ) : (
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={() => handleRemoveEmployeeList(employee.userId)}
-                                                        sx={{ backgroundColor: "red", height: "28px", color: "white" }}
+                                                ) :
+                                                    <button
+                                                        className="bg-green-600 px-4 py-2 text-white rounded-md"
+                                                        onClick={() => { handleCreate(employee) }}
                                                     >
-                                                        <DeleteIcon fontSize="small" />
-                                                    </IconButton>)
+                                                        Tạo công
+                                                    </button>
                                                 }
                                             </TableCell>
                                         </TableRow>
@@ -480,24 +491,6 @@ export default function Worklog() {
                             </TableBody>
                         </Table>
                     </TableContainer>
-                </div>
-                <div className="p-4 bg-white rounded-xl flex justify-end">
-                    <div className="flex flex-col items-end">
-                        {errors && <p className="text-red-500 mb-4">{errors}</p>}
-                        {worklogData.length > 0 ?
-                            <button
-                                className="bg-yellow-500 px-4 py-2 text-white rounded-xl"
-                                onClick={handleSubmit}
-                            >
-                                Hoàn thành chỉnh sửa
-                            </button>
-                            : <button
-                                className="background-primary background-hovered px-4 py-2 text-white rounded-xl"
-                                onClick={handleSubmit}
-                            >
-                                Chấm công
-                            </button>}
-                    </div>
                 </div>
             </div>
 
@@ -526,6 +519,22 @@ export default function Worklog() {
                 </div>
                 <Calendar value={selectedDate} onChange={selectedDate => setSelectedDate(selectedDate)} />
             </div>
+            <ConfirmModal
+                isOpen={modalConfirmOpen}
+                message={modalConfirmMessage}
+                onClose={() => {
+                    setModalConfirmOpen(false);
+                    setSelectedEmployee(null);
+                }}
+                onConfirm={async () => {
+                    setModalConfirmOpen(false);
+                    await handleConfirmUpdate(selectedEmployee, true);
+                }}
+                onCancel={() => {
+                    setModalConfirmOpen(false);
+                    setSelectedEmployee(null);
+                }}
+            />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false) }} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div >

@@ -14,7 +14,7 @@ export const worklogService = {
         return response.data;
     },
     updateWorklog: async (data) => {
-        const response = await API.put(`/worklogs/update`, data);
+        const response = await API.put(`/worklogs/update-batch`, data);
         return response.data;
     },
     checkIn: async (data) => {
