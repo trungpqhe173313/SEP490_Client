@@ -34,6 +34,7 @@ import AssignmentAddIcon from '@mui/icons-material/AssignmentAdd';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import BentoIcon from '@mui/icons-material/Bento';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 
 const Navbar = () => {
   const router = useRouter();
@@ -111,12 +112,12 @@ const Navbar = () => {
           role: ["Manager"],
           icon: <CalendarMonthIcon />
         },
-        // {
-        //   name: "Chấm công",
-        //   link: "/worklogs/check-in",
-        //   role: ["Manager"],
-        //   icon: <CalendarMonthIcon />
-        // },
+        {
+          name: "Công việc",
+          link: "/jobs",
+          role: ["Admin"],
+          icon: <ReceiptIcon />
+        },
         {
           name: "Bảng lương",
           link: "/payrolls",
