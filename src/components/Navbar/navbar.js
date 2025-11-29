@@ -121,7 +121,7 @@ const Navbar = () => {
         {
           name: "Bảng lương",
           link: "/payrolls",
-          role: ["Manager"],
+          role: ["Admin"],
           icon: <AddchartIcon />
         }
       ],

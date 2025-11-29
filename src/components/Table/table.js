@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
     Table,
     TableBody,
@@ -91,6 +91,38 @@ export default function TableCommon({
         displayedData = displayedData.slice(pageIndex * rowPerPage, (pageIndex + 1) * rowPerPage);
     }
 
+    if (displayedData.length === 0) return (
+        <div className="bg-white rounded-2xl overflow-scroll overflow-x-hidden">
+            <TableContainer sx={{ borderRadius: "12px", overflow: "hidden" }}>
+                <Table>
+                    <TableHead className="background-primary">
+                        <TableRow>
+                            {headers.map((header, index) => (
+                                <TableCell key={index} sx={{ color: "white" }} className="!text-center">
+                                    <TableSortLabel
+                                        sx={{ "&.Mui-active": { color: "white" }, "&.Mui-active .MuiTableSortLabel-icon": { color: "white !important" } }}
+                                    >
+                                        {header.label}
+                                    </TableSortLabel>
+                                </TableCell>
+                            ))}
+                            {useAction && <TableCell sx={{ color: "white" }} className="!text-center">Hành động</TableCell>}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell colSpan={useAction ? headers.length + 1 : headers.length}>
+                                <p className="text-center my-5 text-lg">
+                                    Không có dữ liệu
+                                </p>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </div>
+    )
+
     return (
         <div className="bg-white rounded-2xl overflow-scroll overflow-x-hidden">
             <ConfirmModal
@@ -133,47 +165,39 @@ export default function TableCommon({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {displayedData.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={useAction ? headers.length + 1 : headers.length} className="!text-center">
-                                    Không có dữ liệu
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            displayedData.map((item, index) =>
-                                <React.Fragment key={index}>
-                                    <TableRow className={`${index % 2 === 0 ? "bg-white" : "bg-gray-100"} ${useDetail && "cursor-pointer"}`} onClick={() => toggleExpand(index)}>
-                                        {headers.map((header, indexColumn) => (
-                                            <TableCell key={indexColumn} className="!text-center">
-                                                {getValueToDisplayOnTable(indexColumn, item)}
-                                            </TableCell>
-                                        ))}
-                                        {useAction && (
-                                            <TableCell align="center" verticalalign="middle">
-                                                <button className="bg-cyan-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => navigateDetail(item)}>
-                                                    <AssignmentIcon />
-                                                </button>
-                                                <button className="bg-yellow-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => handleEdit(item)}>
-                                                    <EditIcon />
-                                                </button>
-                                                <button className="bg-red-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => {
-                                                    setIsOpenPopupConfirmDelete(true);
-                                                    setIdDeleting(item);
-                                                }}>
-                                                    <DeleteIcon />
-                                                </button>
-                                            </TableCell>
-                                        )}
-                                    </TableRow>
-                                    {useDetail && tableDetail && expandedIndex === index && (
-                                        <TableRow>
-                                            <TableCell colSpan={headers.length} sx={{ padding: 0 }}>
-                                                {tableDetail(displayedData[index][headers[0].key])}
-                                            </TableCell>
-                                        </TableRow>
+                        {displayedData.map((item, index) =>
+                            <React.Fragment key={index}>
+                                <TableRow className={`${index % 2 === 0 ? "bg-white" : "bg-gray-100"} ${useDetail && "cursor-pointer"}`} onClick={() => toggleExpand(index)}>
+                                    {headers.map((header, indexColumn) => (
+                                        <TableCell key={indexColumn} className="!text-center">
+                                            {getValueToDisplayOnTable(indexColumn, item)}
+                                        </TableCell>
+                                    ))}
+                                    {useAction && (
+                                        <TableCell align="center" verticalalign="middle">
+                                            <button className="bg-cyan-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => navigateDetail(item)}>
+                                                <AssignmentIcon />
+                                            </button>
+                                            <button className="bg-yellow-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => handleEdit(item)}>
+                                                <EditIcon />
+                                            </button>
+                                            <button className="bg-red-500 ml-2 my-1 text-white px-2 py-1 rounded" onClick={() => {
+                                                setIsOpenPopupConfirmDelete(true);
+                                                setIdDeleting(item);
+                                            }}>
+                                                <DeleteIcon />
+                                            </button>
+                                        </TableCell>
                                     )}
-                                </React.Fragment>
-                            )
+                                </TableRow>
+                                {useDetail && tableDetail && expandedIndex === index && (
+                                    <TableRow>
+                                        <TableCell colSpan={headers.length} sx={{ padding: 0 }}>
+                                            {tableDetail(displayedData[index][headers[0].key])}
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </React.Fragment>
                         )}
                         {extraRow && (
                             extraRow()
