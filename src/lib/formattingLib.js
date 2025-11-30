@@ -7,6 +7,7 @@ export const formatImageURL = (url) => {
 
 export const formatLargeNumber = (number) => {
     if (number === null || isNaN(number)) return 0;
+    //if (number < 0) return (number * -1).toLocaleString('vi-VN', { maximumFractionDigits: 0 });
     return number.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
 }
 

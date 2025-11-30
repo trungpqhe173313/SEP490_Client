@@ -443,7 +443,7 @@ export default function Worklog() {
                                             </TableCell>
                                             <TableCell align="center" >
                                                 <textarea
-                                                    className="w-full h-10 p-2 border border-gray-300 rounded-md"
+                                                    className="w-full p-2 border border-gray-300 rounded-md"
                                                     value={employee.note}
                                                     disabled={employee.isActive}
                                                     onChange={(e) => handleChangeEmployeeList(employee.userId, "note", e.target.value)}

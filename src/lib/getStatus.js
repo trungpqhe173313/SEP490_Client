@@ -153,3 +153,57 @@ export const getTransferStatusText = (status) => {
             return `${status}: Không rõ`
     }
 }
+
+export const getFinancialTransactionType = (type) => {
+    if (!type && type !== 0) return <p className="text-black">Không có loại</p>
+    switch (type) {
+        case 0:
+            return <p className="text-green-600">Thu tiền khách hàng</p>
+        case 1:
+            return <p className="text-green-600">Thu khác</p>
+        case 2:
+            return <p className="text-red-600">Thanh toán lương</p>
+        case 3:
+            return <p className="text-red-600">Ứng lương</p>
+        case 4:
+            return <p className="text-red-600">Thanh toán nhận hàng</p>
+        case 5:
+            return <p className="text-red-600">Chi khác</p>
+        default:
+            return <p className="text-black">{type}: Không rõ</p>
+    }
+}
+
+export const getFinancialTransactionTypeText = (type) => {
+    if (!type && type !== 0) return "Không có loại"
+    switch (type) {
+        case 0:
+            return "Thu tiền khách hàng"
+        case 1:
+            return "Thu khác"
+        case 2:
+            return "Thanh toán lương"
+        case 3:
+            return "Ứng lương"
+        case 4:
+            return "Thanh toán nhận hàng"
+        case 5:
+            return "Chi khác"
+        default:
+            return `${type}: Không rõ`
+    }
+}
+
+export const getPaymentMethod = (method) => {
+    if (!method && method !== 0) return 'Không có'
+    switch (method) {
+        case 'TienMat':
+        case 'Cash':
+            return "Tiền mặt"
+        case 'NganHang':
+        case 'Bank':
+            return "Chuyển khoản"
+        default:
+            return `${type}: Không rõ`
+    }
+}

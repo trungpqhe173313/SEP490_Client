@@ -182,7 +182,7 @@ const Navbar = () => {
           name: "Trả hàng nhập kho",
           link: "/returns/import",
           role: ["Manager"],
-          icon: <AirportShuttleIcon/>
+          icon: <AirportShuttleIcon />
         },
         {
           name: "Trả hàng xuất kho",
@@ -208,18 +208,12 @@ const Navbar = () => {
       label: "Giao dịch",
       icon: <ShoppingCartIcon />,
       subItems: [
-        // {
-        //   name: "Thu",
-        //   link: "/incomes",
-        //   role: "all",
-        //   icon: <AttachMoneyIcon />
-        // },
-        // {
-        //   name: "Chi",
-        //   link: "/expenses",
-        //   role: "all",
-        //   icon: <MoneyOffIcon />
-        // },
+        {
+          name: "Thu chi",
+          link: "/payment",
+          role: ["Admin"],
+          icon: <AttachMoneyIcon />
+        },
         {
           name: "Lịch sử đơn hàng",
           link: "/order-history",
@@ -253,7 +247,7 @@ const Navbar = () => {
       {navItems.map((item, index) => {
         // Filter subItems based on role and check if any remain
         const visibleSubItems = item.subItems.filter((sub) => isShown(sub.role));
-        
+
         // Hide the main item if no sub-items are visible
         if (visibleSubItems.length === 0) {
           return null;
