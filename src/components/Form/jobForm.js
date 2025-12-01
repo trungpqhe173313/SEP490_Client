@@ -95,7 +95,7 @@ export function JobForm({
       setError("Vui lòng nhập thông tin bắt buộc.");
       return;
     }
-    const invalidForms = !validJobName;
+    const invalidForms = !validJobName || !validRate;
     if (invalidForms) {
       setError("Có nhập liệu không hợp lệ, vui lòng thử lại");
       return

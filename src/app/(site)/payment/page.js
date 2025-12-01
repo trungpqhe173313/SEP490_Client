@@ -163,10 +163,10 @@ export default function FinancialTransactions() {
         amount: paymentData.amount,
         description: paymentData.description,
         paymentMethod: paymentData.paymentMethod,
-        createdBy: user.userId
+        createdBy: user.id
       }
       if (editingPayment) {
-        await paymentService.updatePayment(editingPayment.paymentId, body);
+        await paymentService.updatePayment(editingPayment.financialTransactionId, body);
         setModalSuccessMessage("Cập nhật giao dịch thành công");
       } else {
         await paymentService.createPayment(body);
@@ -348,6 +348,13 @@ export default function FinancialTransactions() {
         handleEdit={handleEdit}
         messagePopupDelete={'Bạn có muốn xóa giao dịch này không?'}
         navigateDetail={(item) => router.push(`/payment/details/${item.financialTransactionId}`)}
+      />
+      <PaymentForm
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirm}
+        initialData={editingPayment}
+        mode="Others"
       />
       <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
       <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />

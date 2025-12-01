@@ -13,6 +13,10 @@ export const getExportStatus = (status) => {
             return <p className="text-red-600">Thất bại</p>
         case 6:
             return <p className="text-red-600">Hủy</p>
+        case 11:
+            return <p className="text-green-600">Đã thanh toán đủ</p>
+        case 12:
+            return <p className="text-yellow-600">Thanh toán một phần</p>
         default:
             return <p className="text-black">{status}: Không rõ</p>
     }
@@ -33,6 +37,10 @@ export const getExportStatusText = (status) => {
             return "Thất bại"
         case 6:
             return "Hủy"
+        case 11:
+            return "Đã thanh toán đủ"
+        case 12:
+            return "Thanh toán một phần"
         default:
             return `${status}: Không rõ`
     }
@@ -47,6 +55,10 @@ export const getImportStatus = (status) => {
             return <p className="text-green-600">Đã nhận hàng</p>
         case 3:
             return <p className="text-red-600">Trả hàng</p>
+        case 11:
+            return <p className="text-green-600">Đã thanh toán đủ</p>
+        case 12:
+            return <p className="text-yellow-600">Thanh toán một phần</p>
         default:
             return <p className="text-black">{status}: Không rõ</p>
     }
@@ -61,6 +73,10 @@ export const getImportStatusText = (status) => {
             return "Đã nhận hàng"
         case 3:
             return "Trả hàng"
+        case 11:
+            return "Đã thanh toán đủ"
+        case 12:
+            return "Thanh toán một phần"
         default:
             return `${status}: Không rõ`
     }

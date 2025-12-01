@@ -10,7 +10,7 @@ export const paymentService = {
         return response.data;
     },
     createPayment: async (data) => {
-        const response = await API.post(`/financialtransaction/CreateFinancialTransaction?Type=${data.type}&Amount=${data.amount}&Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.userId}`);
+        const response = await API.post(`/financialtransaction/CreateFinancialTransaction?Type=${data.type}&Amount=${data.amount}&Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.createdBy}`);
         return response.data;
     },
     updatePayment: async (id, data) => {
@@ -22,19 +22,19 @@ export const paymentService = {
         return response.data;
     },
     createImportPayment: async (data) => {
-        const response = await API.post(`/stockinput/CreatePartialPayment/${data.transactionId}?Amount=${data.amount}&Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.userId}`);
+        const response = await API.put(`/stockinput/CreatePartialPayment/${data.transactionId}?Amount=${data.amount}&Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.createdBy}`);
         return response.data;
     },
     completeImportPayment: async (data) => {
-        const response = await API.post(`/stockinput/UpdateToPaidInFullStatus/${data.transactionId}?Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.userId}`);
+        const response = await API.put(`/stockinput/UpdateToPaidInFullStatus/${data.transactionId}?Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.createdBy}`);
         return response.data;
     },
     createExportPayment: async (data) => {
-        const response = await API.post(`/stockoutput/CreatePartialPayment/${data.transactionId}?Amount=${data.amount}&Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.userId}`);
+        const response = await API.put(`/stockoutput/CreatePartialPayment/${data.transactionId}?Amount=${data.amount}&Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.createdBy}`);
         return response.data;
     },
     completeExportPayment: async (data) => {
-        const response = await API.post(`/stockoutput/UpdateToPaidInFullStatus/${data.transactionId}?Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.userId}`);
+        const response = await API.put(`/stockoutput/UpdateToPaidInFullStatus/${data.transactionId}?Description=${data.description}&PaymentMethod=${data.paymentMethod}&CreatedBy=${data.createdBy}`);
         return response.data;
     },
 }

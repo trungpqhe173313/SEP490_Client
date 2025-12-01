@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import authService from "@/services/auth.service";
 import ConfirmModal from "@/components/Modal/confirmModal";
@@ -11,7 +11,20 @@ const Header = () => {
   const [toggle, setToggle] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const { isLogin, user } = useLogin();
+  const profileRef = useRef(null);
 
+  useEffect(() => {
+    if (!toggle) return;
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setToggle(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [toggle]);
 
   const handleLogOut = () => {
     authService.logout();
@@ -30,6 +43,7 @@ const Header = () => {
         }
         {isLogin == true ? (
           <div
+            ref={profileRef}
             className="w-8 h-8 background-primary rounded-full flex items-center justify-center cursor-pointer relative"
             onClick={() => setToggle(!toggle)}
           >
