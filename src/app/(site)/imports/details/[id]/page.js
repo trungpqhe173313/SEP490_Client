@@ -14,6 +14,7 @@ import SuccessModal from '@/components/Modal/successModal';
 import FailedModal from '@/components/Modal/failedModal';
 import { paymentService } from '@/services/payment.service';
 import { PaymentForm } from '@/components/Form/paymentForm';
+import { transactionService } from '@/services/transaction.service';
 
 
 export default function ImportDetail({ params }) {
@@ -192,6 +193,13 @@ export default function ImportDetail({ params }) {
         window.open(`/returns/modify/create/import/${id}`, "_blank");
     }
 
+    const handlePrint = async () => {
+        const response = await transactionService.printTransaction(id);
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const fileURL = URL.createObjectURL(blob);
+        window.open(fileURL);
+    }
+
     const handleCreatePayment = () => {
         if (paidAmount !== 0) setTransaction({ ...transaction, amount: transaction.totalCost - paidAmount });
         setMode("createPayment");
@@ -269,6 +277,7 @@ export default function ImportDetail({ params }) {
                         {transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
                         <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép đơn</button>
                         {transaction && transaction.status > 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
+                        {transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
                         {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2'>

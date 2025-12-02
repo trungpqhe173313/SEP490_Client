@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { exportService } from '@/services/export.service';
 import { paymentService } from '@/services/payment.service';
+import { transactionService } from '@/services/transaction.service';
 import { numberToVietnamese } from '@/lib/numberToVietnamese';
 import { convertKgToTon, formatLargeNumber } from '@/lib/formattingLib';
 import { useLoading } from '@/context/LoadingContext';
@@ -218,6 +219,13 @@ export default function ExportDetail({ params }) {
         window.open(`/returns/modify/create/export/${id}`, "_blank");
     }
 
+    const handlePrint = async () => {
+        const response = await transactionService.printTransaction(id);
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const fileURL = URL.createObjectURL(blob);
+        window.open(fileURL);
+    }
+
     const handleCreatePayment = () => {
         if (paidAmount !== 0) setTransaction({ ...transaction, amount: transaction.totalCost - paidAmount });
         setMode("createPayment");
@@ -297,6 +305,7 @@ export default function ExportDetail({ params }) {
                         {transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
                         <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép đơn</button>
                         {transaction?.status > 3 && transaction?.status != 6 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
+                        {transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
                         {transaction?.status <= 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2 justify-end'>
