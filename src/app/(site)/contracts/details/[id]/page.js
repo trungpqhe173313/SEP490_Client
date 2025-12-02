@@ -6,6 +6,7 @@ import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
 import Image from 'next/image';
+import { formatImageURL } from '@/lib/formattingLib';
 
 export default function ContractDetails({ params }) {
     const { id } = React.use(params);
@@ -136,7 +137,7 @@ export default function ContractDetails({ params }) {
                 </table>
                 {showImage && contract.image &&
                     <div className='w-full bg-white p-4 rounded-xl'>
-                        <Image src={contract?.image} alt="Ảnh hợp đồng" width={500} height={500} className='h-screen w-auto mx-auto border-1 border-black rounded-xl'/>
+                        <Image src={formatImageURL(contract.image)} alt="Ảnh hợp đồng" width={500} height={500} className='h-screen w-auto mx-auto border-1 border-black rounded-xl'/>
                     </div>
                 }
             </div>

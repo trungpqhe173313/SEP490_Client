@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Modal } from "@mui/material";
 import Image from "next/image";
+import { formatImageURL } from "@/lib/formattingLib";
 
 export function ProfileForm({
     isOpen,
@@ -118,8 +119,6 @@ export function ProfileForm({
         handleChange('image', file);
     };
 
-    const formatImageUrl = (url) => typeof url === 'string' ? url : URL.createObjectURL(url);
-
     return (
         <Modal open={isOpen} onClose={onClose}>
             <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -164,7 +163,7 @@ export function ProfileForm({
                             />
                             {form.image && (
                                 <div className="mt-2 flex justify-center">
-                                    <Image src={formatImageUrl(form.image)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
+                                    <Image src={formatImageURL(form.image)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
                                 </div>
                             )}
                         </div>

@@ -10,6 +10,7 @@ import Loader from "@/components/Loader/loader";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import Image from 'next/image';
+import { formatImageURL } from '@/lib/formattingLib';
 
 export default function ProductDetail({ params }) {
     const { id } = React.use(params);
@@ -94,7 +95,7 @@ export default function ProductDetail({ params }) {
 
             <div className="w-full bg-white p-4 rounded-xl grid grid-cols-3 gap-4">
                 <div className="col-span-1 flex flex-col items-center justify-center gap-4">
-                    {product.image && <Image src={product.image} alt="Sản phẩm" className="w-full aspect-square object-cover border border-black" width={400} height={400} />}
+                    {product.imageUrl && <Image src={formatImageURL(product.imageUrl)} alt="Sản phẩm" className="w-full aspect-square object-cover border border-black" width={400} height={400} />}
                 </div>
                 <div className="col-span-2">
                     <table className="w-full">

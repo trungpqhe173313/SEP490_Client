@@ -6,6 +6,7 @@ import { categoryService } from "@/services/category.service";
 import { productService } from "@/services/product.service";
 import { useRequiredHighlight } from "@/hooks/useRequiredHighlight";
 import Image from "next/image";
+import { formatImageURL } from "@/lib/formattingLib";
 
 export function ProductForm({
     isOpen,
@@ -240,8 +241,6 @@ export function ProductForm({
         handleChange('image', file);
     };
 
-    const formatImageUrl = (url) => typeof url === 'string' ? url : URL.createObjectURL(url);
-
     return (
         <Modal
             open={isOpen}
@@ -292,7 +291,7 @@ export function ProductForm({
                             />
                             {form.image && (
                                 <div className="mt-2 flex justify-center">
-                                    <Image src={formatImageUrl(form.image)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
+                                    <Image src={formatImageURL(form.image)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
                                 </div>
                             )}
                         </div>

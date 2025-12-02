@@ -112,19 +112,9 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                                 <p>Trạng thái: </p>
                                 {transaction.customer.userId ? getExportStatus(transaction.status) : getImportStatus(transaction.status)}
                             </div>
+                            {transaction.customerName && <p className='my-2'>Khách hàng: {transaction.customerName}</p>}
+                            {transaction.supplierName && <p className='my-2'>Nhà cung cấp: {transaction.supplierName}</p>}
                         </div>
-                        {transaction.customer.userId && <div className='col-span-1 rounded-xl bg-white p-4'>
-                            <h1 className='text-xl font-bold'>Khách hàng</h1>
-                            <p className='my-2'>Tên khách hàng: {transaction.customer.fullName}</p>
-                            <p className='my-2'>Email khách hàng: {transaction.customer.email}</p>
-                            <p className='my-2'>Số điện thoại: {transaction.customer.phone}</p>
-                        </div>}
-                        {transaction.supplier && <div className='col-span-1 rounded-xl bg-white p-4'>
-                            <h1 className='text-xl font-bold'>Nhà cung cấp</h1>
-                            <p className='my-2'>Tên nhà cung cấp: {transaction.supplier.supplierName}</p>
-                            <p className='my-2'>Email nhà cung cấp: {transaction.supplier.email}</p>
-                            <p className='my-2'>Số điện thoại: {transaction.supplier.phone}</p>
-                        </div>}
                     </div>
 
                     <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2'>

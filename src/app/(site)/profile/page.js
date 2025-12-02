@@ -11,6 +11,7 @@ import FailedModal from "@/components/Modal/failedModal";
 import { ProfileForm } from "@/components/Form/profileForm";
 import { PasswordForm } from "@/components/Form/passwordForm";
 import Image from 'next/image';
+import { formatImageURL } from '@/lib/formattingLib';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState({});
@@ -100,7 +101,7 @@ export default function ProfilePage() {
       <div className="w-full bg-white p-4 rounded-xl grid grid-cols-3 gap-4">
         <div className="col-span-1 flex flex-col items-center justify-center gap-4">
           {profile.image &&
-            <Image src={profile.image} alt="avatar" className="w-80 aspect-square object-cover rounded-full border border-black" width={600} height={600} />
+            <Image src={formatImageURL(profile.image)} alt="avatar" className="w-80 aspect-square object-cover rounded-full border border-black" width={600} height={600} />
           }
           <div className="flex gap-4">
             <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalProfileOpen(true)}>Chỉnh sửa hồ sơ</button>

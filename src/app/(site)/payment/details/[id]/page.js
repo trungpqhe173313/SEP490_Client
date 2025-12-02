@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react'
-import { exportService } from '@/services/export.service';
+import { transactionService } from '@/services/transaction.service';
 import { paymentService } from '@/services/payment.service';
 import { payrollService } from '@/services/payroll.service';
 import { formatLargeNumber } from '@/lib/formattingLib';
@@ -93,7 +93,7 @@ export default function ExportDetail({ params }) {
         try {
             if (!id) return;
             setLoading(true);
-            const res = await exportService.getExportDetail(id);
+            const res = await transactionService.getTransactionDetail(id);
             setTransaction(res.data);
         } catch (error) {
             console.log(error);

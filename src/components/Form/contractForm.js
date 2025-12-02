@@ -4,6 +4,7 @@ import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 import { supplierService } from "@/services/supplier.service";
 import { customerService } from "@/services/customer.service";
 import Image from "next/image";
+import { formatImageURL } from "@/lib/formattingLib";
 
 export function ContractForm({
   isOpen,
@@ -177,8 +178,6 @@ export function ContractForm({
     setError("");
     handleChange('image', file);
   };
-
-  const formatImageURL = (url) => typeof url === 'string' ? url : URL.createObjectURL(url);
 
   return (
     <Modal open={isOpen} onClose={onClose}>
