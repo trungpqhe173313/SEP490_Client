@@ -3,17 +3,17 @@ import React, { useState, useEffect } from 'react'
 import { exportService } from '@/services/export.service';
 import { paymentService } from '@/services/payment.service';
 import { payrollService } from '@/services/payroll.service';
-import { numberToVietnamese } from '@/lib/numberToVietnamese';
-import { convertKgToTon, formatLargeNumber } from '@/lib/formattingLib';
+import { formatLargeNumber } from '@/lib/formattingLib';
 import { useLoading } from '@/context/LoadingContext';
-import TableCommon from "@/components/Table/table";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
 import SuccessModal from '@/components/Modal/successModal';
 import FailedModal from '@/components/Modal/failedModal';
 import { getFinancialTransactionType, getPaymentMethod } from '@/lib/getStatus';
-
+import { PayrollModal } from '@/components/Modal/payrollModal';
+import { TransactionModal } from '@/components/Modal/transactionModal';
+import { PaymentForm } from "@/components/Form/paymentForm";
 
 export default function ExportDetail({ params }) {
     const { loading, setLoading } = useLoading();
@@ -22,6 +22,10 @@ export default function ExportDetail({ params }) {
     const { isLogin, user, refreshUserInfo } = useLogin();
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [modalPayrollOpen, setModalPayrollOpen] = useState(false);
+    const [modalTransactionOpen, setModalTransactionOpen] = useState(false);
+
+
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
@@ -63,6 +67,34 @@ export default function ExportDetail({ params }) {
             setLoading(true);
             const res = await paymentService.getDetail(id);
             setPayment(res.data);
+            res.data.payrollId && await fetchPayroll(res.data.payrollId);
+            res.data.relatedTransactionId && await fetchTransaction(res.data.relatedTransactionId);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchPayroll = async (id) => {
+        try {
+            if (!id) return;
+            setLoading(true);
+            const res = await payrollService.getPayrollById(id);
+            setPayroll(res.data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchTransaction = async (id) => {
+        try {
+            if (!id) return;
+            setLoading(true);
+            const res = await exportService.getExportDetail(id);
+            setTransaction(res.data);
         } catch (error) {
             console.log(error);
         } finally {
@@ -75,25 +107,31 @@ export default function ExportDetail({ params }) {
         fetchPayment();
     }, [pageReady])
 
+    const handleConfirm = async (paymentData) => {
+        if (!paymentData) return;
+        setLoading(true);
+        try {
+            const body = {
+                type: paymentData.type,
+                amount: paymentData.amount,
+                description: paymentData.description,
+                paymentMethod: paymentData.paymentMethod,
+                createdBy: user.id
+            }
+            await paymentService.updatePayment(id, body);
+            setModalSuccessMessage("Cập nhật giao dịch thành công");
+            setModalSuccessOpen(true);
+            setModalOpen(false);
+            await fetchPayment();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     if (!pageReady) return <Loader />;
-
-    const renderTransaction = () => {
-        if (!transaction) return null;
-        return (
-            <div className='w-full bg-white p-4 rounded-xl'>
-                <h1 className='text-2xl font-semibold'>Chi tiết giao dịch</h1>
-            </div>
-        );
-    }
-
-    const renderPayroll = () => {
-        if (!payroll) return null;
-        return (
-            <div className='w-full bg-white p-4 rounded-xl'>
-                <h1 className='text-2xl font-semibold'>Chi tiết bảng lương</h1>
-            </div>
-        );
-    }
 
     return (
         <div className='flex flex-col gap-4 w-full p-4'>
@@ -132,11 +170,20 @@ export default function ExportDetail({ params }) {
                             <td className="p-4">Ngày giao dịch</td>
                             <td className="p-4 w-8/10">{new Date(payment.transactionDate).toLocaleString("vi-VN")}</td>
                         </tr>
+                        {payroll && <tr>
+                            <td className="p-4">Bảng lương liên quan</td>
+                            <td className="p-4 w-8/10"><button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalPayrollOpen(true)}>Xem bảng lương</button></td>
+                        </tr>}
+                        {transaction && <tr>
+                            <td className="p-4">Giao dịch liên quan</td>
+                            <td className="p-4 w-8/10"><button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalTransactionOpen(true)}>Xem giao dịch</button></td>
+                        </tr>}
                     </tbody>
                 </table>
             </div>
-            {renderTransaction()}
-            {renderPayroll()}
+            {payroll && <PayrollModal isOpen={modalPayrollOpen} handleClose={() => setModalPayrollOpen(false)} payroll={payroll} />}
+            {transaction && <TransactionModal isOpen={modalTransactionOpen} handleClose={() => setModalTransactionOpen(false)} transaction={transaction} />}
+            <PaymentForm isOpen={modalOpen} onClose={() => setModalOpen(false)} initialData={payment} onConfirm={handleConfirm} mode="Others" />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>

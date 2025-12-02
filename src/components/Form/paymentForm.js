@@ -11,12 +11,14 @@ export function PaymentForm({
 }) {
   const [form, setForm] = useState({});
   const [error, setError] = useState("");
+  const [negativeAmount, setNegativeAmount] = useState(false);
   // data for check exist
   useEffect(() => {
     if (initialData) {
+      setNegativeAmount(initialData.amount < 0);
       setForm({
         type: initialData.typeInt || null,
-        amount: initialData.amount || 0,
+        amount: negativeAmount ? initialData.amount * -1 : initialData.amount || 0,
         description: initialData.description || "",
         paymentMethod: initialData.paymentMethod || ""
       });
@@ -117,7 +119,7 @@ export function PaymentForm({
               <input
                 type="number"
                 name="amount"
-                value={form.amount}
+                value={form.amount || 0}
                 onChange={(e) => handleChange("amount", e.target.value)}
                 className="w-full bg-white border border-gray-300 rounded px-3 py-2"
                 required
