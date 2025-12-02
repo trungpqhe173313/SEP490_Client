@@ -232,7 +232,6 @@ export default function Worklog() {
     }
 
     const handleCreate = async (employee) => {
-        setLoading(true);
         if (employee.job.length === 0) {
             setModalFailedMessage(`Lỗi: Nhân viên này chưa được giao việc`);
             setModalFailedOpen(true);
@@ -243,6 +242,7 @@ export default function Worklog() {
             setModalFailedOpen(true);
             return;
         }
+        setLoading(true);
         try {
             const jobsPayload = employee.job.map(job => ({
                 jobId: job,

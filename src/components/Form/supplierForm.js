@@ -49,7 +49,7 @@ export function SupplierForm({
                 phone: "",
             });
         }
-        setError("");
+        clearErrors();
         fetchSuppliers();
     }, [initialData, isOpen]);
 
@@ -61,6 +61,16 @@ export function SupplierForm({
     const [errorSupplierName, setErrorSupplierName] = useState("");
     const [errorEmail, setErrorEmail] = useState("");
     const [errorPhone, setErrorPhone] = useState("");
+
+    const clearErrors = () => {
+        setError("");
+        setErrorSupplierName("");
+        setErrorEmail("");
+        setErrorPhone("");
+        setValidSupplierName(true);
+        setValidEmail(true);
+        setValidPhone(true);
+    }
 
     const handleChange = (name, value) => {
         let newValue = value;

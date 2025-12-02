@@ -58,9 +58,23 @@ export function CustomerForm({
                 phone: "",
             });
         }
-        setError("");
+        clearErrors();
         fetchCustomers();
     }, [initialData, isOpen]);
+
+    const clearErrors = () => {
+        setError("");
+        setErrorUsername("");
+        setErrorEmail("");
+        setErrorFullName("");
+        setErrorPhone("");
+        setErrorPassword("");
+        setValidUsername(true);
+        setValidEmail(true);
+        setValidFullName(true);
+        setValidPhone(true);
+        setValidPassword(true);
+    };
 
     //Validation
     const [validUsername, setValidUsername] = useState(true);
@@ -106,7 +120,7 @@ export function CustomerForm({
                     setValidUsername(true);
                     setErrorUsername("");
                 }
-                break;  
+                break;
             case "phone":
                 const checkingPhone = value.trim().replace(/\s\s+/g, ' ');
                 const isExistingPhone = customers.find(customer => customer.phone.toLowerCase() === checkingPhone.toLowerCase() && customer.phone !== initialData?.phone);
@@ -209,7 +223,7 @@ export function CustomerForm({
                             />
                             {form.image && (
                                 <div className="mt-2 flex justify-center">
-                                    <Image src={formatImageURL(form.image)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black"/>
+                                    <Image src={formatImageURL(form.image)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
                                 </div>
                             )}
                         </div>
@@ -249,7 +263,7 @@ export function CustomerForm({
                                 >
                                     {showPassword ? <EyeOff size={25} /> : <Eye size={25} />}
                                 </button>
-                                
+
                             </div>
                         }
                         {errorPassword && <p className="text-red-500 text-xs italic">{errorPassword}</p>}

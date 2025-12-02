@@ -58,9 +58,23 @@ export function EmployeeForm({
                 phone: "",
             });
         }
-        setError("");
+        clearErrors();
         fetchEmployees();
     }, [initialData, isOpen]);
+
+    const clearErrors = () => {
+        setError("");
+        setErrorUsername("");
+        setErrorEmail("");
+        setErrorFullName("");
+        setErrorPhone("");
+        setErrorPassword("");
+        setValidUsername(true);
+        setValidEmail(true);
+        setValidFullName(true);
+        setValidPhone(true);
+        setValidPassword(true);
+    };
 
     //Validation
     const [validUsername, setValidUsername] = useState(true);

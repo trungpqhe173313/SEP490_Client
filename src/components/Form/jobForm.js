@@ -39,7 +39,7 @@ export function JobForm({
         rate: 0,
       });
     }
-    setError("");
+    clearErrors();
     fetchJobs();
   }, [initialData, isOpen]);
 
@@ -49,6 +49,14 @@ export function JobForm({
 
   const [errorJobName, setErrorJobName] = useState("");
   const [errorRate, setErrorRate] = useState("");
+
+  const clearErrors = () => {
+    setError("");
+    setErrorJobName("");
+    setErrorRate("");
+    setValidJobName(true);
+    setValidRate(true);
+  }
 
   const handleChange = (name, value) => {
     let newValue = value;

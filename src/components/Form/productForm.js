@@ -122,13 +122,25 @@ export function ProductForm({
                 categoryId: "",
             });
         }
-        setError("");
+        clearErrors();
         fetchProducts();
     }, [initialData, isOpen]);
 
     //Vallidation
     const formRef = useRef(null);
     const { handleSubmitCheck, clearOnInput } = useRequiredHighlight();
+
+    const clearErrors = () => {
+        setError("");
+        setValidWeightPerUnit(true);
+        setValidCode(true);
+        setValidProductName(true);
+        setValidSellingPrice(true);
+        setErrorWeightPerUnit("");
+        setErrorCode("");
+        setErrorProductName("");
+        setErrorSellingPrice("");
+    }
 
     const [validWeightPerUnit, setValidWeightPerUnit] = useState(true);
     const [validCode, setValidCode] = useState(true);

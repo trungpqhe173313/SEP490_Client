@@ -103,8 +103,8 @@ export default function Products() {
                 supplierId: filterSupplierId,
                 categoryId: filterCategoryId,
                 isAvailable: filterisAvailable === "true" ? true : filterisAvailable === "false" ? false : null,
-                minWeightPerUnit: filterFromWeightPerUnit === 0 ? null : filterFromWeightPerUnit,
-                maxWeightPerUnit: filterToWeightPerUnit === 0 ? null : filterToWeightPerUnit,
+                minWeightPerUnit: filterFromWeightPerUnit === 0 || filterToWeightPerUnit === "" ? null : filterFromWeightPerUnit,
+                maxWeightPerUnit: filterToWeightPerUnit === 0 || filterToWeightPerUnit === "" ? null : filterToWeightPerUnit,
                 createdFrom: filterFromCreatedDate || null,
                 createdTo: filterToCreatedDate || null
             };
@@ -321,66 +321,71 @@ export default function Products() {
     };
 
     const getFileNameFromDisposition = (disposition) => {
-            if (!disposition) return "Mau_Phieu_San_Pham_NutriBarn.xlsx";
-    
-            // First try filename* (RFC 5987)
-            const filenameStarMatch = disposition.match(/filename\*\=UTF-8''(.+?)(;|$)/);
-            if (filenameStarMatch && filenameStarMatch[1]) {
-                return decodeURIComponent(filenameStarMatch[1]);
-            }
-    
-            // Fallback: normal filename=
-            const filenameMatch = disposition.match(/filename="?(.+?)"?(;|$)/);
-            if (filenameMatch && filenameMatch[1]) {
-                return filenameMatch[1];
-            }
-    
-            return "Mau_Phieu_San_Pham_NutriBarn.xlsx";
-        };
-    
-        const handleDownloadTemplate = async () => {
+        if (!disposition) return "Mau_Phieu_San_Pham_NutriBarn.xlsx";
+
+        // First try filename* (RFC 5987)
+        const filenameStarMatch = disposition.match(/filename\*\=UTF-8''(.+?)(;|$)/);
+        if (filenameStarMatch && filenameStarMatch[1]) {
+            return decodeURIComponent(filenameStarMatch[1]);
+        }
+
+        // Fallback: normal filename=
+        const filenameMatch = disposition.match(/filename="?(.+?)"?(;|$)/);
+        if (filenameMatch && filenameMatch[1]) {
+            return filenameMatch[1];
+        }
+
+        return "Mau_Phieu_San_Pham_NutriBarn.xlsx";
+    };
+
+    const handleDownloadTemplate = async () => {
+        setLoading(true);
+        try {
+            const response = await productService.downloadProductTemplate();
+
+            const disposition = response.headers["content-disposition"];
+            const filename = getFileNameFromDisposition(disposition);
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleExcelImport = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
             setLoading(true);
-            try {
-                const response = await productService.downloadProductTemplate();
-    
-                const disposition = response.headers["content-disposition"];
-                const filename = getFileNameFromDisposition(disposition);
-    
-                const url = window.URL.createObjectURL(new Blob([response.data]));
-                const link = document.createElement("a");
-                link.href = url;
-                link.setAttribute("download", filename);
-                document.body.appendChild(link);
-                link.click();
-    
-                link.remove();
-                window.URL.revokeObjectURL(url);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-    
-        const handleExcelImport = async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-    
-            try {
-                setLoading(true);
-                const result = await productService.importFromExcel(file);
-                setModalImportData(result.data.importedProducts);
-                setModalImportMessage("Tạo sản phẩm thành công");
-                setModalImportOpen(true);
-                fetchProducts();
-            } catch (error) {
-                setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
-                setModalFailedSubMessages(error.response.data.error.messages);
-                setModalFailedOpen(true);
-            } finally {
-                setLoading(false);
-            }
-        };
+            const result = await productService.importFromExcel(file);
+            setModalImportData(result.data.importedProducts);
+            setModalImportMessage("Tạo sản phẩm thành công");
+            setModalImportOpen(true);
+            fetchProducts();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedSubMessages(error.response.data.error.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const removeLeadingZero = (number) => {
+        if (number === null || isNaN(number) || number == 0) return 0;
+        return number.toString().replace(/^0+/, '');
+    }
 
     if (!pageReady) {
         return <Loader />;
@@ -486,7 +491,7 @@ export default function Products() {
                             <input
                                 type="number"
                                 className="w-full p-2 border border-gray-300 rounded"
-                                value={filterFromWeightPerUnit || ""}
+                                value={removeLeadingZero(filterFromWeightPerUnit)}
                                 onChange={(e) => setFilterFromWeightPerUnit(e.target.value)}
                                 onKeyDown={handleKeyDown}
                             />
@@ -496,7 +501,7 @@ export default function Products() {
                             <input
                                 type="number"
                                 className="w-full p-2 border border-gray-300 rounded"
-                                value={filterToWeightPerUnit || ""}
+                                value={removeLeadingZero(filterToWeightPerUnit)}
                                 onChange={(e) => setFilterToWeightPerUnit(e.target.value)}
                                 onKeyDown={handleKeyDown}
                             />

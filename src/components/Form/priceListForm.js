@@ -18,6 +18,16 @@ export function PriceListForm({
   //data for check exist
   const [priceLists, setPriceLists] = useState([]);
 
+  const clearErrors = () => {
+    setError("");
+    setErrorPriceListName("");
+    setErrorStartDate("");
+    setErrorEndDate("");
+    setValidPriceListName(true);
+    setValidStartDate(true);
+    setValidEndDate(true);
+  }
+
   const [validPriceListName, setValidPriceListName] = useState(true);
   const [validStartDate, setValidStartDate] = useState(true);
   const [validEndDate, setValidEndDate] = useState(true);
@@ -58,6 +68,7 @@ export function PriceListForm({
         endDate: ""
       });
     }
+    clearErrors();
     fetchPriceLists();
   }, [initialData, isOpen]);
 

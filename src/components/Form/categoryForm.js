@@ -48,9 +48,15 @@ export function CategoryForm({
                 createdAt: today
             });
         }
-        setError("");
+        clearErrors();
         fetchCategories();
     }, [initialData, isOpen]);
+
+    const clearErrors = () => {
+        setError("");
+        setValidCategoryName(true);
+        setErrorCategoryName("");
+    };
 
     //Validation
     const [validCategoryName, setValidCategoryName] = useState(true);

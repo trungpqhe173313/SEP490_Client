@@ -1,6 +1,6 @@
 export const getExportStatus = (status) => {
     if (!status && status !== 0) return <p className="text-black">Không có trạng thái</p>
-    switch (status) {
+    switch (parseInt(status)) {
         case 1:
             return <p className="text-yellow-600">Nháp</p>
         case 2:
@@ -24,7 +24,7 @@ export const getExportStatus = (status) => {
 
 export const getExportStatusText = (status) => {
     if (!status && status !== 0) return "Không có trạng thái"
-    switch (status) {
+    switch (parseInt(status)) {
         case 1:
             return "Nháp"
         case 2:
@@ -48,7 +48,7 @@ export const getExportStatusText = (status) => {
 
 export const getImportStatus = (status) => {
     if (!status && status !== 0) return <p className="text-black">Không có trạng thái</p>
-    switch (status) {
+    switch (parseInt(status)) {
         case 1:
             return <p className="text-yellow-600">Đang kiểm</p>
         case 2:
@@ -66,7 +66,7 @@ export const getImportStatus = (status) => {
 
 export const getImportStatusText = (status) => {
     if (!status && status !== 0) return "Không có trạng thái"
-    switch (status) {
+    switch (parseInt(status)) {
         case 1:
             return "Đang kiểm"
         case 2:
@@ -84,7 +84,7 @@ export const getImportStatusText = (status) => {
 
 export const getInventoryStatus = (status) => {
     if (!status && status !== 0) return <p className="text-black">Không có trạng thái</p>
-    switch (status) {
+    switch (parseInt(status)) {
         case 1:
             return <p className="text-yellow-600">Nháp</p>
         case 2:
@@ -98,7 +98,7 @@ export const getInventoryStatus = (status) => {
 
 export const getInventoryStatusText = (status) => {
     if (!status && status !== 0) return "Không có trạng thái"
-    switch (status) {
+    switch (parseInt(status)) {
         case 1:
             return "Nháp"
         case 2:
@@ -112,7 +112,7 @@ export const getInventoryStatusText = (status) => {
 
 export const getProductionStatus = (status) => {
     if (!status && status !== 0) return <p className="text-black">Không có trạng thái</p>
-    switch (status) {
+    switch (parseInt(status)) {
         case 0:
             return <p className="text-blue-600">Đang chờ xử lý</p>
         case 1:
@@ -128,7 +128,7 @@ export const getProductionStatus = (status) => {
 
 export const getProductionStatusText = (status) => {
     if (!status && status !== 0) return "Không có trạng thái"
-    switch (status) {
+    switch (parseInt(status)) {
         case 0:
             return "Đang chờ xử lý"
         case 1:
@@ -144,7 +144,7 @@ export const getProductionStatusText = (status) => {
 
 export const getTransferStatus = (status) => {
     if (!status && status !== 0) return <p className="text-black">Không có trạng thái</p>
-    switch (status) {
+    switch (parseInt(status)) {
         case 9:
             return <p className="text-yellow-600">Đang vận chuyển</p>
         case 10:
@@ -158,7 +158,7 @@ export const getTransferStatus = (status) => {
 
 export const getTransferStatusText = (status) => {
     if (!status && status !== 0) return "Không có trạng thái"
-    switch (status) {
+    switch (parseInt(status)) {
         case 9:
             return "Đang vận chuyển"
         case 10:
@@ -172,7 +172,7 @@ export const getTransferStatusText = (status) => {
 
 export const getFinancialTransactionType = (type) => {
     if (!type && type !== 0) return <p className="text-black">Không có loại</p>
-    switch (type) {
+    switch (parseInt(type)) {
         case 0:
             return <p className="text-green-600">Thu tiền khách hàng</p>
         case 1:
@@ -192,7 +192,7 @@ export const getFinancialTransactionType = (type) => {
 
 export const getFinancialTransactionTypeText = (type) => {
     if (!type && type !== 0) return "Không có loại"
-    switch (type) {
+    switch (parseInt(type)) {
         case 0:
             return "Thu tiền khách hàng"
         case 1:

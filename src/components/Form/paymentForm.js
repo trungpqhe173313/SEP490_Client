@@ -30,8 +30,14 @@ export function PaymentForm({
         paymentMethod: ""
       });
     }
-    setError("");
+    clearErrors();
   }, [initialData, isOpen]);
+
+  const clearErrors = () => {
+    setError("");
+    setErrorAmount("");
+    setValidAmount(true);
+  };
 
   //Validation
   const [validAmount, setValidAmount] = useState(true);

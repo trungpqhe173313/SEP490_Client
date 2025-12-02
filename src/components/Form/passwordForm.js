@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "@mui/material";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -23,6 +23,18 @@ export function PasswordForm({
 
     const [errorNewPassword, setErrorNewPassword] = useState("");
     const [errorConfirmPassword, setErrorConfirmPassword] = useState("");
+
+    const clearErrors = () => {
+        setError("");
+        setErrorNewPassword("");
+        setErrorConfirmPassword("");
+        setValidNewPassword(true);
+        setValidConfirmPassword(true);
+    }
+
+    useEffect(() => {
+        clearErrors();
+    }, [isOpen]);
 
     const handleChange = (name, value) => {
         let newValue = value;

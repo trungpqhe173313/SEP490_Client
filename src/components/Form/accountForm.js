@@ -61,10 +61,22 @@ export function AccountForm({
                 phone: "",
             });
         }
-        setError("");
+        clearErrors();
         fetchAccounts();
         fetchRoles();
     }, [initialData, isOpen]);
+
+    const clearErrors = () => {
+        setError("");
+        setErrorUsername("");
+        setErrorEmail("");
+        setErrorFullName("");
+        setErrorPhone("");
+        setValidUsername(true);
+        setValidEmail(true);
+        setValidFullName(true);
+        setValidPhone(true);
+    };
 
     //Validation
     const [validUsername, setValidUsername] = useState(true);

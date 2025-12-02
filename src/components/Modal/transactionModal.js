@@ -59,7 +59,7 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
         {
             key: "totalWeight",
             label: "Tổng khối lượng (Khối lượng x Số lượng)",
-            customValue: (item) => item.weightPerUnit && item.quantity && <div>{formatLargeNumber(item.weightPerUnit * item.quantity)}</div>
+            customValue: (item) => item.totalWeight && <div>{item.totalWeight}</div>
         },
         {
             key: "unitPrice",
@@ -81,9 +81,9 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                 <TableCell />
                 <TableCell />
                 <TableCell />
-                <TableCell align="center">{(transaction.list.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</TableCell>
+                <TableCell align="center">{(transaction.details.reduce((total, item) => total + (item.totalWeight), 0))} Kg</TableCell>
                 <TableCell />
-                <TableCell align="center">{!transaction.totalCost ? formatLargeNumber(transaction.list.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</TableCell>
+                <TableCell align="center">{!transaction.totalCost ? formatLargeNumber(transaction.details.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</TableCell>
             </TableRow>
         )
     }
@@ -110,7 +110,7 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                             <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
                             <div className='my-2 flex flex-row gap-2'>
                                 <p>Trạng thái: </p>
-                                {transaction.customer.userId ? getExportStatus(transaction.status) : getImportStatus(transaction.status)}
+                                {transaction.customerId ? getExportStatus(transaction.status) : getImportStatus(transaction.status)}
                             </div>
                             {transaction.customerName && <p className='my-2'>Khách hàng: {transaction.customerName}</p>}
                             {transaction.supplierName && <p className='my-2'>Nhà cung cấp: {transaction.supplierName}</p>}
@@ -121,7 +121,7 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                         <h1 className='text-xl font-bold p-4'>Danh sách sản phẩm</h1>
                         <TableCommon
                             headers={headerData}
-                            tableData={transaction.list}
+                            tableData={transaction.details}
                             extraRow={extraRow}
                         />
                         <div className='flex flex-row justify-between items-center p-4' />
@@ -131,11 +131,11 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                     <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2 p-4 text-right flex flex-col items-end'>
                         <div className='text-xl flex flex-row justify-between w-1/3'>
                             <h3 className='w-1/3 text-left'>Tổng khối lượng:</h3>
-                            <h3>{convertKgToTon(transaction.list.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))}</h3>
+                            <h3>{convertKgToTon(transaction.details.reduce((total, item) => total + item.totalWeight, 0))}</h3>
                         </div>
                         <div className='text-xl flex flex-row justify-between w-1/3'>
                             <h3 className='w-1/3 text-left'>Tổng tiền đơn:</h3>
-                            <h3>{!transaction.totalCost ? formatLargeNumber(transaction.list.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</h3>
+                            <h3>{!transaction.totalCost ? formatLargeNumber(transaction.details.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</h3>
                         </div>
                         {transaction?.status >= 11 && <div className='w-1/3'>
                             <div className='text-xl flex flex-row justify-between'>
