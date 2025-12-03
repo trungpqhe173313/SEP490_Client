@@ -103,8 +103,8 @@ export default function Products() {
                 supplierId: filterSupplierId,
                 categoryId: filterCategoryId,
                 isAvailable: filterisAvailable === "true" ? true : filterisAvailable === "false" ? false : null,
-                minWeightPerUnit: filterFromWeightPerUnit === 0 || filterToWeightPerUnit === "" ? null : filterFromWeightPerUnit,
-                maxWeightPerUnit: filterToWeightPerUnit === 0 || filterToWeightPerUnit === "" ? null : filterToWeightPerUnit,
+                minWeightPerUnit: filterFromWeightPerUnit === 0 || filterToWeightPerUnit === "" ? null : parseInt(filterFromWeightPerUnit),
+                maxWeightPerUnit: filterToWeightPerUnit === 0 || filterToWeightPerUnit === "" ? null : parseInt(filterToWeightPerUnit),
                 createdFrom: filterFromCreatedDate || null,
                 createdTo: filterToCreatedDate || null
             };
@@ -234,7 +234,7 @@ export default function Products() {
             setErrorToCreatedDate("Ngày tạo đến phải lớn hơn ngày tạo từ");
             return false;
         }
-        if (parseInt(filterToWeightPerUnit) < parseInt(filterFromWeightPerUnit)) {
+        if (filterToWeightPerUnit !== 0 && parseInt(filterToWeightPerUnit) < parseInt(filterFromWeightPerUnit)) {
             setErrorToWeightPerUnit("Khối lượng đến phải lớn hơn khối lượng từ");
             return false;
         }

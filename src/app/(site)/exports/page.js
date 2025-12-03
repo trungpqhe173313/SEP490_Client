@@ -1,7 +1,7 @@
 "use client";
 import { exportService } from "@/services/export.service";
 import { warehouseService } from "@/services/warehouse.service";
-import { supplierService } from "@/services/supplier.service";
+import { customerService } from "@/services/customer.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
@@ -39,7 +39,7 @@ export default function Exports() {
   const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
 
   //Filter state
-  const [filterSupplierId, setFilterSupplierId] = useState(null);
+  const [filterCustomerId, setFilterCustomerId] = useState(null);
   const [filterWarehouseId, setFilterWarehouseId] = useState(null);
   const [filterStatus, setFilterStatus] = useState(null);
   const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
@@ -53,11 +53,11 @@ export default function Exports() {
   const [totalCount, setTotalCount] = useState(0);
 
   //Autocomplete
-  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
-  const [suppliers, setSuppliers] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
-  const [supplierLoading, setSupplierLoading] = useState(false);
+  const [customerLoading, setCustomerLoading] = useState(false);
   const [warehouseLoading, setWarehouseLoading] = useState(false);
 
   const { loading, setLoading } = useLoading();
@@ -127,25 +127,22 @@ export default function Exports() {
     setPageIndex(0);
   };
 
-  const fetchSuppliers = async (value) => {
+  const fetchCustomers = async (value) => {
     try {
-      setSupplierLoading(true);
+      setCustomerLoading(true);
       const body = {
         pageIndex: 1,
         pageSize: 1000,
         isActive: true,
-        supplierName: value
+        fullName: value
       };
-      const response = await supplierService.getAllSuppliers(body);
-      const supplierData = response.data.items.map((supplier) => ({
-        supplierId: supplier.supplierId,
-        supplierName: supplier.supplierName
-      }));
-      setSuppliers(supplierData);
+      const response = await customerService.getAllCustomers(body);
+      const customerData = response.data.items
+      setCustomers(customerData);
     } catch (error) {
-      console.error("Error fetching suppliers:", error);
+      console.error("Error fetching customers:", error);
     } finally {
-      setSupplierLoading(false);
+      setCustomerLoading(false);
     }
   }
 
@@ -172,7 +169,7 @@ export default function Exports() {
 
   useEffect(() => {
     if (!pageReady) return;
-    fetchSuppliers("");
+    fetchCustomers("");
     fetchWarehouses("");
   }, [pageReady]);
 
@@ -182,7 +179,7 @@ export default function Exports() {
       const body = {
         pageIndex: pageIndex + 1,
         pageSize: rowPerPage,
-        supplierId: filterSupplierId || null,
+        customerId: filterCustomerId || null,
         warehouseId: filterWarehouseId || null,
         status: parseInt(filterStatus) || null,
         type: 'Export',
@@ -214,17 +211,17 @@ export default function Exports() {
 
   const handleChangeDropdown = (item, field) => {
     if (item) {
-      if (item.supplierId) {
-        setSelectedSupplier(item);
-        setFilterSupplierId(item.supplierId);
+      if (item.userId) {
+        setSelectedCustomer(item);
+        setFilterCustomerId(item.userId);
       } else if (item.warehouseId) {
         setSelectedWarehouse(item);
         setFilterWarehouseId(item.warehouseId);
       }
     } else {
-      if (field === "supplierId") {
-        setSelectedSupplier(null);
-        setFilterSupplierId(null);
+      if (field === "customerId") {
+        setSelectedCustomer(null);
+        setFilterCustomerId(null);
       } else if (field === "warehouseId") {
         setSelectedWarehouse(null);
         setFilterWarehouseId(null);
@@ -253,8 +250,8 @@ export default function Exports() {
   };
 
   const handleClearFilter = () => {
-    setFilterSupplierId(null);
-    setSelectedSupplier(null);
+    setFilterCustomerId(null);
+    setSelectedCustomer(null);
     setFilterWarehouseId(null);
     setSelectedWarehouse(null);
     setFilterStatus(null);
@@ -284,16 +281,16 @@ export default function Exports() {
         <h2 className="text-xl font-bold">Lọc phiếu xuất</h2>
         <div className="flex items-center my-4 gap-4">
           <div className="mt-2 w-[24.25%]">
-            <label className="mr-2">Nhà cung cấp:</label>
+            <label className="mr-2">Khách hàng:</label>
             <AutocompleteCommon
-              name="supplierId"
-              value={selectedSupplier}
-              loading={supplierLoading}
-              options={suppliers}
-              onSelect={(item) => handleChangeDropdown(item, "supplierId")}
-              onSearch={fetchSuppliers}
-              getOptionLabel={(option) => option.supplierName}
-              getOptionKey={(option) => option.supplierId}
+              name="customerId"
+              value={selectedCustomer}
+              loading={customerLoading}
+              options={customers}
+              onSelect={(item) => handleChangeDropdown(item, "customerId")}
+              onSearch={fetchCustomers}
+              getOptionLabel={(option) => option.fullName}
+              getOptionKey={(option) => option.customerId}
             />
           </div>
           <div className="mt-2 w-[24.25%]">
