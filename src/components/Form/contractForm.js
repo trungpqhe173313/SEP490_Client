@@ -73,6 +73,7 @@ export function ContractForm({
         supplierId: null,
         image: "",
       });
+      setSelectedCoop(null);
     }
     setError("");
   }, [initialData, isOpen]);

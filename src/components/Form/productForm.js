@@ -121,6 +121,8 @@ export function ProductForm({
                 supplierId: "",
                 categoryId: "",
             });
+            setSelectedSupplier(null);
+            setSelectedCategory(null);
         }
         clearErrors();
         fetchProducts();

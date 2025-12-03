@@ -1,7 +1,7 @@
 "use client";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Header from "@/components/Header/header";
-import Footer from "@/components/Footer/footer";
 import Navbar from "@/components/Navbar/navbar";
 
 const blacklistPathnames = ["/404", "/login", "/forgot-password", "/verify-otp", "/reset-password"];
@@ -12,6 +12,17 @@ export default function ClientLayout({ children }) {
   if (blacklistPathnames.includes(pathname)) {
     return children;
   }
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (document.activeElement.type === "number") {
+        document.activeElement.blur();
+      }
+    };
+
+    window.addEventListener("wheel", handler, { passive: false });
+    return () => window.removeEventListener("wheel", handler);
+  }, []);
 
   return (
     <>
