@@ -8,11 +8,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { payrollService } from "@/services/payroll.service";
 import { employeeService } from "@/services/employee.service";
 import { productService } from "@/services/product.service";
-import { importService } from "@/services/import.service";
-import { exportService } from "@/services/export.service";
+import { transactionService } from "@/services/transaction.service";
 import Loader from "@/components/Loader/loader";
 import { paymentService } from "@/services/payment.service";
-import { formatLargeNumber, formatDateToInput } from "@/lib/formattingLib";
+import { formatLargeNumber } from "@/lib/formattingLib";
 
 export default function Dashboard() {
     const router = useRouter();
@@ -35,13 +34,58 @@ export default function Dashboard() {
     const thisMonth = {
         from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
         to: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
-        // from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
-        // to: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
     };
     const lastMonth = {
         from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
         to: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
     };
+
+    const thisYear = Object.entries({
+        jan: new Date(new Date().getFullYear(), 0, 1),
+        feb: new Date(new Date().getFullYear(), 1, 1),
+        mar: new Date(new Date().getFullYear(), 2, 1),
+        apr: new Date(new Date().getFullYear(), 3, 1),
+        may: new Date(new Date().getFullYear(), 4, 1),
+        jun: new Date(new Date().getFullYear(), 5, 1),
+        jul: new Date(new Date().getFullYear(), 6, 1),
+        aug: new Date(new Date().getFullYear(), 7, 1),
+        sep: new Date(new Date().getFullYear(), 8, 1),
+        oct: new Date(new Date().getFullYear(), 9, 1),
+        nov: new Date(new Date().getFullYear(), 10, 1),
+        dec: new Date(new Date().getFullYear(), 11, 1),
+        next: new Date(new Date().getFullYear() + 1, 0, 1)
+    }).map(([key, value]) => ({ key, date: value }));
+
+    const translateMonth = (month) => {
+        switch (month) {
+            case "jan":
+                return "Tháng 1";
+            case "feb":
+                return "Tháng 2";
+            case "mar":
+                return "Tháng 3";
+            case "apr":
+                return "Tháng 4";
+            case "may":
+                return "Tháng 5";
+            case "jun":
+                return "Tháng 6";
+            case "jul":
+                return "Tháng 7";
+            case "aug":
+                return "Tháng 8";
+            case "sep":
+                return "Tháng 9";
+            case "oct":
+                return "Tháng 10";
+            case "nov":
+                return "Tháng 11";
+            case "dec":
+                return "Tháng 12";
+            default:
+                return month;
+        }
+    }
 
 
     useEffect(() => {
@@ -100,8 +144,7 @@ export default function Dashboard() {
 
     const fetchTopSellingProducts = async () => {
         try {
-            const response = await dashboardService.getTopSellingProduct(formatDateToInput(thisMonth.from), formatDateToInput(thisMonth.to));
-            console.log(response.data);
+            const response = await dashboardService.getTopSellingProduct(thisMonth.from, thisMonth.to);
             setTopSellingProducts(response.data);
         } catch (error) {
             console.log(error);
@@ -110,8 +153,7 @@ export default function Dashboard() {
 
     const fetchTopPayingCustomers = async () => {
         try {
-            const response = await dashboardService.getTopCustomerByTotalSpent(formatDateToInput(thisMonth.from), formatDateToInput(thisMonth.to));
-            console.log(response.data);
+            const response = await dashboardService.getTopCustomerByTotalSpent(thisMonth.from, thisMonth.to);
             setTopPayingCustomers(response.data);
         } catch (error) {
             console.log(error);
@@ -253,26 +295,79 @@ export default function Dashboard() {
     const [totalWeight, setTotalWeight] = useState(0);
     const [totalImportWeight, setTotalImportWeight] = useState(0);
     const [totalExportWeight, setTotalExportWeight] = useState(0);
+    const [weightData, setWeightData] = useState([]);
+    const [reportMode, setReportMode] = useState("year");
 
     const fetchProducts = async () => {
-        
+        try {
+            const response = await productService.getProductAvailable({ pageSize: 1000, pageIndex: 1 });
+            setTotalProducts(response.data.totalCount);
+            setTotalWeight(response.data.items.reduce((acc, item) => acc + (item.weightPerUnit * item.quantity), 0));
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        }
+    }
+
+    const fetchWeights = async () => {
+        try {
+            const results = [];
+            for (let i = 0; i < thisYear.length - 1; i++) {
+                const fromDate = thisYear[i].date;
+                const toDate = thisYear[i + 1].date;
+                const importResponse = await transactionService.getImportWeight(fromDate, toDate);
+                const exportResponse = await transactionService.getExportWeight(fromDate, toDate);
+                results.push({
+                    month: translateMonth(thisYear[i].key),
+                    importWeight: importResponse.data.totalWeight ?? 0,
+                    exportWeight: exportResponse.data.totalWeight ?? 0
+                });
+            }
+            setWeightData(results);
+            console.log(results);
+        } catch (error) {
+            console.error('Error fetching imports:', error);
+        }
     }
 
     const fetchImports = async () => {
-        
+        try {
+            const response = await transactionService.getImportWeight(thisMonth.from, thisMonth.to);
+            setTotalImportWeight(response.data.totalWeight);
+        } catch (error) {
+            console.error('Error fetching imports:', error);
+        }
     }
 
     const fetchExports = async () => {
-        
+        try {
+            const response = await transactionService.getExportWeight(thisMonth.from, thisMonth.to);
+            setTotalExportWeight(response.data.totalWeight);
+        } catch (error) {
+            console.error('Error fetching exports:', error);
+        }
     }
 
     useEffect(() => {
         fetchProducts();
+        fetchWeights();
         fetchImports();
         fetchExports();
     }, []);
 
     const ProductTabContent = () => {
+        let chartData = [];
+        const now = new Date();
+        const currentMonthIndex = now.getMonth();
+        const currentQuarter = Math.floor(currentMonthIndex / 3);
+
+        if (reportMode === "month") {
+            chartData = weightData.slice(currentMonthIndex - 1, currentMonthIndex + 1);
+        } else if (reportMode === "quarter") {
+            chartData = weightData.slice(currentQuarter * 3, currentQuarter * 3 + 3);
+        } else if (reportMode === "year") {
+            chartData = weightData.slice(0, 12);
+        }
+
         return (
             <div className="flex flex-col gap-4">
                 <p className="text-2xl font-bold">Báo cáo hàng hóa</p>
@@ -286,23 +381,59 @@ export default function Dashboard() {
                     <div className="border-2 border-gray-300 p-4 rounded-xl w-1/4 flex flex-row justify-between">
                         <div>
                             <p>Tổng khối lượng trong kho</p>
-                            <p className="text-2xl font-bold">{totalWeight}</p>
+                            <p className="text-2xl font-bold">{formatLargeNumber(totalWeight)} Kg</p>
                         </div>
                     </div>
                     <div className="border-2 border-gray-300 p-4 rounded-xl w-1/4 flex flex-row justify-between">
                         <div>
                             <p>Tổng khối lượng nhập tháng này</p>
-                            <p className="text-2xl font-bold">{totalImportWeight}</p>
+                            <p className="text-2xl font-bold">{formatLargeNumber(totalImportWeight)} Kg</p>
                         </div>
                     </div>
                     <div className="border-2 border-gray-300 p-4 rounded-xl w-1/4 flex flex-row justify-between">
                         <div>
                             <p>Tổng khối lượng xuất tháng này</p>
-                            <p className="text-2xl font-bold">{totalExportWeight}</p>
+                            <p className="text-2xl font-bold">{formatLargeNumber(totalExportWeight)} Kg</p>
                         </div>
                     </div>
                 </div>
-                <p className="text-xl font-bold text-center">Thống kê </p>
+                <div className="flex flex-col items-center justify-start gap-4">
+                    <div className="flex flex-row items-center justify-start w-full pb-10">
+                        <div className="w-full h-80 p-4">
+                            <div className="flex flex-row justify-between items-center mb-3">
+                                <h2 className="text-xl font-semibold text-center">Thống kê khối lượng hàng hóa nhập, xuất</h2>
+                                <select
+                                    value={reportMode}
+                                    onChange={e => setReportMode(e.target.value)}
+                                    className="px-4 py-2 rounded-lg background-primary text-white"
+                                >
+                                    <option value="month">Tháng này & tháng trước</option>
+                                    <option value="quarter">Quý này</option>
+                                    <option value="year">Cả năm</option>
+                                </select>
+                            </div>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={chartData}
+                                    layout="horizontal"
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis
+                                        type="category"
+                                        dataKey="month"
+                                        width={150}
+                                    />
+                                    <YAxis
+                                        type="number"
+                                    />
+                                    <Tooltip />
+                                    <Bar dataKey="importWeight" name="Tổng số lượng nhập" fill="#00a544" />
+                                    <Bar dataKey="exportWeight" name="Tổng số lượng xuất" fill="#00ccff" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     };

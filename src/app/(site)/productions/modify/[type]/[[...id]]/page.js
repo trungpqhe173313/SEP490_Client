@@ -291,7 +291,7 @@ export default function ModifyProduction({ params }) {
       return false
     }
     if (cart.find((p) => p.productId === selectedMaterial.productId && p.produceQuantity > selectedMaterial.produceQuantity)) {
-      setErrors("Sản xuất ra cùng 1 loại sản phẩm, lại còn số lượng sản xuất lớn hơn số lượng tiêu thụ, ý là....")
+      setErrors("Đang sản xuất ra cùng 1 loại sản phẩm và có số lượng mới lớn hơn số lượng cũ")
       return false
     }
     setErrors("")
