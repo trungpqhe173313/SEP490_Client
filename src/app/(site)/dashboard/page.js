@@ -145,7 +145,7 @@ export default function Dashboard() {
     const fetchTopSellingProducts = async () => {
         try {
             const response = await dashboardService.getTopSellingProduct(thisMonth.from, thisMonth.to);
-            setTopSellingProducts(response.data);
+            setTopSellingProducts(response.data.sort((a, b) => b.totalRevenue - a.totalRevenue));
         } catch (error) {
             console.log(error);
         }
@@ -154,7 +154,7 @@ export default function Dashboard() {
     const fetchTopPayingCustomers = async () => {
         try {
             const response = await dashboardService.getTopCustomerByTotalSpent(thisMonth.from, thisMonth.to);
-            setTopPayingCustomers(response.data);
+            setTopPayingCustomers(response.data.sort((a, b) => b.totalSpent - a.totalSpent));
         } catch (error) {
             console.log(error);
         }
@@ -296,7 +296,7 @@ export default function Dashboard() {
     const [totalImportWeight, setTotalImportWeight] = useState(0);
     const [totalExportWeight, setTotalExportWeight] = useState(0);
     const [weightData, setWeightData] = useState([]);
-    const [reportMode, setReportMode] = useState("year");
+    const [reportMode, setReportMode] = useState("month");
 
     const fetchProducts = async () => {
         try {
