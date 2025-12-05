@@ -91,7 +91,7 @@ export default function Worklog() {
             const response = await worklogService.getAllWorklogs(body);
             setWorklogData(response.data);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
             setModalFailedOpen(true);
         }
@@ -260,7 +260,7 @@ export default function Worklog() {
             setModalSuccessOpen(true);
         } catch (error) {
             setModalFailedMessage(
-                `Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`
+                `Lỗi: ${error?.response?.data?.error?.message}`
             );
             setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
             setModalFailedOpen(true);
@@ -305,7 +305,7 @@ export default function Worklog() {
             }
         } catch (error) {
             setModalFailedMessage(
-                `Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`
+                `Lỗi: ${error?.response?.data?.error?.message}`
             );
             setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
             setModalFailedOpen(true);
@@ -338,7 +338,7 @@ export default function Worklog() {
             setModalSuccessMessage("Chấm công thành công");
             setModalSuccessOpen(true);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
             setModalFailedOpen(true);
         }

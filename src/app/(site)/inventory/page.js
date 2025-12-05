@@ -126,7 +126,7 @@ export default function InventoryPage() {
             setInventories(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -141,7 +141,7 @@ export default function InventoryPage() {
             const products = response.data.items.sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((item) => ({ productId: item.productId, productName: item.productName, productCode: item.productCode }));
             setProducts(products);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setProductLoading(false);
@@ -156,7 +156,7 @@ export default function InventoryPage() {
             const warehouses = response.data.items.map((item) => ({ warehouseId: item.warehouseId, warehouseName: item.warehouseName }));
             setWarehouses(warehouses);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setWarehouseLoading(false);

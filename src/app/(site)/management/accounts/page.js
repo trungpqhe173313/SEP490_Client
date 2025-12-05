@@ -151,7 +151,7 @@ export default function UserManagement() {
             setAccounts(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -216,7 +216,7 @@ export default function UserManagement() {
             setModalOpen(false);
             fetchAccounts();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);

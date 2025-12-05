@@ -61,7 +61,7 @@ export default function ProfilePage() {
       setModalSuccessOpen(true);
       authService.logout();
     } catch (error) {
-      setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+      setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
       setModalFailedOpen(true);
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ export default function ProfilePage() {
       setModalSuccessOpen(true);
       fetchProfile();
     } catch (error) {
-      setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+      setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
       setModalFailedOpen(true);
     } finally {
       setLoading(false);

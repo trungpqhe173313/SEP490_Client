@@ -112,7 +112,7 @@ export default function Products() {
             setProducts(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -313,7 +313,7 @@ export default function Products() {
             setModalOpen(false);
             fetchProducts();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -374,7 +374,7 @@ export default function Products() {
             setModalImportOpen(true);
             fetchProducts();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedSubMessages(error.response.data.error.messages);
             setModalFailedOpen(true);
         } finally {

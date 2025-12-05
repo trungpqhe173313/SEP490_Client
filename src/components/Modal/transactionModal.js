@@ -134,7 +134,7 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                             <h3>{convertKgToTon(transaction.details.reduce((total, item) => total + item.totalWeight, 0))}</h3>
                         </div>
                         <div className='text-xl flex flex-row justify-between w-1/3'>
-                            <h3 className='w-1/3 text-left'>Tổng tiền đơn:</h3>
+                            <h3 className='w-1/3 text-left'>Tổng tiền phiếu:</h3>
                             <h3>{!transaction.totalCost ? formatLargeNumber(transaction.details.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</h3>
                         </div>
                         {transaction?.status >= 11 && <div className='w-1/3'>

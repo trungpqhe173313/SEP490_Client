@@ -88,7 +88,7 @@ export default function ModifyInventory({ params }) {
             setSelectedWarehouse(warehouse);
             setNote(response.data.details[0].note);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -293,7 +293,7 @@ export default function ModifyInventory({ params }) {
                     if (action === "resolve") {
                         await inventoryService.resolveStockAdjustment(response.data.adjustmentId)
                             .catch((error) => {
-                                setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+                                setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
                                 setModalFailedSubMessages(error.response.data.error.messages);
                                 setModalFailedOpen(true);
                             });
@@ -304,7 +304,7 @@ export default function ModifyInventory({ params }) {
                     setModalSuccessOpen(true);
                 })
                 .catch((error) => {
-                    setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+                    setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
                     setModalFailedSubMessages(error.response.data.error.messages);
                     setModalFailedOpen(true);
                 });
@@ -315,7 +315,7 @@ export default function ModifyInventory({ params }) {
                     if (action === "resolve") {
                         await inventoryService.resolveStockAdjustment(response.data.adjustmentId)
                             .catch((error) => {
-                                setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+                                setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
                                 setModalFailedSubMessages(error.response.data.error.messages);
                                 setModalFailedOpen(true);
                             });
@@ -327,7 +327,7 @@ export default function ModifyInventory({ params }) {
                     setModalSuccessOpen(true);
                 })
                 .catch((error) => {
-                    setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                    setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                     setModalFailedSubMessages(error?.response?.data?.error?.messages);
                     setModalFailedOpen(true);
                 });

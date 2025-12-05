@@ -225,7 +225,7 @@ export default function ModifyPriceList({ params }) {
             setModalSuccessMessage("Cập nhật bảng giá thành công");
             setModalSuccessOpen(true);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);

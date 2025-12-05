@@ -77,7 +77,7 @@ export default function ProductDetail({ params }) {
             setModalOpen(false);
             fetchProduct();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);

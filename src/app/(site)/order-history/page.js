@@ -167,7 +167,7 @@ export default function OrderHistory() {
       setOrders(response.data.items);
       setTotalCount(response.data.totalCount);
     } catch (error) {
-      setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+      setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
       setModalFailedOpen(true);
     } finally {
       setLoading(false);

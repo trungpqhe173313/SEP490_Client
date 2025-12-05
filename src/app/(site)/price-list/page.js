@@ -124,7 +124,7 @@ export default function PriceList() {
             setPriceLists(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -195,7 +195,7 @@ export default function PriceList() {
             setModalOpen(false);
             fetchPriceLists();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);

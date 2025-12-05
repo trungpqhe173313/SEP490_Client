@@ -190,7 +190,7 @@ export default function Exports() {
       setExports(response.data.items);
       setTotalCount(response.data.totalCount);
     } catch (error) {
-      setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+      setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
       setModalFailedOpen(true);
     } finally {
       setLoading(false);

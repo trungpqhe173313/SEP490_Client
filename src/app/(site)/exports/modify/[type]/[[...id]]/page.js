@@ -105,7 +105,7 @@ export default function UpdateExport({ params }) {
             setSelectedCustomer(response.data.customer);
             if (response.data.priceListId) fetchExactPriceList(response.data.priceListId);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -350,7 +350,7 @@ export default function UpdateExport({ params }) {
                     setModalSuccessOpen(true);
                 })
                 .catch((error) => {
-                    setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+                    setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
                     setModalFailedSubMessages(error.response.data.error.messages);
                     setModalFailedOpen(true);
                 });
@@ -362,7 +362,7 @@ export default function UpdateExport({ params }) {
                     setModalSuccessOpen(true);
                 })
                 .catch((error) => {
-                    setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                    setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                     setModalFailedSubMessages(error?.response?.data?.error?.messages);
                     setModalFailedOpen(true);
                 });
@@ -602,7 +602,7 @@ export default function UpdateExport({ params }) {
                     <button
                         className="background-primary background-hovered text-white text-2xl font-bold py-2 px-4 rounded"
                         onClick={() => handleSubmit()}>
-                        Hoàn thành đơn
+                        Hoàn thành phiếu
                     </button>
                 </div>
             </div>

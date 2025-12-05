@@ -114,7 +114,7 @@ export default function Categories() {
             setCategories(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -158,7 +158,7 @@ export default function Categories() {
             fetchCategories();
         } catch (error) {
             console.error("Error deleting category:", error);
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -179,7 +179,7 @@ export default function Categories() {
             setModalOpen(false);
             fetchCategories();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);

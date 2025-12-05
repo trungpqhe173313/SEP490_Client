@@ -169,11 +169,11 @@ export default function ImportDetail({ params }) {
         setLoading(true);
         try {
             await importService.updateToChecked(id);
-            setModalSuccessMessage("Xác nhận kiểm đơn hàng thành công");
+            setModalSuccessMessage("Xác nhận kiểm phiếu nhập kho thành công");
             setModalSuccessOpen(true);
             fetchTransaction();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedSubMessages(error?.response?.data?.error?.messages);
             setModalFailedOpen(true);
         } finally {
@@ -231,7 +231,7 @@ export default function ImportDetail({ params }) {
             setModalSuccessMessage("Thanh toán giao dịch thành công");
             setModalSuccessOpen(true);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedSubMessages(error?.response?.data?.error?.messages);
             setModalFailedOpen(true);
         } finally {
@@ -275,7 +275,7 @@ export default function ImportDetail({ params }) {
                         {transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
                         {transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
                         {transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
-                        <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép đơn</button>
+                        <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>
                         {transaction && transaction.status > 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
                         {transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
                         {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
@@ -294,7 +294,7 @@ export default function ImportDetail({ params }) {
                     <h3>{convertKgToTon(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))}</h3>
                 </div>
                 <div className='text-xl flex flex-row justify-between w-1/3'>
-                    <h3 className='w-1/3 text-left'>Tổng tiền đơn:</h3>
+                    <h3 className='w-1/3 text-left'>Tổng tiền phiếu:</h3>
                     <h3>{!transaction.totalCost ? formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</h3>
                 </div>
                 {transaction?.status >= 11 && <div className='w-1/3'>

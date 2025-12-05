@@ -98,7 +98,7 @@ export default function ModifyProduction({ params }) {
       setSelectedMaterial(material[0]);
       setNote(response.data.note);
     } catch (error) {
-      setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+      setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
       setModalFailedOpen(true);
     } finally {
       setLoading(false);
@@ -235,7 +235,7 @@ export default function ModifyProduction({ params }) {
           setModalSuccessOpen(true);
         })
         .catch((error) => {
-          setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+          setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
           setModalFailedOpen(true);
         });
     } else if (type === "update") {
@@ -251,7 +251,7 @@ export default function ModifyProduction({ params }) {
           setModalSuccessOpen(true);
         })
         .catch((error) => {
-          setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+          setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
           setModalFailedOpen(true);
         });
     }

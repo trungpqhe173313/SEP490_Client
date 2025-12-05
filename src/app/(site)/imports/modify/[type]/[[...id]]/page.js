@@ -271,7 +271,7 @@ export default function UpdateImport({ params }) {
                 })
                 .catch((error) => {
                     console.log(error);
-                    setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                    setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                     setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
                     setModalFailedOpen(true);
                 });
@@ -295,7 +295,7 @@ export default function UpdateImport({ params }) {
                 })
                 .catch((error) => {
                     console.log(error);
-                    setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                    setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                     setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
                     setModalFailedOpen(true);
                 });

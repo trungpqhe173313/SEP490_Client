@@ -158,7 +158,7 @@ export default function Inventory() {
             setInventories(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -173,7 +173,7 @@ export default function Inventory() {
                 const response = await inventoryService.getStockAdjustmentDetail(inventory.adjustmentId);
                 detailsArr.push(response.data);
             } catch (error) {
-                setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                 setModalFailedOpen(true);
             }
         }
@@ -209,7 +209,7 @@ export default function Inventory() {
             setModalSuccessOpen(true);
             fetchInventories();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedSubMessages(error?.response?.data?.error?.messages);
             setModalFailedOpen(true);
         } finally {
@@ -233,7 +233,7 @@ export default function Inventory() {
                 fetchAllInventoryDetails(inventories);
             })
             .catch((error) => {
-                setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+                setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
                 setModalFailedSubMessages(error.response.data.error.messages);
                 setModalFailedOpen(true);
             })

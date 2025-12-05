@@ -240,7 +240,7 @@ export default function Dashboard() {
                             </ResponsiveContainer>
                         </div>
                         <div className="w-1/2 h-80 p-4">
-                            <h2 className="text-xl font-semibold mb-3 text-center">Top sản phẩm bán chạy nhất (theo số lượng, đơn)</h2>
+                            <h2 className="text-xl font-semibold mb-3 text-center">Top sản phẩm bán chạy nhất (theo số lượng, số phiếu)</h2>
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
                                     data={topSellingProducts}
@@ -257,7 +257,7 @@ export default function Dashboard() {
                                     />
                                     <Tooltip />
                                     <Bar dataKey="totalQuantitySold" name="Tổng số lượng bán ra" fill="#00a544" />
-                                    <Bar dataKey="numberOfOrders" name="Tổng số đơn" fill="#00ccff" />
+                                    <Bar dataKey="numberOfOrders" name="Tổng số phiếu" fill="#00ccff" />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>

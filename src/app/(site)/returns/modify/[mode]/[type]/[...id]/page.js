@@ -187,7 +187,7 @@ export default function Returns({ params }) {
                     setModalSuccessMessage("Tạo phiếu trả hàng nhập kho thành công");
                     setModalSuccessOpen(true);
                 } catch (error) {
-                    setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                    setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                     setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
                     setModalFailedOpen(true);
                 } finally {
@@ -199,7 +199,7 @@ export default function Returns({ params }) {
                     setModalSuccessMessage("Tạo phiếu trả hàng xuất kho thành công");
                     setModalSuccessOpen(true);
                 } catch (error) {
-                    setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                    setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                     setModalFailedSubMessages(error?.response?.data?.error?.messages || []);
                     setModalFailedOpen(true);
                 } finally {

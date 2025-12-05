@@ -142,7 +142,7 @@ export default function TransferDetail({ params }) {
             setModalSuccessOpen(true);
             fetchTransaction();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedSubMessages(error?.response?.data?.error?.messages);
             setModalFailedOpen(true);
         } finally {
@@ -158,7 +158,7 @@ export default function TransferDetail({ params }) {
             setModalSuccessOpen(true);
             fetchTransaction();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedSubMessages(error?.response?.data?.error?.messages);
             setModalFailedOpen(true);
         } finally {
@@ -200,7 +200,7 @@ export default function TransferDetail({ params }) {
                     <div className='flex flex-row items-center gap-2'>
                         {transaction && transaction.status === 9 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDone}>Hoàn thành chuyển kho</button>}
                         {transaction && transaction.status === 9 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleUpdateCancelled}>Hủy chuyển kho</button>}
-                        <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép đơn</button>
+                        <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>
                         {transaction && transaction.status === 9 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2 justify-end'>

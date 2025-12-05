@@ -125,7 +125,7 @@ export default function Productions() {
             setProductions(response.data.items);
             setTotalCount(response.data.totalCount);
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -140,7 +140,7 @@ export default function Productions() {
                 const response = await productionService.getProductionDetail(production.id);
                 detailsArr.push(response.data);
             } catch (error) {
-                setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+                setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                 setModalFailedOpen(true);
             }
         }
@@ -215,7 +215,7 @@ export default function Productions() {
             setModalSuccessOpen(true);
             fetchProductions();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         }
     }
@@ -231,7 +231,7 @@ export default function Productions() {
             setModalSuccessOpen(true);
             fetchProductions();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         }
     }

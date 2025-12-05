@@ -132,7 +132,7 @@ export default function FinancialTransactions() {
       setPayments(response.data.items);
       setTotalCount(response.data.totalCount);
     } catch (error) {
-      setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+      setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
       setModalFailedOpen(true);
     } finally {
       setLoading(false);
@@ -176,7 +176,7 @@ export default function FinancialTransactions() {
       setModalOpen(false);
       await fetchPayments();
     } catch (error) {
-      setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+      setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
       setModalFailedOpen(true);
     } finally {
       setLoading(false);
@@ -191,7 +191,7 @@ export default function FinancialTransactions() {
       setModalSuccessMessage("Xoá giao dịch thanh toán thành công");
       setModalSuccessOpen(true);
     } catch (error) {
-      setModalFailedMessage(`Lỗi ${error.response.data.statusCode}: ${error.response.data.error.message}`);
+      setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
       setModalFailedOpen(true);
     } finally {
       setLoading(false);

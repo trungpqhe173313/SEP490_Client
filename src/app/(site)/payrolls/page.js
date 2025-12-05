@@ -101,7 +101,7 @@ export default function Payrolls() {
             setModalSuccessOpen(true);
             await fetchPayrolls();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -127,7 +127,7 @@ export default function Payrolls() {
             setModalOpen(false);
             fetchPayrolls();
         } catch (error) {
-            setModalFailedMessage(`Lỗi ${error?.response?.data?.statusCode}: ${error?.response?.data?.error?.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
