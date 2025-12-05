@@ -3,23 +3,15 @@ const path = require("path");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // devServer: {
-  //   https: {
-  //     key: fs.readFileSync(path.join(__dirname, "localhost-key.pem")),
-  //     cert: fs.readFileSync(path.join(__dirname, "localhost.pem")),
-  //   },
-  // },
-};
-
-module.exports = {
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-        pathname: "/**",
+        pathname: "/dq5o0yoex/**",
       },
     ],
   },
 };
 
+module.exports = nextConfig;
