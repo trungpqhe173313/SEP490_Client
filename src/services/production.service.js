@@ -9,6 +9,10 @@ export const productionService = {
         const response = await API.get(`/production/GetDetail/${id}`);
         return response.data;
     },
+    getProductQuantity: async (data) => {
+        const response = await API.post(`/production/GetRawMaterialInventoryQuantity/`, data);
+        return response.data;
+    },
     createProduction: async (data) => {
         const response = await API.post('/production/CreateProductionOrder', data);
         return response.data;

@@ -412,6 +412,7 @@ export default function UpdateExport({ params }) {
                                 <TableRow className="background-primary">
                                     <TableCell sx={{ color: "white" }}>Mã hàng</TableCell>
                                     <TableCell sx={{ color: "white" }}>Tên hàng</TableCell>
+                                    <TableCell sx={{ color: "white" }} align="center">Tồn kho</TableCell>
                                     <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
                                     <TableCell sx={{ color: "white" }} align="center">Đơn giá (VND)</TableCell>
                                     <TableCell sx={{ color: "white" }} align="right">Thành tiền (VND)</TableCell>
@@ -421,7 +422,7 @@ export default function UpdateExport({ params }) {
                             <TableBody>
                                 {cart.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} align="center">
+                                        <TableCell colSpan={7} align="center">
                                             <p className="my-10 text-xl">
                                                 Chưa có sản phẩm
                                             </p>
@@ -432,12 +433,13 @@ export default function UpdateExport({ params }) {
                                         <TableRow key={product.productId} hover>
                                             <TableCell>{product.productCode}</TableCell>
                                             <TableCell>{product.productName}</TableCell>
-                                            <TableCell align="center" >
+                                            <TableCell sx={{width: 90}} align="center">{product.quantity ?? 0}</TableCell>
+                                            <TableCell sx={{width: 220}} align="center">
                                                 <IconButton
                                                     size="small"
                                                     onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity - 1)}
                                                     disabled={product.orderQuantity <= 0}
-                                                    sx={{ border: "1px solid #ccc", height: "28px" }}
+                                                    sx={{ border: "1px solid #ccc", height: "28px", marginY: "5px" }}
                                                 >
                                                     <RemoveIcon fontSize="small" />
                                                 </IconButton>
@@ -463,13 +465,13 @@ export default function UpdateExport({ params }) {
                                                                 borderColor: product.orderQuantity > product.quantity ? 'red' : 'inherit',
                                                             },
                                                         },
-                                                        marginX: "5px",
+                                                        margin: "5px"
                                                     }}
                                                 />
                                                 <IconButton
                                                     size="small"
                                                     onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity + 1)}
-                                                    sx={{ border: "1px solid #ccc", height: "28px" }}
+                                                    sx={{ border: "1px solid #ccc", height: "28px", marginY: "5px" }}
                                                 >
                                                     <AddIcon fontSize="small" />
                                                 </IconButton>

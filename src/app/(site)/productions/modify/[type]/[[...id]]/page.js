@@ -88,13 +88,15 @@ export default function ModifyProduction({ params }) {
         quantity: getQuantity(item.productId),
       }));
       setCart(cart)
-      const material = response.data.materials.map((item) => ({
-        productCode: item.productCode,
-        productName: item.productName,
-        productId: item.productId,
-        produceQuantity: item.quantity,
-        quantity: getQuantity(item.productId),
-      }));
+      const material = await Promise.all(
+        response.data.materials.map(async (item) => ({
+          productCode: item.productCode,
+          productName: item.productName,
+          productId: item.productId,
+          produceQuantity: item.quantity,
+          quantity: await getMaterialQuantity(item.productId),
+        }))
+      );
       setSelectedMaterial(material[0]);
       setNote(response.data.note);
     } catch (error) {
@@ -164,13 +166,13 @@ export default function ModifyProduction({ params }) {
     }
   };
 
-  const handleChangeMaterial = (item, produceQuantity) => {
+  const handleChangeMaterial = async (item, produceQuantity) => {
     const newMaterial = {
       productCode: item.productCode,
       productName: item.productName,
       productId: item.productId,
       produceQuantity: produceQuantity,
-      quantity: item.quantity,
+      quantity: await getMaterialQuantity(item.productId),
     };
     setSelectedMaterial(newMaterial);
   }
@@ -214,6 +216,16 @@ export default function ModifyProduction({ params }) {
   const getQuantity = (id) => {
     const product = products.find((p) => p.productId === id);
     return product ? product.quantity : 5;
+  };
+
+  const getMaterialQuantity = async (id) => {
+    try {
+      const body = { productId: id };
+      const response = await productionService.getProductQuantity(body);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleSubmit = async () => {
