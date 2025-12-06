@@ -364,6 +364,7 @@ export default function ModifyProduction({ params }) {
                       size="small"
                       onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity - 1)}
                       sx={{ border: "1px solid #ccc", height: "28px" }}
+                      disabled={type === 'update'}
                     >
                       <RemoveIcon fontSize="small" />
                     </IconButton>
@@ -383,6 +384,7 @@ export default function ModifyProduction({ params }) {
                       onChange={(e) => handleChangeMaterial(selectedMaterial, e.target.value)}
                       variant="outlined"
                       error={selectedMaterial.produceQuantity < 0}
+                      disabled={type === 'update'}
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           '& fieldset': {
@@ -396,6 +398,7 @@ export default function ModifyProduction({ params }) {
                       size="small"
                       onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity + 1)}
                       sx={{ border: "1px solid #ccc", height: "28px" }}
+                      disabled={type === 'update'}
                     >
                       <AddIcon fontSize="small" />
                     </IconButton>
