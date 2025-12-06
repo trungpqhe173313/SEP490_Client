@@ -186,7 +186,7 @@ export default function FinancialTransactions() {
   const handleDelete = async (payment) => {
     setLoading(true);
     try {
-      await paymentService.deletePayment(payment.paymentId);
+      await paymentService.deletePayment(payment.financialTransactionId);
       await fetchPayments();
       setModalSuccessMessage("Xoá giao dịch thanh toán thành công");
       setModalSuccessOpen(true);
