@@ -12,15 +12,28 @@ export const formatLargeNumber = (number) => {
 }
 
 export const formatDateToInput = (dt) => {
-    if (!dt) return "";
-    if (typeof dt === 'string') return dt.split('T')[0];
-    return dt.toISOString().split('T')[0];
+    if (!dt || isNaN(Date.parse(dt))) return "";
+    let dateStr = "";
+    if (typeof dt === 'string') {
+        dateStr = dt.split('T')[0];
+    } else {
+        dateStr = dt.toISOString().split('T')[0];
+    }
+    // Only allow 4-digit years for input type="date"
+    const match = dateStr.match(/^(\d{4,})-(\d{2})-(\d{2})$/);
+    if (match) {
+        // Clamp year to 9999 if too large
+        const year = Math.min(parseInt(match[1], 10), 9999).toString().padStart(4, "0");
+        return `${year}-${match[2]}-${match[3]}`;
+    }
+    // If not, fallback to today's date or empty string
+    return new Date().toISOString().split('T')[0];
 }
 
 export const convertKgToTon = (kg) => {
-  if (typeof kg !== "number" || isNaN(kg)) return "0 tấn";
-  const ton = kg / 1000;
-  const rounded = Math.round(ton * 1000) / 1000;
-  const formatted = rounded.toString().replace(".", ",");
-  return `${formatted} tấn`;
+    if (typeof kg !== "number" || isNaN(kg)) return "0 tấn";
+    const ton = kg / 1000;
+    const rounded = Math.round(ton * 1000) / 1000;
+    const formatted = rounded.toString().replace(".", ",");
+    return `${formatted} tấn`;
 };
