@@ -301,8 +301,13 @@ export default function Inventory() {
     const tableDetail = (id) => {
         const inventory = inventoryDetails.find((inventory) => inventory.adjustmentId === id);
 
+        // Guard: If not loaded yet, show a loader or a message
         if (!inventory) {
-            return null;
+            return <div className="p-4 text-center">Đang tải chi tiết...</div>;
+        }
+        // Guard: If details are missing
+        if (!inventory.details || inventory.details.length === 0) {
+            return <div className="p-4 text-center">Không có dữ liệu sản phẩm kiểm kho.</div>;
         }
 
         const headers = [

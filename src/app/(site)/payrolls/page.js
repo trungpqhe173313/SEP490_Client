@@ -170,8 +170,18 @@ export default function Payrolls() {
     ]
 
     const tableDetail = (id) => {
-        if (payrolls.length === 0) return null;
+        if (payrolls.length === 0) return <div className="p-4 text-center">Đang tải chi tiết...</div>;
         const detail = payrolls.find((item) => item.employeeId === id);
+
+        // Guard: If not loaded yet, show a loader or a message
+        if (!detail) {
+            return <div className="p-4 text-center">Không có dữ liệu bảng lương.</div>;
+        }
+        // Guard: If jobDetails are missing
+        if (!detail.jobDetails || detail.jobDetails.length === 0) {
+            return <div className="p-4 text-center">Không có dữ liệu công việc.</div>;
+        }
+        
         const headers = [
             {
                 key: "jobName",
