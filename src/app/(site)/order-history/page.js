@@ -24,7 +24,7 @@ export default function OrderHistory() {
   //Data state
   const [orders, setOrders] = useState([]);
   const [pageReady, setPageReady] = useState(false);
-  const pageRole = ['Customer'];
+  const pageRole = ["Customer", "Customer1"];
 
   //Filter state
   const [filterSupplierId, setFilterSupplierId] = useState(null);

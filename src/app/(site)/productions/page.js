@@ -238,6 +238,19 @@ export default function Productions() {
 
     const tableDetail = (id) => {
         const production = productionDetails.find((production) => production.id === id);
+
+        // Guard: If not loaded yet, show a loader or a message
+        if (!production) {
+            return <div className="p-4 text-center">Đang tải chi tiết...</div>;
+        }
+        // Guard: If materials or finishProducts are missing
+        if (!production.materials || production.materials.length === 0) {
+            return <div className="p-4 text-center">Không có dữ liệu nguyên liệu.</div>;
+        }
+        if (!production.finishProducts) {
+            return <div className="p-4 text-center">Không có dữ liệu thành phẩm.</div>;
+        }
+
         const material = production.materials[0];
 
         const headers = [
@@ -261,7 +274,7 @@ export default function Productions() {
                 label: "Số lượng",
                 customValue: (item) => item.quantity && <div>{item.quantity}</div>
             }
-        ]
+        ];
 
         return (
             <div className='flex flex-row gap-4 w-full border border-black'>
@@ -299,7 +312,7 @@ export default function Productions() {
                     />
                 </div>
             </div>
-        )
+        );
     };
 
     if (!pageReady) {

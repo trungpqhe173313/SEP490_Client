@@ -21,7 +21,7 @@ export default function ExportDetail({ params }) {
     const [customer, setCustomer] = useState({});
     const [products, setProducts] = useState([]);
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Customer"];
+    const pageRole = ["Customer", "Customer1"];
 
     // Check authorization
     useEffect(() => {
@@ -130,7 +130,7 @@ export default function ExportDetail({ params }) {
         <div className='flex flex-col gap-4 w-full'>
             <div className='grid grid-cols-3 p-4 gap-4 w-full h-50'>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
-                    <h1 className='text-xl font-bold'>Chi tiết phiếu xuất</h1>
+                    <h1 className='text-xl font-bold'>Chi tiết đơn hàng</h1>
                     <p className='my-2'>Mã giao dịch: {transaction.transactionId}</p>
                     <p className='my-2'>Ngày giao dịch: {new Date(transaction.transactionDate).toLocaleString('vi-VN')}</p>
                     <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>

@@ -217,7 +217,7 @@ const Navbar = () => {
         {
           name: "Lịch sử đơn hàng",
           link: "/order-history",
-          role: ["Customer"],
+          role: ["Customer", "Customer1"],
           icon: <ShoppingBasketIcon />
         }
       ]
