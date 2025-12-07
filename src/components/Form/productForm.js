@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "@mui/material";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 import { supplierService } from "@/services/supplier.service";
 import { categoryService } from "@/services/category.service";
 import { productService } from "@/services/product.service";
-import { useRequiredHighlight } from "@/hooks/useRequiredHighlight";
 import Image from "next/image";
 import { formatImageURL } from "@/lib/formattingLib";
 
@@ -129,8 +128,6 @@ export function ProductForm({
     }, [initialData, isOpen]);
 
     //Vallidation
-    const formRef = useRef(null);
-    const { handleSubmitCheck, clearOnInput } = useRequiredHighlight();
 
     const clearErrors = () => {
         setError("");
@@ -229,12 +226,17 @@ export function ProductForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const valid = handleSubmitCheck(formRef.current);
-        if (!valid) {
+        if (form.productName === "" || form.weightPerUnit <= 0 || form.sellingPrice <= 0 ||form.supplierId === "" || form.categoryId === "") {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return
         }
-        const invalidForms = !validWeightPerUnit || !validCode || !validProductName;
+        const invalidForms = !validWeightPerUnit || !validCode || !validProductName || !validSellingPrice;
+        if (initialData && form.code === "") {
+            setValidCode(false);
+            setErrorCode("Mã sản phẩm không được để trống");
+            setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
+            return
+        }
         if (invalidForms) {
             setError("Có nhập liệu không hợp lệ, vui lòng thử lại")
             return
@@ -275,7 +277,7 @@ export function ProductForm({
                         </button>
                     </div>
 
-                    <form onSubmit={handleSubmit} ref={formRef} onInput={clearOnInput} className="space-y-4 p-8">
+                    <form onSubmit={handleSubmit} className="space-y-4 p-8">
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
                                 <label className="block text-md font-bold">Hình ảnh</label>
@@ -335,7 +337,6 @@ export function ProductForm({
                                 value={form.code}
                                 onChange={(e) => handleChange("code", e.target.value)}
                                 className={`w-full bg-white border rounded px-3 py-2 ${!validCode ? "border-red-500" : "border-green-500"}`}
-                                required
                             />
                             {!validCode && <p className="text-red-500 text-xs italic">{errorCode}</p>}
                         </div>

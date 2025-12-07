@@ -33,9 +33,12 @@ export const exportService = {
         const response = await API.put(`/stockoutput/UpdateToDoneStatus/${id}`);
         return response.data;
     },
-
     deleteExport: async (id) => {
         const response = await API.delete(`/stockoutput/DeleteTransaction/${id}`);
+        return response.data;
+    },
+    cancelExport: async (id) => {
+        const response = await API.put(`/stockoutput/UpdateToCancelStatus/${id}`);
         return response.data;
     },
 };

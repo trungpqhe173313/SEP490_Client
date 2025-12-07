@@ -159,6 +159,22 @@ export default function ExportDetail({ params }) {
         router.push(`/exports/modify/create/${id}`);
     }
 
+    const handleCancel = async () => {
+        setLoading(true);
+        try {
+            await exportService.cancelExport(id);
+            setModalSuccessMessage("Hủy xuất kho thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const handleUpdateOrder = async () => {
         setLoading(true);
         try {
@@ -304,12 +320,12 @@ export default function ExportDetail({ params }) {
                         {transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
                         {transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
                         <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>
-                        {transaction?.status > 3 && transaction?.status != 6 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
+                        {transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
                         {transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
                         {transaction?.status <= 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2 justify-end'>
-                        {/* {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleDelete}>Xóa</button>} */}
+                        {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleCancel}>Hủy</button>}
                     </div>
 
                 </div>

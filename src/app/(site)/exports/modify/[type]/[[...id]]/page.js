@@ -251,6 +251,10 @@ export default function UpdateExport({ params }) {
 
     const handleRemoveCart = (productId) => {
         const updatedCart = cart.filter((p) => p.productId !== productId);
+        const newTotalCost = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
+        setTimeout(() => {
+            setTotalCost(newTotalCost);
+        }, 0);
         setCart(updatedCart);
         validateFields(updatedCart, selectedCustomer);
     };

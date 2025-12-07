@@ -17,6 +17,14 @@ export const customerService = {
         });
         return response.data;
     },
+    createCustomerAdmin: async (data) => {
+        const response = await API.post('/Admin/create-customer-account', data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    },
     updateCustomer: async (id, data) => {
         const response = await API.put(`/customers/UpdateCustomer/${id}`, data, {
             headers: {

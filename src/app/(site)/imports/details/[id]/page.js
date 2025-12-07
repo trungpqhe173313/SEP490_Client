@@ -276,14 +276,13 @@ export default function ImportDetail({ params }) {
                         {transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
                         {transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
                         <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>
-                        {transaction && transaction.status > 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
+                        {transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
                         {transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
                         {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2'>
-                        {/* {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleDelete}>Xóa</button>} */}
+                        {/* {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleCancel}>Hủy</button>} */}
                     </div>
-
                 </div>
             </div>
 
