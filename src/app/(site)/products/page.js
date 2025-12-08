@@ -125,7 +125,7 @@ export default function Products() {
             const body = {
                 pageIndex: 1,
                 pageSize: 1000,
-                isAvailable: true,
+                isActive: true,
                 supplierName: value
             };
             const response = await supplierService.getAllSuppliers(body);
@@ -147,7 +147,7 @@ export default function Products() {
             const body = {
                 pageIndex: 1,
                 pageSize: 1000,
-                isAvailable: true,
+                isActive: true,
                 categoryName: value
             };
             const response = await categoryService.getAllCategories(body);

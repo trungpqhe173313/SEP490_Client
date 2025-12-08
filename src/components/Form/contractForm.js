@@ -28,7 +28,8 @@ export function ContractForm({
       const body = {
         pageIndex: 1,
         pageSize: 1000,
-        supplierName: ""
+        supplierName: "",
+        isActive: true
       };
       const response = await supplierService.getAllSuppliers(body);
       const supplierData = response.data.items.map((supplier) => ({
@@ -46,7 +47,8 @@ export function ContractForm({
       const body = {
         pageIndex: 1,
         pageSize: 1000,
-        customerName: ""
+        customerName: "",
+        isActive: true
       };
       const response = await customerService.getAllCustomers(body);
       const customerData = response.data.items.map((customer) => ({

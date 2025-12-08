@@ -161,6 +161,7 @@ export default function UpdateExport({ params }) {
                 pageIndex: 1,
                 pageSize: 1000,
                 fullName: name,
+                isActive: true
             }
             const response = await customerService.getAllCustomers(body);
             setCustomers(response.data.items);
@@ -179,6 +180,7 @@ export default function UpdateExport({ params }) {
                 pageIndex: 1,
                 pageSize: 1000,
                 priceListName: name,
+                isActive: true
             }
             const response = await priceListService.getAllPriceLists(body);
             setPriceLists(response.data.items);

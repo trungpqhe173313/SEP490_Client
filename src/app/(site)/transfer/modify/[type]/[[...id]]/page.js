@@ -149,7 +149,7 @@ export default function ModifyTransfer({ params }) {
     }
 
     const fetchWarehouses = async () => {
-        const body = { pageIndex: 1, pageSize: 1000, warehouseName: "" };
+        const body = { pageIndex: 1, pageSize: 1000, warehouseName: "", isActive: true };
         await warehouseService.getAllWarehouses(body)
             .then((response) => {
                 setWarehouses(response.data.items);

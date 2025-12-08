@@ -151,7 +151,7 @@ export default function InventoryPage() {
     const fetchWarehouses = async (value) => {
         setWarehouseLoading(true);
         try {
-            const body = { pageIndex: 1, pageSize: 1000, warehouseName: value };
+            const body = { pageIndex: 1, pageSize: 1000, warehouseName: value, isActive: true };
             const response = await warehouseService.getAllWarehouses(body);
             const warehouses = response.data.items.map((item) => ({ warehouseId: item.warehouseId, warehouseName: item.warehouseName }));
             setWarehouses(warehouses);

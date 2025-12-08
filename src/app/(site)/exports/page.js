@@ -152,7 +152,8 @@ export default function Exports() {
       const body = {
         pageIndex: 1,
         pageSize: 1000,
-        warehouseName: value
+        warehouseName: value,
+        isActive: true
       };
       const response = await warehouseService.getAllWarehouses(body);
       const warehouseData = response.data.items.map((warehouse) => ({

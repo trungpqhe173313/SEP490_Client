@@ -115,7 +115,8 @@ export default function ModifyPriceList({ params }) {
         try {
             const body = {
                 pageIndex: 1,
-                pageSize: 1000
+                pageSize: 1000,
+                isAvailable: true
             };
             const response = await productService.getAllProducts(body);
             const productData = response.data.items.map((product) => ({

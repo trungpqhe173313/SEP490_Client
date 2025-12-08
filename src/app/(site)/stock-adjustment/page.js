@@ -123,6 +123,7 @@ export default function Inventory() {
             const body = {
                 pageIndex: 1,
                 pageSize: 1000,
+                isActive: true,
                 warehouseName: value
             };
             const response = await warehouseService.getAllWarehouses(body);

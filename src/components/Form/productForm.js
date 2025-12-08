@@ -74,6 +74,7 @@ export function ProductForm({
             const body = {
                 pageIndex: 1,
                 pageSize: 1000,
+                isActive: true,
                 categoryName: value
             };
             const response = await categoryService.getAllCategories(body);

@@ -167,7 +167,7 @@ export default function UpdateImport({ params }) {
     }
 
     const fetchWarehouse = async (warehouseName) => {
-        const body = { pageIndex: 1, pageSize: 1000, warehouseName: warehouseName || "" };
+        const body = { pageIndex: 1, pageSize: 1000, isActive: true, warehouseName: warehouseName || "" };
         await warehouseService
             .getAllWarehouses(body)
             .then((response) => {
