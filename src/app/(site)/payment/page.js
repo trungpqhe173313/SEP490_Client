@@ -124,7 +124,7 @@ export default function FinancialTransactions() {
       const body = {
         pageIndex: pageIndex + 1,
         pageSize: rowPerPage,
-        type: parseInt(filterType) || null,
+        type: parseInt(filterType),
         transactionFromDate: filterTransactionFromDate || null,
         transactionToDate: filterTransactionToDate || null,
       }
@@ -256,7 +256,7 @@ export default function FinancialTransactions() {
         <h2 className="text-xl font-bold">Lọc phiếu giao dịch</h2>
         <div className="flex items-center my-4 gap-4">
           <div className="mt-2 w-[24.25%]">
-            <label className="mr-2">Trạng thái:</label>
+            <label className="mr-2">Loại phiếu:</label>
             <select
               className="w-full p-2 border border-gray-300 rounded"
               value={filterType || ""}

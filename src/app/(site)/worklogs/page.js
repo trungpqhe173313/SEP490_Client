@@ -159,6 +159,7 @@ export default function Worklog() {
                 pageIndex: 1,
                 pageSize: 1000,
                 fullName: "",
+                isActive: true
             };
             const response = await employeeService.getAllEmployees(body);
             setEmployees(response.data.items);
@@ -237,7 +238,7 @@ export default function Worklog() {
             setModalFailedOpen(true);
             return;
         }
-        if (employee.job.includes(2) && (employee.quantity === 0 || employee.quantity < 0)) {
+        if (employee.job.includes(2) && employee.quantity <= 0) {
             setModalFailedMessage(`Lỗi: Số lượng bốc vác không hợp lệ`);
             setModalFailedOpen(true);
             return;

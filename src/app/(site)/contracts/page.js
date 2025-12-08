@@ -155,7 +155,8 @@ export default function Contracts() {
             const body = {
                 pageIndex: 1,
                 pageSize: 1000,
-                supplierName: value
+                supplierName: value,
+                isActive: true
             };
             const response = await supplierService.getAllSuppliers(body);
             const supplierData = response.data.items.map((supplier) => ({
@@ -176,11 +177,12 @@ export default function Contracts() {
             const body = {
                 pageIndex: 1,
                 pageSize: 1000,
-                customerName: value
+                customerName: value,
+                isActive: true
             };
             const response = await customerService.getAllCustomers(body);
             const customerData = response.data.items.map((customer) => ({
-                customerId: customer.customerId,
+                customerId: customer.userId,
                 customerName: customer.fullName
             }));
             setCustomers(customerData);

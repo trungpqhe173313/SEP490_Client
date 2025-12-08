@@ -17,14 +17,14 @@ export function PaymentForm({
     if (initialData) {
       setNegativeAmount(initialData.amount < 0);
       setForm({
-        type: initialData.typeInt || null,
+        type: initialData.typeInt || "",
         amount: negativeAmount ? initialData.amount * -1 : initialData.amount || 0,
         description: initialData.description || "",
         paymentMethod: initialData.paymentMethod || ""
       });
     } else {
       setForm({
-        type: null,
+        type: "",
         amount: 0,
         description: "",
         paymentMethod: ""

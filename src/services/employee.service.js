@@ -17,6 +17,14 @@ export const employeeService = {
         });
         return response.data;
     },
+    createEmployeeAdmin: async (data) => {
+        const response = await API.post('/Admin/create-employee-account', data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    },
     updateEmployee: async (id, data) => {
         const response = await API.put(`/employees/UpdateEmployee/${id}`, data, {
             headers: {

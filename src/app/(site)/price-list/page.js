@@ -83,12 +83,12 @@ export default function PriceList() {
         {
             key: "startDate",
             label: "Ngày hiệu lực",
-            customValue: (item) => item.startDate && <div>{new Date(item.startDate).toLocaleString()}</div>,
+            customValue: (item) => item.startDate && <div>{new Date(item.startDate).toLocaleString('vi-VN')}</div>,
         },
         {
             key: "endDate",
             label: "Ngày hết hiệu lực",
-            customValue: (item) => item.endDate && <div>{new Date(item.endDate).toLocaleString()}</div>,
+            customValue: (item) => item.endDate && <div>{new Date(item.endDate).toLocaleString('vi-VN')}</div>,
         },
         {
             key: "isActive",
@@ -98,7 +98,7 @@ export default function PriceList() {
         {
             key: "createdAt",
             label: "Ngày tạo",
-            customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString()}</div>,
+            customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div>,
         }
     ];
 
@@ -143,24 +143,9 @@ export default function PriceList() {
         }
     };
 
-    useEffect(() => {
-        validateFields();
-    }, [filterEndDate]);
-
-    const validateFields = () => {
-        if (filterEndDate && filterStartDate > filterEndDate) {
-            setErrorEndDate("Ngày hết hiệu lực phải lớn hơn ngày có hiệu lực");
-            return false;
-        }
-        setErrorEndDate("");
-        return true;
-    }
-
     const handleApplyFilter = () => {
-        if (validateFields()) {
-            setPageIndex(0);
-            fetchPriceLists();
-        }
+        setPageIndex(0);
+        fetchPriceLists();
     };
 
     const handleClearFilter = () => {
@@ -234,7 +219,7 @@ export default function PriceList() {
 
     return (
         <div className="grid grid-cols-4 p-8 gap-4">
-             {/* Filter sidebar */}
+            {/* Filter sidebar */}
             <div className="col-span-1">
                 <div className="p-4 rounded-2xl bg-white h-auto sticky top-0 w-full">
                     <h2 className="text-xl font-bold">Lọc bảng giá</h2>
@@ -249,7 +234,7 @@ export default function PriceList() {
                                 onKeyDown={handleKeyDown}
                             />
                         </div>
-                        <div className="mt-2 w-full">
+                        <div className="mt-4 w-full">
                             <label className="mr-2">Trạng thái:</label>
                             <select
                                 className="w-full p-2 border border-gray-300 rounded"
@@ -262,9 +247,9 @@ export default function PriceList() {
                                 <option value="false">Dừng hoạt động</option>
                             </select>
                         </div>
-                        <div className="my-2 w-full grid grid-cols-2 gap-2">
-                        <div className="col-span-1">
-                            <label className="mr-2">Ngày tạo từ</label>
+                        <div className="mt-4 w-full">
+                            <label className="mr-2 block">Ngày hiệu lực </label>
+                            <label className="mr-2 text-xs">(Lọc các ngày hiệu lực từ ngày được chọn tới hôm nay)</label>
                             {/* <DateInput value={filterStartDate} onChange={(d) => setFilterStartDate(d)} className="w-full p-2 border border-gray-300 rounded"/> */}
                             <input
                                 type="date"
@@ -277,8 +262,9 @@ export default function PriceList() {
                                 onKeyDown={handleKeyDown}
                             />
                         </div>
-                        <div className="col-span-1">
-                            <label className="mr-2">Ngày tạo đến</label>
+                        <div className="mt-4 w-full">
+                            <label className="mr-2 block">Ngày hết hiệu lực</label>
+                            <label className="mr-2 text-xs">(Lọc các ngày hết hiệu lực nhỏ hơn ngày được chọn)</label>
                             {/* <DateInput value={filterEndDate} onChange={(d) => setFilterEndDate(d)} className="w-full p-2 border border-gray-300 rounded"/> */}
                             <input
                                 type="date"
@@ -292,7 +278,6 @@ export default function PriceList() {
                             />
                         </div>
                         {errorEndDate && <span className="text-red-500">{errorEndDate}</span>}
-                    </div>
                     </div>
                     <div className="flex justify-center gap-2">
                         <button

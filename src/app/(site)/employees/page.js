@@ -175,7 +175,7 @@ export default function Employees() {
                 await employeeService.updateEmployee(editingEmployee.userId, employeeData);
                 setModalSuccessMessage("Cập nhật nhân viên thành công");
             } else {
-                await employeeService.createEmployee(employeeData);
+                await employeeService.createEmployeeAdmin(employeeData);
                 setModalSuccessMessage("Tạo nhân viên thành công");
             }
             setModalSuccessOpen(true);

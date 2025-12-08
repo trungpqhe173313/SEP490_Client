@@ -14,7 +14,9 @@ const blacklistPathnames = [
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
-  const isBlacklisted = blacklistPathnames.includes(pathname);
+  const isBlacklisted = blacklistPathnames.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
 
   useEffect(() => {
     const handler = (e) => {

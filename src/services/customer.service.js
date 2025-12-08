@@ -10,15 +10,7 @@ export const customerService = {
         return response.data;
     },
     createCustomer: async (data) => {
-        const response = await API.post('/customers/CreateCustomer', data, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        return response.data;
-    },
-    createCustomerAdmin: async (data) => {
-        const response = await API.post('/Admin/create-customer-account', data, {
+        const response = await API.post('/customers/CreateCustomerAccount', data, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

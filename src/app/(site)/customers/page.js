@@ -180,7 +180,7 @@ export default function Customers() {
                 await customerService.updateCustomer(editingCustomer.userId, customerData);
                 setModalSuccessMessage("Cập nhật khách hàng thành công");
             } else {
-                await customerService.createCustomerAdmin(customerData);
+                await customerService.createCustomer(customerData);
                 setModalSuccessMessage("Tạo khách hàng thành công");
             }
             setModalSuccessOpen(true);

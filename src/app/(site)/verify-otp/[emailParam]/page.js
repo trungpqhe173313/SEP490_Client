@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -18,7 +18,7 @@ export default function VerifyOtpPage({ params }) {
 	const [modalMessage, setModalMessage] = useState("");
 
 	useEffect(() => {
-		if (emailParam) setEmail(emailParam);
+		if (emailParam) setEmail(decodeURIComponent(emailParam));
 	}, []);
 
 	const handleSubmit = async (e) => {
