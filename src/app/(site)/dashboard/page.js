@@ -429,7 +429,7 @@ export default function Dashboard() {
             try {
                 await Promise.all([
                     (async () => {
-                        const res = await employeeService.getAllEmployees({ pageIndex: 1, pageSize: 1000 });
+                        const res = await employeeService.getAllEmployees({ pageIndex: 1, pageSize: 1000, isActive: true });
                         setNumberOfEmployees(res.data.totalCount);
                     })(),
                     (async () => {
