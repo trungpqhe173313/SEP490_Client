@@ -87,11 +87,6 @@ export default function Dashboard() {
         }
     }
 
-
-    useEffect(() => {
-        setLoading(false);
-    }, []);
-
     const tabHeaders = [
         "Thu chi",
         "Hàng hóa",
@@ -159,13 +154,6 @@ export default function Dashboard() {
             console.log(error);
         }
     };
-
-    useEffect(() => {
-        fetchPaymentsThisMonth();
-        fetchPaymentsLastMonth();
-        fetchTopSellingProducts();
-        fetchTopPayingCustomers();
-    }, []);
 
     function getProfitChangePercent(currentProfit, lastProfit) {
         if (lastProfit === 0) return null; // Avoid division by zero
@@ -347,13 +335,6 @@ export default function Dashboard() {
         }
     }
 
-    useEffect(() => {
-        fetchProducts();
-        fetchWeights();
-        fetchImports();
-        fetchExports();
-    }, []);
-
     const ProductTabContent = () => {
         let chartData = [];
         const now = new Date();
@@ -443,19 +424,37 @@ export default function Dashboard() {
     const [numberOfEmployees, setNumberOfEmployees] = useState(0);
 
     useEffect(() => {
-        const getEmployeeRanking = async () => {
-            const res = await payrollService.getAllPayroll(
-                thisMonth.from.getFullYear(),
-                thisMonth.from.getMonth() + 1
-            );
-            setEmployeeRanking(getQuantityRankingPerJob(res.data));
+        const fetchAll = async () => {
+            setLoading(true);
+            try {
+                await Promise.all([
+                    (async () => {
+                        const res = await employeeService.getAllEmployees({ pageIndex: 1, pageSize: 1000 });
+                        setNumberOfEmployees(res.data.totalCount);
+                    })(),
+                    (async () => {
+                        const res = await payrollService.getAllPayroll(
+                            thisMonth.from.getFullYear(),
+                            thisMonth.from.getMonth() + 1
+                        );
+                        setEmployeeRanking(getQuantityRankingPerJob(res.data));
+                    })(),
+                    fetchPaymentsThisMonth(),
+                    fetchPaymentsLastMonth(),
+                    fetchTopSellingProducts(),
+                    fetchTopPayingCustomers(),
+                    fetchProducts(),
+                    fetchWeights(),
+                    fetchImports(),
+                    fetchExports()
+                ]);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
         };
-        const getNumberOfEmployees = async () => {
-            const res = await employeeService.getAllEmployees({ pageIndex: 1, pageSize: 1000 });
-            setNumberOfEmployees(res.data.totalCount);
-        };
-        getNumberOfEmployees();
-        getEmployeeRanking();
+        fetchAll();
     }, []);
 
     const getQuantityRankingPerJob = (data) => {
