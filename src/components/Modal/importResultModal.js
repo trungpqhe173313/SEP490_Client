@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
+import { formatLargeNumber } from '@/lib/formattingLib';
 import TableCommon from "@/components/Table/table";
 
 export default function ImportResultModal({ isOpen, message, onClose, data }) {
@@ -7,15 +8,13 @@ export default function ImportResultModal({ isOpen, message, onClose, data }) {
     const handleClose = () => onClose();
 
     const headerData = [
-        { key: "batchId", label: "Mã lô", customValue: (item) => item.batchId && <div>{item.batchId}</div> },
-        { key: "warehouseName", label: "Tên nhà kho", customValue: (item) => item.warehouseName && <div>{item.warehouseName}</div> },
+        { key: "transactionDetailId", label: "Mã chi tiết", customValue: (item) => item.transactionDetailId && <div>{item.transactionDetailId}</div> },
+        { key: "productId", label: "ID sản phẩm", customValue: (item) => item.productId && <div>{item.productId}</div> },
+        { key: "code", label: "Code sản phẩm", customValue: (item) => item.code && <div>{item.code}</div> },
         { key: "productName", label: "Tên sản phẩm", customValue: (item) => item.productName && <div>{item.productName}</div> },
-        { key: "transactionId", label: "Mã giao dịch", customValue: (item) => item.transactionId && <div>{item.transactionId}</div> },
-        { key: "batchCode", label: "Code lô", customValue: (item) => item.batchCode && <div>{item.batchCode}</div> },
-        { key: "importDate", label: "Ngày nhập", customValue: (item) => item.importDate && <div>{new Date(item.importDate).toLocaleString('vi-VN')}</div> },
-        { key: "expireDate", label: "Ngày hết hạn", customValue: (item) => item.expireDate && <div>{new Date(item.expireDate).toLocaleString('vi-VN')}</div> },
-        { key: "quantityIn", label: "Số lượng nhập", customValue: (item) => item.quantityIn && <div>{item.quantityIn}</div> },
-        { key: "isActive", label: "Trạng thái", customValue: (item) => item.isActive ? "Đang hoạt động" : "Dừng hoạt động" },
+        { key: "unitPrice", label: "Đơn giá", customValue: (item) => item.unitPrice && <div>{formatLargeNumber(item.unitPrice)}₫</div> },
+        { key: "weightPerUnit", label: "Khối lượng", customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit}</div> },
+        { key: "quantity", label: "Số lượng nhập", customValue: (item) => item.quantity && <div>{item.quantity}</div> },
         { key: "note", label: "Ghi chú", customValue: (item) => item.note && <div>{item.note}</div> },
     ];
 
