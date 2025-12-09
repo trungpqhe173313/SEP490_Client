@@ -71,7 +71,7 @@ export function PaymentForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (form.jobName === "" || form.type === "" || form.amount < 0) {
+    if ((!initialData && form.type === "") || form.amount < 0) {
       setError("Vui lòng nhập thông tin bắt buộc.");
       return;
     }
