@@ -148,7 +148,6 @@ export default function ImportDetail({ params }) {
                 <TableCell />
                 <TableCell />
                 <TableCell />
-                <TableCell />
                 <TableCell align="center">{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</TableCell>
                 <TableCell />
                 <TableCell align="center">{!transaction.totalCost ? formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)} ₫</TableCell>
