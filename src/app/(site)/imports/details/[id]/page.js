@@ -109,11 +109,6 @@ export default function ImportDetail({ params }) {
             customValue: (item) => item.productName && <div>{item.productName}</div>
         },
         {
-            key: "expireDate",
-            label: "Ngày hết hạn",
-            customValue: (item) => item.expireDate && <div>{new Date(item.expireDate).toLocaleString('vi-VN')}</div>
-        },
-        {
             key: "note",
             label: "Ghi chú",
             customValue: (item) => item.note && <div>{item.note}</div>
