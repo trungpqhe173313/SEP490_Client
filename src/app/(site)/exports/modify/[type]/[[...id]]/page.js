@@ -67,7 +67,7 @@ export default function UpdateExport({ params }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 14;
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Manager"];
+    const pageRole = ["Manager", "Employee"];
 
     // Check authorization
     useEffect(() => {

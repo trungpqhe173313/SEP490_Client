@@ -42,7 +42,7 @@ export default function Payrolls() {
     const { loading, setLoading } = useLoading();
     const [pageReady, setPageReady] = useState(false);
     const router = useRouter();
-    const pageRole = ["Admin"];
+    const pageRole = ["Manager"];
 
     // Check authorization
     useEffect(() => {
