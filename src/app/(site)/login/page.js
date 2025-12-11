@@ -166,9 +166,9 @@ export default function LoginPage() {
             <Link href="/forgot-password" className="text-black hover:underline">
               Quên mật khẩu ?
             </Link>
-            <Link href="#" className="text-black hover:underline">
+            {/* <Link href="#" className="text-black hover:underline">
               Chưa có tài khoản?
-            </Link>
+            </Link> */}
           </div>
 
           {/* Submit Button */}
