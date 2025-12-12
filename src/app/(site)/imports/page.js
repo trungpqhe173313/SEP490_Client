@@ -347,7 +347,7 @@ export default function Imports() {
         try {
             setLoading(true);
             const result = await importService.createImportWithExcel(file);
-            setModalImportData(result.data.importedStockBatches);
+            setModalImportData(result.data);
             setModalImportMessage("Tạo phiếu nhập kho thành công");
             setModalImportOpen(true);
             fetchImports();
