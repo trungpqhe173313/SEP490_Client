@@ -412,6 +412,9 @@ export default function Products() {
                         accept=".xlsx,.xls"
                         className="hidden"
                         onChange={handleExcelImport}
+                        onClick={(e) => {
+                            e.target.value = null;
+                        }}
                     />
 
                     <button className="block border bg-blue-500 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => handleDownloadTemplate()}>Tải xuống mẫu nhập sản phẩm</button>

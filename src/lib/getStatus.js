@@ -220,6 +220,6 @@ export const getPaymentMethod = (method) => {
         case 'Bank':
             return "Chuyển khoản"
         default:
-            return `${type}: Không rõ`
+            return `${method}`
     }
 }
