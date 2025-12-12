@@ -9,8 +9,8 @@ function FailedModal({ isOpen, message, onClose, subMessages }) {
     return (
         <Modal open={isOpen} aria-labelledby="modal-failed-title" aria-describedby="modal-failed-description">
             <Box
-                sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', border: '1px solid #000', boxShadow: 24, }}
-                className="p-4 rounded-xl text-center "
+                sx={{ maxHeight: '80vh', overflowY: 'scroll', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', border: '1px solid #000', boxShadow: 24, }}
+                className="p-4 rounded-xl text-center scrollbar-hidden"
             >
                 <Typography id="modal-failed-title" variant="h5" component="h2">
                     Thất bại

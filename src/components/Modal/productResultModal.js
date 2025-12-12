@@ -33,8 +33,8 @@ export default function ProductResultModal({ isOpen, message, onClose, data }) {
     return (
         <Modal open={isOpen} aria-labelledby="modal-success-title" aria-describedby="modal-success-description">
             <Box
-                sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', bgcolor: 'background.paper', border: '1px solid #000', boxShadow: 24, }}
-                className="p-4 rounded-xl text-center"
+                sx={{ maxHeight: '80vh', overflowY: 'scroll', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', bgcolor: 'background.paper', border: '1px solid #000', boxShadow: 24, }}
+                className="p-4 rounded-xl text-center scrollbar-hidden"
             >
                 <Typography id="modal-success-title" variant="h5" component="h2">
                     Thành công
@@ -53,6 +53,7 @@ export default function ProductResultModal({ isOpen, message, onClose, data }) {
                     handleChangePage={handleChangePage}
                     handleChangeRowPerPage={handleChangeRowPerPage}
                     usePagination={true}
+                    fePagination={true}
                 />
                 <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
                     <Button
