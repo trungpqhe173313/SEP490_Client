@@ -10,6 +10,9 @@ import { Modal } from "@mui/material";
 
 export function TransactionModal({ isOpen, handleClose, transaction }) {
     const [paidAmount, setPaidAmount] = useState(0);
+    const [rowPerPage, setRowPerPage] = useState(5);
+    const [pageIndex, setPageIndex] = useState(0);
+    let totalCount = transaction.details.length;
 
     useEffect(() => {
         const fetchPayments = async () => {
@@ -88,6 +91,15 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
         )
     }
 
+    const handleChangePage = (event, newPage) => {
+        setPageIndex(newPage);
+    };
+
+    const handleChangeRowPerPage = (event) => {
+        setRowPerPage(parseInt(event.target.value, 10));
+        setPageIndex(0);
+    };
+
     return (
         <Modal open={isOpen} onClose={handleClose}>
             <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -123,6 +135,14 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                             headers={headerData}
                             tableData={transaction.details}
                             extraRow={extraRow}
+                            rowPerPage={rowPerPage}
+                            pageIndex={pageIndex}
+                            totalCount={totalCount}
+                            rowPerPageOptions={[5, 10, 20]}
+                            handleChangePage={handleChangePage}
+                            handleChangeRowPerPage={handleChangeRowPerPage}
+                            usePagination={true}
+                            fePagination={true}
                         />
                         <div className='flex flex-row justify-between items-center p-4' />
                     </div>

@@ -68,6 +68,7 @@ export default function ImportDetail({ params }) {
             setTransaction(res.data);
             setSupplier(res.data.supplier);
             setProducts(res.data.list);
+            setTotalCount(res.data.list.length);
         } catch (error) {
             console.log(error);
         } finally {
@@ -153,12 +154,26 @@ export default function ImportDetail({ params }) {
                 <TableCell />
                 <TableCell />
                 <TableCell />
+                <TableCell />
                 <TableCell align="center">{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</TableCell>
                 <TableCell />
                 <TableCell align="center">{!transaction.totalCost ? formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)} ₫</TableCell>
             </TableRow>
         )
     }
+
+    const [rowPerPage, setRowPerPage] = useState(5);
+    const [pageIndex, setPageIndex] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
+
+    const handleChangePage = (event, newPage) => {
+        setPageIndex(newPage);
+    };
+
+    const handleChangeRowPerPage = (event) => {
+        setRowPerPage(parseInt(event.target.value, 10));
+        setPageIndex(0);
+    };
 
     const handleCopy = () => {
         router.push(`/imports/modify/create/${id}`);
@@ -267,6 +282,14 @@ export default function ImportDetail({ params }) {
                     headers={headerData}
                     tableData={products}
                     extraRow={extraRow}
+                    rowPerPage={rowPerPage}
+                    pageIndex={pageIndex}
+                    totalCount={totalCount}
+                    rowPerPageOptions={[5, 10, 20]}
+                    handleChangePage={handleChangePage}
+                    handleChangeRowPerPage={handleChangeRowPerPage}
+                    usePagination={true}
+                    fePagination={true}
                 />
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>

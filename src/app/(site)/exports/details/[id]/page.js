@@ -36,6 +36,9 @@ export default function ExportDetail({ params }) {
     const [transaction, setTransaction] = useState({});
     const [customer, setCustomer] = useState({});
     const [products, setProducts] = useState([]);
+    const [rowPerPage, setRowPerPage] = useState(5);
+    const [pageIndex, setPageIndex] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
     const [pageReady, setPageReady] = useState(false);
     const pageRole = ["Manager", "Employee"];
 
@@ -68,6 +71,7 @@ export default function ExportDetail({ params }) {
             setTransaction(res.data);
             setCustomer(res.data.customer);
             setProducts(res.data.list);
+            setTotalCount(res.data.list.length);
         } catch (error) {
             console.log(error);
         } finally {
@@ -154,6 +158,15 @@ export default function ExportDetail({ params }) {
             </TableRow>
         )
     }
+
+    const handleChangePage = (event, newPage) => {
+        setPageIndex(newPage);
+    };
+
+    const handleChangeRowPerPage = (event) => {
+        setRowPerPage(parseInt(event.target.value, 10));
+        setPageIndex(0);
+    };
 
     const handleCopy = () => {
         router.push(`/exports/modify/create/${id}`);
@@ -310,6 +323,14 @@ export default function ExportDetail({ params }) {
                     headers={headerData}
                     tableData={products}
                     extraRow={extraRow}
+                    rowPerPage={rowPerPage}
+                    pageIndex={pageIndex}
+                    totalCount={totalCount}
+                    rowPerPageOptions={[5, 10, 20]}
+                    handleChangePage={handleChangePage}
+                    handleChangeRowPerPage={handleChangeRowPerPage}
+                    usePagination={true}
+                    fePagination={true}
                 />
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>

@@ -29,6 +29,9 @@ export default function ReturnDetail({ params }) {
     const [supplier, setSupplier] = useState(null);
     const [customer, setCustomer] = useState(null);
     const [products, setProducts] = useState([]);
+    const [rowPerPage, setRowPerPage] = useState(5);
+    const [pageIndex, setPageIndex] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
     const [pageReady, setPageReady] = useState(false);
     const pageRole = ["Manager"];
 
@@ -62,6 +65,7 @@ export default function ReturnDetail({ params }) {
             response.data.supplier && setSupplier(response.data.supplier);
             response.data.customer && setCustomer(response.data.customer);
             setProducts(response.data.items);
+            setTotalCount(response.data.items.length);
         } catch (error) {
             console.log(error);
         } finally {
@@ -114,6 +118,15 @@ export default function ReturnDetail({ params }) {
         )
     }
 
+    const handleChangePage = (event, newPage) => {
+        setPageIndex(newPage);
+    };
+
+    const handleChangeRowPerPage = (event) => {
+        setRowPerPage(parseInt(event.target.value, 10));
+        setPageIndex(0);
+    };
+
     const handleEdit = () => {
         router.push(`/returns/modify/update/${returnTransaction.transactionType.toLowerCase()}/${returnTransaction.transactionId}`);
     }
@@ -153,6 +166,14 @@ export default function ReturnDetail({ params }) {
                     headers={headerData}
                     tableData={products}
                     extraRow={extraRow}
+                    rowPerPage={rowPerPage}
+                    pageIndex={pageIndex}
+                    totalCount={totalCount}
+                    rowPerPageOptions={[5, 10, 20]}
+                    handleChangePage={handleChangePage}
+                    handleChangeRowPerPage={handleChangeRowPerPage}
+                    usePagination={true}
+                    fePagination={true}
                 />
                 <div className='flex flex-row justify-between items-center p-4'>
                     {/* <div className='flex flex-row items-center gap-2'>

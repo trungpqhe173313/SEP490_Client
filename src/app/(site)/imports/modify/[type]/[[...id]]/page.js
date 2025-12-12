@@ -430,7 +430,7 @@ export default function UpdateImport({ params }) {
                         <TableBody>
                             {cart.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center">
+                                    <TableCell colSpan={7} align="center">
                                         <p className="my-10 text-xl">
                                             Không tìm thấy sản phẩm hoặc chưa chọn nhà cung cấp
                                         </p>
