@@ -121,7 +121,7 @@ const Navbar = () => {
         {
           name: "Bảng lương",
           link: "/payrolls",
-          role: ["Admin"],
+          role: ["Manager"],
           icon: <AddchartIcon />
         }
       ],
@@ -161,6 +161,30 @@ const Navbar = () => {
           icon: <BentoIcon />
         },
         {
+          name: "Kiểm kho",
+          link: "/stock-adjustment",
+          role: ["Manager"],
+          icon: <ContentPasteSearchIcon />
+        },
+        // {
+        //   name: "Trả hàng nhập kho",
+        //   link: "/returns/import",
+        //   role: ["Manager"],
+        //   icon: <AirportShuttleIcon />
+        // },
+        {
+          name: "Sản xuất",
+          link: "/productions",
+          role: ["Manager"],
+          icon: <FactoryIcon />
+        },
+      ],
+    },
+    {
+      label: "Nhập/Xuất",
+      icon: <AirportShuttleIcon />,
+      subItems: [
+        {
           name: "Nhập kho",
           link: "/imports",
           role: ["Manager"],
@@ -169,20 +193,8 @@ const Navbar = () => {
         {
           name: "Xuất kho",
           link: "/exports",
-          role: ["Manager"],
+          role: ["Manager", "Employee"],
           icon: <LaunchIcon />
-        },
-        {
-          name: "Kiểm kho",
-          link: "/stock-adjustment",
-          role: ["Manager"],
-          icon: <ContentPasteSearchIcon />
-        },
-        {
-          name: "Trả hàng nhập kho",
-          link: "/returns/import",
-          role: ["Manager"],
-          icon: <AirportShuttleIcon />
         },
         {
           name: "Trả hàng xuất kho",
@@ -191,18 +203,12 @@ const Navbar = () => {
           icon: <AssignmentReturnIcon />
         },
         {
-          name: "Sản xuất",
-          link: "/productions",
-          role: ["Manager"],
-          icon: <FactoryIcon />
-        },
-        {
           name: "Chuyển kho",
           link: "/transfer",
           role: ["Manager"],
           icon: <SyncAltIcon />
-        }
-      ],
+        },
+      ]
     },
     {
       label: "Giao dịch",

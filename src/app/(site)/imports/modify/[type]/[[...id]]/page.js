@@ -49,6 +49,12 @@ export default function UpdateImport({ params }) {
     const [productsForSearch, setProductsForSearch] = useState([]);
     const [productLoading, setProductLoading] = useState(false);
 
+    const [expireDate, setExpireDate] = useState(
+        new Date(Date.now() + 3 * 30 * 24 * 60 * 60 * 1000)
+    );
+
+    const today = new Date();
+
     const [importData, setImportData] = useState(null);
 
     const [cart, setCart] = useState([]);
@@ -63,6 +69,7 @@ export default function UpdateImport({ params }) {
 
     const [validWarehouseMessage, setValidWarehouseMessage] = useState("");
     const [validSupplierMessage, setValidSupplierMessage] = useState("");
+    const [validExpireDateMessage, setValidExpireDateMessage] = useState("");
     const [pageReady, setPageReady] = useState(false);
     const pageRole = ["Manager"];
 
@@ -143,6 +150,7 @@ export default function UpdateImport({ params }) {
         await importService.getImportDetail(id)
             .then((response) => {
                 setImportData(response.data);
+                setExpireDate(new Date(response.data.list[0].expireDate));
                 setNote(response.data.list[0].note);
                 setTotalCost(response.data.totalCost);
                 setSelectedSupplier(response.data.supplier);
@@ -192,7 +200,7 @@ export default function UpdateImport({ params }) {
 
     useEffect(() => {
         validateFields();
-    }, [selectedSupplier, selectedWarehouse]);
+    }, [selectedSupplier, selectedWarehouse, expireDate]);
 
     const validateFields = () => {
         if (!selectedSupplier) {
@@ -203,6 +211,15 @@ export default function UpdateImport({ params }) {
             setValidWarehouseMessage("Vui lòng chọn kho");
             return false;
         }
+        if (!expireDate) {
+            setValidExpireDateMessage("Vui lòng nhập hạn sử dụng");
+            return false;
+        }
+        if (expireDate < today && type === "create") {
+            setValidExpireDateMessage("Hạn sử dụng phải là tương lai");
+            return false;
+        }
+        setValidExpireDateMessage("");
         setValidSupplierMessage("");
         setValidWarehouseMessage("");
         return true;
@@ -237,6 +254,7 @@ export default function UpdateImport({ params }) {
                 warehouseId: selectedWarehouse.warehouseId,
                 supplierId: selectedSupplier.supplierId,
                 note: note,
+                expireDate: expireDate,
                 products: cart
                     .filter((r) => r.importQuantity !== 0 && r.unitPrice !== 0)
                     .map((r) => ({
@@ -266,6 +284,7 @@ export default function UpdateImport({ params }) {
                         quantity: r.importQuantity,
                         unitPrice: r.unitPrice
                     })),
+                expireDate: expireDate,
                 note: note
             }
             await importService.updateImport(id, body)
@@ -548,6 +567,21 @@ export default function UpdateImport({ params }) {
                         />
                     }
                     {!selectedSupplier && <span className="text-red-500">{validSupplierMessage}</span>}
+                </div>
+                <div className="my-4">
+                    <label className="block text-md font-bold">Ngày hết hạn</label>
+                    <input
+                        type="date"
+                        name="expireDate"
+                        disabled={id && type === "update"}
+                        value={expireDate && formatDateToInput(expireDate)}
+                        onChange={(e) => {
+                            const date = new Date(e.target.value);
+                            setExpireDate(date);
+                        }}
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                    {validExpireDateMessage && <span className="text-red-500">{validExpireDateMessage}</span>}
                 </div>
                 <div className="my-4">
                     <label className="block text-md font-bold">Ghi chú</label>
