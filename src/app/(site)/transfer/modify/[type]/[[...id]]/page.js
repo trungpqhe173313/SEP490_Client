@@ -66,7 +66,7 @@ export default function ModifyTransfer({ params }) {
 
     const [errors, setErrors] = useState("");
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Manager"];
+    const pageRole = ["Manager", "Employee"];
 
     // Check authorization
     useEffect(() => {

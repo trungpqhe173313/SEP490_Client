@@ -86,6 +86,7 @@ export default function ModifyProduction({ params }) {
         productId: item.productId,
         produceQuantity: item.quantity,
         quantity: getQuantity(item.productId),
+        weightPerUnit: item.weightPerUnit
       }));
       setCart(cart)
       const material = await Promise.all(
@@ -95,6 +96,7 @@ export default function ModifyProduction({ params }) {
           productId: item.productId,
           produceQuantity: item.quantity,
           quantity: await getMaterialQuantity(item.productId),
+          weightPerUnit: item.weightPerUnit
         }))
       );
       setSelectedMaterial(material[0]);
@@ -173,6 +175,7 @@ export default function ModifyProduction({ params }) {
       productId: item.productId,
       produceQuantity: produceQuantity,
       quantity: await getMaterialQuantity(item.productId),
+      weightPerUnit: item.weightPerUnit
     };
     setSelectedMaterial(newMaterial);
   }
@@ -193,6 +196,7 @@ export default function ModifyProduction({ params }) {
       productName: product.productName,
       produceQuantity: 0,
       quantity: product.quantity,
+      weightPerUnit: product.weightPerUnit
     };
     const updatedCart = [...cart, newProduct];
     setCart(updatedCart);
@@ -302,8 +306,8 @@ export default function ModifyProduction({ params }) {
       setErrors("Số lượng tiêu thụ đang lớn hơn số lượng nguyên liệu trong kho");
       return false
     }
-    if (cart.find((p) => p.productId === selectedMaterial.productId && p.produceQuantity > selectedMaterial.produceQuantity)) {
-      setErrors("Đang sản xuất ra cùng 1 loại sản phẩm và có số lượng mới lớn hơn số lượng cũ")
+    if (cart.find((p) => p.productId === selectedMaterial.productId)) {
+      setErrors("Đang sản xuất ra cùng 1 loại sản phẩm")
       return false
     }
     setErrors("")
@@ -354,7 +358,9 @@ export default function ModifyProduction({ params }) {
                 <TableCell sx={{ color: "white" }}>Mã nguyên liệu</TableCell>
                 <TableCell sx={{ color: "white" }}>Tên nguyên liệu</TableCell>
                 <TableCell sx={{ color: "white" }} align="center">Tồn kho</TableCell>
+                <TableCell sx={{ color: "white" }} align="center">Khối lượng</TableCell>
                 <TableCell sx={{ color: "white" }} align="center">Số lượng tiêu thụ</TableCell>
+                <TableCell sx={{ color: "white" }} align="center">Tổng khối lượng tiêu thụ</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -371,7 +377,8 @@ export default function ModifyProduction({ params }) {
                   <TableCell>{selectedMaterial.productCode}</TableCell>
                   <TableCell>{selectedMaterial.productName}</TableCell>
                   <TableCell align="center">{selectedMaterial.quantity}</TableCell>
-                  <TableCell align="center" >
+                  <TableCell align="center">{selectedMaterial.weightPerUnit}</TableCell>
+                  <TableCell align="center" sx={{width: 200}}>
                     <IconButton
                       size="small"
                       onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity - 1)}
@@ -415,6 +422,7 @@ export default function ModifyProduction({ params }) {
                       <AddIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
+                  <TableCell align="center">{selectedMaterial.produceQuantity * selectedMaterial.weightPerUnit} kg</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -456,9 +464,10 @@ export default function ModifyProduction({ params }) {
               <TableRow className="background-primary">
                 <TableCell sx={{ color: "white" }}>Mã thành phẩm</TableCell>
                 <TableCell sx={{ color: "white" }}>Tên thành phẩm</TableCell>
-                <TableCell sx={{ color: "white" }} align="center">Tồn kho</TableCell>
+                <TableCell sx={{ color: "white" }} align="center">Khối lượng</TableCell>
                 <TableCell sx={{ color: "white" }} align="center">Số lượng sản xuất</TableCell>
-                <TableCell sx={{ color: "white" }} align="right">Hành động</TableCell>
+                <TableCell sx={{ color: "white" }} align="center">{type === 'update' ? 'Sản lượng thực tế' : 'Sản lượng dự kiến'}</TableCell>
+                <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -475,8 +484,8 @@ export default function ModifyProduction({ params }) {
                   <TableRow key={product.productId} hover>
                     <TableCell>{product.productCode}</TableCell>
                     <TableCell>{product.productName}</TableCell>
-                    <TableCell align="center">{product.quantity}</TableCell>
-                    <TableCell align="center" >
+                    <TableCell align="center">{product.weightPerUnit}</TableCell>
+                    <TableCell align="center" sx={{width: 200}}>
                       <IconButton
                         size="small"
                         onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
@@ -517,6 +526,7 @@ export default function ModifyProduction({ params }) {
                         <AddIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
+                    <TableCell align="center">{product.produceQuantity * product.weightPerUnit} kg</TableCell>
                     <TableCell align="center">
                       <IconButton
                         size="small"

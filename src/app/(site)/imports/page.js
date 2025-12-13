@@ -62,7 +62,7 @@ export default function Imports() {
     const [supplierLoading, setSupplierLoading] = useState(false);
     const [warehouseLoading, setWarehouseLoading] = useState(false);
 
-    const pageRole = ["Manager"];
+    const pageRole = ["Manager", "Employee"];
     const { loading, setLoading } = useLoading();
     const { isLogin, user, refreshUserInfo } = useLogin();
     const buttonRef = useRef(null);

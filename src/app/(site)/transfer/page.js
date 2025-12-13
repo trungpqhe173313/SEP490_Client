@@ -59,7 +59,7 @@ export default function Transfer() {
     const buttonRef = useRef(null);
     const [pageReady, setPageReady] = useState(false);
 
-    const pageRole = ["Manager"];
+    const pageRole = ["Manager", "Employee"];
 
     useEffect(() => {
         if (loading) return;

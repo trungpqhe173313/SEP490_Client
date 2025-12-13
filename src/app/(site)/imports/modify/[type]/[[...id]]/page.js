@@ -71,7 +71,7 @@ export default function UpdateImport({ params }) {
     const [validSupplierMessage, setValidSupplierMessage] = useState("");
     const [validExpireDateMessage, setValidExpireDateMessage] = useState("");
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Manager"];
+    const pageRole = ["Manager", "Employee"];
 
     // Check authorization
     useEffect(() => {

@@ -187,7 +187,7 @@ const Navbar = () => {
         {
           name: "Nhập kho",
           link: "/imports",
-          role: ["Manager"],
+          role: ["Manager", "Employee"],
           icon: <AddShoppingCartIcon />
         },
         {
@@ -205,7 +205,7 @@ const Navbar = () => {
         {
           name: "Chuyển kho",
           link: "/transfer",
-          role: ["Manager"],
+          role: ["Manager", "Employee"],
           icon: <SyncAltIcon />
         },
       ]

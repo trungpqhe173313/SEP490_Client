@@ -533,8 +533,8 @@ export default function UpdateExport({ params }) {
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl h-[90vh] col-span-4 mt-4 w-full flex flex-col items-center justify-between">
-                <div>
+            <div className="bg-white rounded-xl min-h-[90vh] col-span-4 mt-4 w-full flex flex-col items-center justify-between">
+                <div className="w-full p-4">
                     <div className="w-full flex flex-row items-center gap-4">
                         <div className="w-full mt-4">
                             <p className="text-xl font-bold">Khách hàng</p>
@@ -590,30 +590,33 @@ export default function UpdateExport({ params }) {
                         }
                     </div>
                 </div>
-                {errors && <p className="text-red-600">{errors}</p>}
-                <div className="w-full flex flex-row items-center p-4 justify-between">
-                    <div className="flex justify-center gap-2 items-center">
-                        <IconButton
-                            size="small"
-                            onClick={() => setCurrentPage(currentPage - 1)}
-                            disabled={currentPage === 1}
+                <div className="w-full flex flex-col items-center p-4 justify-between gap-4">
+                    {errors && <p className="text-red-600">{errors}</p>}
+                    <div className="w-full flex flex-row items-center justify-between">
+                        <div className="flex justify-center gap-2 items-center">
+                            <IconButton
+                                size="small"
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                <ArrowBackIosNewIcon />
+                            </IconButton>
+                            <p>{currentPage} / {totalPages}</p>
+                            <IconButton
+                                size="small"
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                <ArrowForwardIosIcon />
+                            </IconButton>
+                        </div>
+                        <button
+                            className="background-primary background-hovered text-white text-2xl font-bold py-2 px-4 rounded"
+                            onClick={() => handleSubmit()}
                         >
-                            <ArrowBackIosNewIcon />
-                        </IconButton>
-                        <p>{currentPage} / {totalPages}</p>
-                        <IconButton
-                            size="small"
-                            onClick={() => setCurrentPage(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                        >
-                            <ArrowForwardIosIcon />
-                        </IconButton>
+                            Hoàn thành phiếu
+                        </button>
                     </div>
-                    <button
-                        className="background-primary background-hovered text-white text-2xl font-bold py-2 px-4 rounded"
-                        onClick={() => handleSubmit()}>
-                        Hoàn thành phiếu
-                    </button>
                 </div>
             </div>
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), handleExit() }} />

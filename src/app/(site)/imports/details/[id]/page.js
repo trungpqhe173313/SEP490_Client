@@ -37,7 +37,7 @@ export default function ImportDetail({ params }) {
     const [supplier, setSupplier] = useState({});
     const [products, setProducts] = useState([]);
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Manager"];
+    const pageRole = ["Manager", "Employee"];
 
     // Check authorization
     useEffect(() => {
