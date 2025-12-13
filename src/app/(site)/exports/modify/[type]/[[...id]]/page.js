@@ -412,109 +412,111 @@ export default function UpdateExport({ params }) {
                             getOptionKey={(option) => option.productId}
                         />
                     </div>
-                    <TableContainer component={Paper}>
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow className="background-primary">
-                                    <TableCell sx={{ color: "white" }}>Mã hàng</TableCell>
-                                    <TableCell sx={{ color: "white" }}>Tên hàng</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Tồn kho</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Đơn giá (VND)</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="right">Thành tiền (VND)</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {cart.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={7} align="center">
-                                            <p className="my-10 text-xl">
-                                                Chưa có sản phẩm
-                                            </p>
-                                        </TableCell>
+                    <div className={`overflow-y-scroll h-[65vh] ${cart.length <= 10 && "scrollbar-hidden"}`}>
+                        <TableContainer component={Paper}>
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow className="background-primary">
+                                        <TableCell sx={{ color: "white" }}>Mã hàng</TableCell>
+                                        <TableCell sx={{ color: "white" }}>Tên hàng</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Tồn kho</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Đơn giá (VND)</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="right">Thành tiền (VND)</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
                                     </TableRow>
-                                ) : (
-                                    cart.map((product) => (
-                                        <TableRow key={product.productId} hover>
-                                            <TableCell>{product.productCode}</TableCell>
-                                            <TableCell>{product.productName}</TableCell>
-                                            <TableCell sx={{width: 90}} align="center">{product.quantity ?? 0}</TableCell>
-                                            <TableCell sx={{width: 220}} align="center">
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity - 1)}
-                                                    disabled={product.orderQuantity <= 0}
-                                                    sx={{ border: "1px solid #ccc", height: "28px", marginY: "5px" }}
-                                                >
-                                                    <RemoveIcon fontSize="small" />
-                                                </IconButton>
-                                                <TextField
-                                                    type="number"
-                                                    size="small"
-                                                    inputProps={{
-                                                        min: 0,
-                                                        style: {
-                                                            width: 50,
-                                                            textAlign: "center",
-                                                            height: 10,
-                                                            color: product.orderQuantity > product.quantity ? 'red' : 'inherit'
-                                                        },
-                                                    }}
-                                                    value={removeLeadingZero(product.orderQuantity)}
-                                                    onChange={(e) => handleChangeCart(product.productId, "orderQuantity", e.target.value)}
-                                                    variant="outlined"
-                                                    error={product.orderQuantity > product.quantity || product.orderQuantity < 0}
-                                                    sx={{
-                                                        '& .MuiOutlinedInput-root': {
-                                                            '& fieldset': {
-                                                                borderColor: product.orderQuantity > product.quantity ? 'red' : 'inherit',
-                                                            },
-                                                        },
-                                                        margin: "5px"
-                                                    }}
-                                                />
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity + 1)}
-                                                    sx={{ border: "1px solid #ccc", height: "28px", marginY: "5px" }}
-                                                >
-                                                    <AddIcon fontSize="small" />
-                                                </IconButton>
-                                            </TableCell>
-                                            <TableCell align="center">
-                                                <TextField
-                                                    type="number"
-                                                    size="small"
-                                                    inputProps={{
-                                                        min: 0,
-                                                        style: { width: 70, textAlign: "center", height: "10px" },
-                                                    }}
-                                                    error={product.unitPrice < 0}
-                                                    value={removeLeadingZero(product.unitPrice)}
-                                                    onChange={(e) => handleChangeCart(product.productId, "unitPrice", e.target.value)}
-                                                    variant="outlined"
-                                                />
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {isNaN(product.unitPrice * product.orderQuantity) ? 0 : (product.unitPrice * product.orderQuantity).toLocaleString()} ₫
-                                            </TableCell>
-                                            <TableCell align="center">
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => handleRemoveCart(product.productId)}
-                                                    sx={{ backgroundColor: "red", height: "28px", color: "white" }}
-                                                >
-                                                    <DeleteIcon fontSize="small" />
-                                                </IconButton>
+                                </TableHead>
+                                <TableBody>
+                                    {cart.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={7} align="center">
+                                                <p className="my-10 text-xl">
+                                                    Chưa có sản phẩm
+                                                </p>
                                             </TableCell>
                                         </TableRow>
-                                    )))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                    ) : (
+                                        cart.map((product) => (
+                                            <TableRow key={product.productId} hover>
+                                                <TableCell>{product.productCode}</TableCell>
+                                                <TableCell>{product.productName}</TableCell>
+                                                <TableCell sx={{ width: 90 }} align="center">{product.quantity ?? 0}</TableCell>
+                                                <TableCell sx={{ width: 220 }} align="center">
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity - 1)}
+                                                        disabled={product.orderQuantity <= 0}
+                                                        sx={{ border: "1px solid #ccc", height: "28px", marginY: "5px" }}
+                                                    >
+                                                        <RemoveIcon fontSize="small" />
+                                                    </IconButton>
+                                                    <TextField
+                                                        type="number"
+                                                        size="small"
+                                                        inputProps={{
+                                                            min: 0,
+                                                            style: {
+                                                                width: 50,
+                                                                textAlign: "center",
+                                                                height: 10,
+                                                                color: product.orderQuantity > product.quantity ? 'red' : 'inherit'
+                                                            },
+                                                        }}
+                                                        value={removeLeadingZero(product.orderQuantity)}
+                                                        onChange={(e) => handleChangeCart(product.productId, "orderQuantity", e.target.value)}
+                                                        variant="outlined"
+                                                        error={product.orderQuantity > product.quantity || product.orderQuantity < 0}
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-root': {
+                                                                '& fieldset': {
+                                                                    borderColor: product.orderQuantity > product.quantity ? 'red' : 'inherit',
+                                                                },
+                                                            },
+                                                            margin: "5px"
+                                                        }}
+                                                    />
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleChangeCart(product.productId, "orderQuantity", product.orderQuantity + 1)}
+                                                        sx={{ border: "1px solid #ccc", height: "28px", marginY: "5px" }}
+                                                    >
+                                                        <AddIcon fontSize="small" />
+                                                    </IconButton>
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    <TextField
+                                                        type="number"
+                                                        size="small"
+                                                        inputProps={{
+                                                            min: 0,
+                                                            style: { width: 70, textAlign: "center", height: "10px" },
+                                                        }}
+                                                        error={product.unitPrice < 0}
+                                                        value={removeLeadingZero(product.unitPrice)}
+                                                        onChange={(e) => handleChangeCart(product.productId, "unitPrice", e.target.value)}
+                                                        variant="outlined"
+                                                    />
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    {isNaN(product.unitPrice * product.orderQuantity) ? 0 : (product.unitPrice * product.orderQuantity).toLocaleString()} ₫
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleRemoveCart(product.productId)}
+                                                        sx={{ backgroundColor: "red", height: "28px", color: "white" }}
+                                                    >
+                                                        <DeleteIcon fontSize="small" />
+                                                    </IconButton>
+                                                </TableCell>
+                                            </TableRow>
+                                        )))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </div>
                 </div>
-                <div className="w-full bg-white rounded-xl h-auto p-4 flex flex-row items-center justify-between">
+                <div className="w-full bg-white rounded-xl h-auto p-4 flex flex-row items-center justify-between mt-4">
                     <div className="w-3/5 flex flex-row gap-4">
                         <textarea
                             placeholder="Ghi chú"
