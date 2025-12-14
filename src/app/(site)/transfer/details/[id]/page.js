@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react'
 import { transferService } from '@/services/transfer.service';
-import { numberToVietnamese } from '@/lib/numberToVietnamese';
 import { convertKgToTon, formatLargeNumber } from '@/lib/formattingLib';
 import { useLoading } from '@/context/LoadingContext';
 import TableCommon from "@/components/Table/table";
@@ -27,7 +26,6 @@ export default function TransferDetail({ params }) {
     const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
 
     const [transaction, setTransaction] = useState({});
-    const [customer, setCustomer] = useState({});
     const [products, setProducts] = useState([]);
     const [pageReady, setPageReady] = useState(false);
     const pageRole = ["Manager", "Employee"];
@@ -103,16 +101,6 @@ export default function TransferDetail({ params }) {
             label: "Tổng khối lượng (Khối lượng x Số lượng)",
             customValue: (item) => item.weightPerUnit && item.quantity && <div>{formatLargeNumber(item.weightPerUnit * item.quantity)}</div>
         },
-        {
-            key: "unitPrice",
-            label: "Đơn giá (VND)",
-            customValue: (item) => item.unitPrice && <div>{formatLargeNumber(item.unitPrice)}₫</div>
-        },
-        {
-            key: "totalPrice",
-            label: "Thành tiền (VND)",
-            customValue: (item) => item.quantity && item.unitPrice && <div>{formatLargeNumber(item.quantity * item.unitPrice)}₫</div>
-        },
     ]
 
     const extraRow = () => {
@@ -124,8 +112,6 @@ export default function TransferDetail({ params }) {
                 <TableCell />
                 <TableCell />
                 <TableCell align="center">{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</TableCell>
-                <TableCell />
-                <TableCell align="center">{!transaction.totalCost ? formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</TableCell>
             </TableRow>
         )
     }
@@ -185,7 +171,8 @@ export default function TransferDetail({ params }) {
                         <p>Trạng thái: </p>
                         {getTransferStatus(transaction.status)}
                     </div>
-                    <p className='my-2'>Ghi chú: {transaction.note}</p>
+                    <p className='my-2'>Nhân viên phụ trách: {transaction.responsibleName || "Chưa có"}</p>
+                    <p className='my-2'>Ghi chú: {transaction.note || "Chưa có"}</p>
                 </div>
             </div>
 
@@ -198,10 +185,10 @@ export default function TransferDetail({ params }) {
                 />
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>
-                        {transaction && transaction.status === 9 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDone}>Hoàn thành chuyển kho</button>}
-                        {transaction && transaction.status === 9 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleUpdateCancelled}>Hủy chuyển kho</button>}
-                        <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>
-                        {transaction && transaction.status === 9 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
+                        {user.roles.includes("Employee") && transaction?.status === 9 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDone}>Hoàn thành chuyển kho</button>}
+                        {user.roles.includes("Employee") && transaction?.status === 9 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleUpdateCancelled}>Hủy chuyển kho</button>}
+                        {user.roles.includes("Manager") && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>}
+                        {user.roles.includes("Employee") && transaction?.status === 9 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2 justify-end'>
                         {/* {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleDelete}>Xóa</button>} */}
@@ -215,14 +202,6 @@ export default function TransferDetail({ params }) {
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h2 className='w-1/3 text-left'>Tổng khối lượng:</h2>
                     <h2>{convertKgToTon(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))}</h2>
-                </div>
-                <div className='text-xl flex flex-row justify-between w-1/3'>
-                    <h2 className='w-1/3 text-left'>Tổng tiền:</h2>
-                    <h2>{!transaction.totalCost ? formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</h2>
-                </div>
-                <div className='text-xl flex flex-row justify-between w-1/3'>
-                    <h2 className='w-1/3 text-left'>Bằng chữ: </h2>
-                    <h2>{!transaction.totalCost ? numberToVietnamese(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : numberToVietnamese(transaction.totalCost)}₫</h2>
                 </div>
             </div>
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />

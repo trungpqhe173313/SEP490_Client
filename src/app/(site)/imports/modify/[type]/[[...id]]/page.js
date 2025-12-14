@@ -9,6 +9,7 @@ import { productService } from "@/services/product.service";
 import { warehouseService } from "@/services/warehouse.service";
 import { supplierService } from "@/services/supplier.service";
 import { importService } from "@/services/import.service";
+import { employeeService } from "@/services/employee.service";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -44,6 +45,10 @@ export default function UpdateImport({ params }) {
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     const [supplierLoading, setSupplierLoading] = useState(false);
 
+    const [employees, setEmployees] = useState([]);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [employeeLoading, setEmployeeLoading] = useState(false);
+
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [products, setProducts] = useState([]);
     const [productsForSearch, setProductsForSearch] = useState([]);
@@ -69,6 +74,7 @@ export default function UpdateImport({ params }) {
 
     const [validWarehouseMessage, setValidWarehouseMessage] = useState("");
     const [validSupplierMessage, setValidSupplierMessage] = useState("");
+    const [validEmployeeMessage, setValidEmployeeMessage] = useState("");
     const [validExpireDateMessage, setValidExpireDateMessage] = useState("");
     const [pageReady, setPageReady] = useState(false);
     const pageRole = ["Manager", "Employee"];
@@ -155,6 +161,13 @@ export default function UpdateImport({ params }) {
                 setTotalCost(response.data.totalCost);
                 setSelectedSupplier(response.data.supplier);
                 fetchExactWarehouse(response.data.warehouseName);
+                if (response.data.responsibleId && response.data.responsibleName) {
+                    const employee = {
+                        userId: response.data.responsibleId,
+                        fullName: response.data.responsibleName,
+                    }
+                    setSelectedEmployee(employee);
+                }
             })
             .catch((error) => {
                 console.log(error);
@@ -186,6 +199,18 @@ export default function UpdateImport({ params }) {
             });
     }
 
+    const fetchEmployees = async (name) => {
+        const body = { pageIndex: 1, pageSize: 1000, employeeName: name, isActive: true };
+        await employeeService
+            .getAllEmployees(body)
+            .then((response) => {
+                setEmployees(response.data.items);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
     const fetchExactWarehouse = async (warehouseName) => {
         const body = { pageIndex: 1, pageSize: 1000, warehouseName: warehouseName };
         await warehouseService
@@ -200,7 +225,7 @@ export default function UpdateImport({ params }) {
 
     useEffect(() => {
         validateFields();
-    }, [selectedSupplier, selectedWarehouse, expireDate]);
+    }, [selectedSupplier, selectedWarehouse, selectedEmployee, expireDate]);
 
     const validateFields = () => {
         if (!selectedSupplier) {
@@ -209,6 +234,10 @@ export default function UpdateImport({ params }) {
         }
         if (!selectedWarehouse) {
             setValidWarehouseMessage("Vui lòng chọn kho");
+            return false;
+        }
+        if (!selectedEmployee && type === "create") {
+            setValidEmployeeMessage("Vui lòng chọn nhân viên phụ trách");
             return false;
         }
         if (!expireDate) {
@@ -222,6 +251,7 @@ export default function UpdateImport({ params }) {
         setValidExpireDateMessage("");
         setValidSupplierMessage("");
         setValidWarehouseMessage("");
+        setValidEmployeeMessage("");
         return true;
     }
 
@@ -263,7 +293,7 @@ export default function UpdateImport({ params }) {
                         unitPrice: r.unitPrice
                     }))
             }
-            await importService.createImport(body)
+            await importService.createImport(selectedEmployee.userId, body)
                 .then((response) => {
                     setModalSuccessMessage("Tạo phiếu nhập kho thành công");
                     setModalSuccessOpen(true);
@@ -347,7 +377,7 @@ export default function UpdateImport({ params }) {
         });
     };
 
-    const handleChangeDropdown = (item) => {
+    const handleChangeDropdown = (item, field) => {
         if (item) {
             if (item.warehouseId) {
                 setSelectedWarehouse(item);
@@ -361,6 +391,19 @@ export default function UpdateImport({ params }) {
                     setSelectedProduct(null);
                 }, 0);
             }
+            if (item.userId) {
+                setSelectedEmployee(item);
+            }
+        } else {
+            if (field === "warehouseId") {
+                setSelectedWarehouse(null);
+            }
+            if (field === "supplierId") {
+                setSelectedSupplier(null);
+            }
+            if (field === "employeeId") {
+                setSelectedEmployee(null);
+            }
         }
     }
 
@@ -370,6 +413,7 @@ export default function UpdateImport({ params }) {
         fetchProduct();
         fetchSupplier();
         fetchWarehouse();
+        fetchEmployees();
     }, [pageReady]);
 
     useEffect(() => {
@@ -536,7 +580,7 @@ export default function UpdateImport({ params }) {
                             value={selectedWarehouse}
                             loading={warehouseLoading}
                             options={warehouses}
-                            onSelect={(item) => handleChangeDropdown(item)}
+                            onSelect={(item) => handleChangeDropdown(item, "warehouseId")}
                             onSearch={fetchWarehouse}
                             getOptionLabel={(option) => option.warehouseName}
                             getOptionKey={(option) => option.warehouseId}
@@ -560,7 +604,7 @@ export default function UpdateImport({ params }) {
                             value={selectedSupplier}
                             loading={supplierLoading}
                             options={suppliers}
-                            onSelect={(item) => handleChangeDropdown(item)}
+                            onSelect={(item) => handleChangeDropdown(item, "supplierId")}
                             onSearch={fetchSupplier}
                             getOptionLabel={(option) => option.supplierName}
                             getOptionKey={(option) => option.supplierId}
@@ -568,6 +612,30 @@ export default function UpdateImport({ params }) {
                     }
                     {!selectedSupplier && <span className="text-red-500">{validSupplierMessage}</span>}
                 </div>
+                {user.roles.includes("Manager") && <div className="my-4">
+                    <label className="block text-md font-bold">Nhân viên phụ trách</label>
+                    {/* {id ?
+                        <input
+                            type="text"
+                            name="employeeName"
+                            disabled
+                            value={selectedEmployee?.fullName || ""}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                        />
+                        : */}
+                    <AutocompleteCommon
+                        name="employeeId"
+                        value={selectedEmployee}
+                        loading={employeeLoading}
+                        options={employees}
+                        onSelect={(item) => handleChangeDropdown(item, "employeeId")}
+                        onSearch={fetchEmployees}
+                        getOptionLabel={(option) => option.fullName}
+                        getOptionKey={(option) => option.userId}
+                    />
+                    {/* } */}
+                    {!selectedEmployee && <span className="text-red-500">{validEmployeeMessage}</span>}
+                </div>}
                 <div className="my-4">
                     <label className="block text-md font-bold">Ngày hết hạn</label>
                     <input

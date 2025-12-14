@@ -2,6 +2,7 @@
 import { importService } from "@/services/import.service";
 import { warehouseService } from "@/services/warehouse.service";
 import { supplierService } from "@/services/supplier.service";
+import { employeeService } from "@/services/employee.service";
 import { useLogin } from "@/context/LoginContext";
 
 import React, { useState, useEffect } from "react";
@@ -46,6 +47,7 @@ export default function Imports() {
     const [filterStatus, setFilterStatus] = useState(null);
     const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
     const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
+    const [filterResponsibleId, setFilterResponsibleId] = useState(null);
 
     const [errorToTransactionDate, setErrorToTransactionDate] = useState("");
 
@@ -61,6 +63,9 @@ export default function Imports() {
     const [warehouses, setWarehouses] = useState([]);
     const [supplierLoading, setSupplierLoading] = useState(false);
     const [warehouseLoading, setWarehouseLoading] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [employees, setEmployees] = useState([]);
+    const [employeeLoading, setEmployeeLoading] = useState(false);
 
     const pageRole = ["Manager", "Employee"];
     const { loading, setLoading } = useLoading();
@@ -104,6 +109,11 @@ export default function Imports() {
             key: "note",
             label: "Ghi chú",
             customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
+        },
+        {
+            key: "responsibleName",
+            label: "Nhân viên phụ trách",
+            customValue: (item) => item.responsibleName ? <div>{item.responsibleName}</div> : <div>Chưa có</div>
         },
         {
             key: "action",
@@ -163,10 +173,30 @@ export default function Imports() {
         }
     }
 
+    const fetchEmployees = async (value) => {
+        try {
+            setEmployeeLoading(true);
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                isActive: true,
+                employeeName: value
+            };
+            const response = await employeeService.getAllEmployees(body);
+            const employeeData = response.data.items
+            setEmployees(employeeData);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+        } finally {
+            setEmployeeLoading(false);
+        }
+    }
+
     useEffect(() => {
         if (!pageReady) return;
         fetchSuppliers("");
         fetchWarehouses("");
+        fetchEmployees("");
     }, [pageReady]);
 
     const fetchImports = async () => {
@@ -180,7 +210,8 @@ export default function Imports() {
                 status: parseInt(filterStatus) || null,
                 type: 'Import',
                 transactionFromDate: filterTransactionFromDate || null,
-                transactionToDate: filterTransactionToDate || null
+                transactionToDate: filterTransactionToDate || null,
+                responsibleId: user.roles.includes("Manager") ? filterResponsibleId || null : user.id
             };
             const response = await importService.getAllImports(body);
             setImports(response.data.items);
@@ -233,6 +264,9 @@ export default function Imports() {
             } else if (item.warehouseId) {
                 setSelectedWarehouse(item);
                 setFilterWarehouseId(item.warehouseId);
+            } else if (item.userId) {
+                setSelectedEmployee(item);
+                setFilterResponsibleId(item.userId);
             }
         } else {
             if (field === "supplierId") {
@@ -241,6 +275,9 @@ export default function Imports() {
             } else if (field === "warehouseId") {
                 setSelectedWarehouse(null);
                 setFilterWarehouseId(null);
+            } else if (field === "employeeId") {
+                setSelectedEmployee(null);
+                setFilterResponsibleId(null);
             }
         }
     };
@@ -270,6 +307,8 @@ export default function Imports() {
         setSelectedSupplier(null);
         setFilterWarehouseId(null);
         setSelectedWarehouse(null);
+        setFilterResponsibleId(null);
+        setSelectedEmployee(null);
         setFilterStatus(null);
         setFilterTransactionFromDate("");
         setFilterTransactionToDate("");
@@ -426,6 +465,21 @@ export default function Imports() {
                             getOptionKey={(option) => option.warehouseId}
                         />
                     </div>
+                    {user.roles.includes("Manager") &&
+                        <div className="mt-2 w-[24.25%]">
+                            <label className="mr-2">Nhân viên phụ trách:</label>
+                            <AutocompleteCommon
+                                name="employeeId"
+                                value={selectedEmployee}
+                                loading={employeeLoading}
+                                options={employees}
+                                onSelect={(item) => handleChangeDropdown(item, "employeeId")}
+                                onSearch={fetchEmployees}
+                                getOptionLabel={(option) => option.fullName}
+                                getOptionKey={(option) => option.userId}
+                            />
+                        </div>
+                    }
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Trạng thái:</label>
                         <select

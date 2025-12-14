@@ -8,6 +8,7 @@ import { convertKgToTon, formatLargeNumber } from '@/lib/formattingLib';
 import { useLoading } from '@/context/LoadingContext';
 import TableCommon from "@/components/Table/table";
 import { PaymentForm } from '@/components/Form/paymentForm';
+import { AssignForm } from '@/components/Form/assignForm';
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
@@ -24,6 +25,7 @@ export default function ExportDetail({ params }) {
     const { isLogin, user, refreshUserInfo } = useLogin();
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [modalAssignOpen, setModalAssignOpen] = useState(false);
     const [mode, setMode] = useState("createPayment");
     const [paidAmount, setPaidAmount] = useState(0);
 
@@ -189,9 +191,13 @@ export default function ExportDetail({ params }) {
     }
 
     const handleUpdateOrder = async () => {
+        setModalAssignOpen(true);
+    }
+
+    const handleConfirmUpdateOrder = async (data) => {
         setLoading(true);
         try {
-            await exportService.updateToOrder(id);
+            await exportService.updateToOrder(id, data);
             setModalSuccessMessage("Lên phiếu xuất kho thành công");
             setModalSuccessOpen(true);
             fetchTransaction();
@@ -298,7 +304,7 @@ export default function ExportDetail({ params }) {
 
     return (
         <div className='flex flex-col gap-4 w-full'>
-            <div className='grid grid-cols-3 p-4 gap-4 w-full h-50'>
+            <div className='grid grid-cols-3 p-4 gap-4 w-full'>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Chi tiết phiếu xuất</h1>
                     <p className='my-2'>Mã giao dịch: {transaction.transactionId}</p>
@@ -308,6 +314,7 @@ export default function ExportDetail({ params }) {
                         <p>Trạng thái: </p>
                         {getExportStatus(transaction.status)}
                     </div>
+                    <p className='my-2'>Nhân viên phụ trách: {transaction.responsibleName || "Chưa có"}</p>
                 </div>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Khách hàng</h1>
@@ -334,21 +341,20 @@ export default function ExportDetail({ params }) {
                 />
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>
-                        {transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateOrder}>Lên phiếu</button>}
-                        {transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDelivering}>Xác nhận xuất kho</button>}
-                        {transaction?.status === 3 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDone}>Hoàn thành giao hàng</button>}
-                        {transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
-                        {transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
-                        {transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
-                        <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>
-                        {transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
-                        {transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
-                        {transaction?.status <= 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
+                        {user.roles.includes("Manager") && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateOrder}>Lên phiếu</button>}
+                        {user.roles.includes("Employee") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDelivering}>Xác nhận xuất kho</button>}
+                        {user.roles.includes("Employee") && transaction?.status === 3 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDone}>Hoàn thành giao hàng</button>}
+                        {user.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
+                        {user.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
+                        {user.roles.includes("Manager") && transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
+                        {user.roles.includes("Manager") && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>}
+                        {user.roles.includes("Employee") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>}
+                        {user.roles.includes("Manager") && transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
+                        {user.roles.includes("Employee") && transaction?.status <= 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2 justify-end'>
-                        {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleCancel}>Hủy</button>}
+                        {user.roles.includes("Manager") && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleCancel}>Hủy</button>}
                     </div>
-
                 </div>
             </div>
 
@@ -384,6 +390,7 @@ export default function ExportDetail({ params }) {
                 initialData={transaction}
                 mode={mode}
             />
+            <AssignForm isOpen={modalAssignOpen} onClose={() => setModalAssignOpen(false)} onConfirm={handleConfirmUpdateOrder} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>

@@ -217,7 +217,7 @@ const Navbar = () => {
         {
           name: "Thu chi",
           link: "/payment",
-          role: ["Admin"],
+          role: ["Manager"],
           icon: <AttachMoneyIcon />
         },
         {
@@ -235,7 +235,7 @@ const Navbar = () => {
         {
           name: "Thống kê",
           link: "/dashboard",
-          role: ["Admin"],
+          role: ["Manager"],
           icon: <AlignHorizontalLeftIcon />
         },
         {

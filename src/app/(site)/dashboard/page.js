@@ -18,7 +18,7 @@ export default function Dashboard() {
     const { user, isLogin } = useLogin();
     const { loading, setLoading } = useLoading();
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Admin"];
+    const pageRole = ["Manager"];
 
     useEffect(() => {
         if (loading) return;
