@@ -186,9 +186,9 @@ export default function TransferDetail({ params }) {
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>
                         {user.roles.includes("Employee") && transaction?.status === 9 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDone}>Hoàn thành chuyển kho</button>}
-                        {user.roles.includes("Employee") && transaction?.status === 9 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleUpdateCancelled}>Hủy chuyển kho</button>}
+                        {user.roles.includes("Manager") && transaction?.status === 9 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleUpdateCancelled}>Hủy chuyển kho</button>}
                         {user.roles.includes("Manager") && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>}
-                        {user.roles.includes("Employee") && transaction?.status === 9 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
+                        {user.roles.includes("Manager") && transaction?.status === 9 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2 justify-end'>
                         {/* {transaction && transaction.status <= 2 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleDelete}>Xóa</button>} */}

@@ -67,7 +67,7 @@ export function AssignForm({
       aria-describedby="product-modal-description"
     >
       <div className="fixed inset-0 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-lg w-full max-w-1/2 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
+        <div className="bg-white rounded-lg shadow-lg w-full max-w-1/4 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
           <div className="w-full background-primary text-white p-4 flex-row flex justify-between sticky top-0">
             <h2 className="text-2xl font-bold my-auto" id="product-modal-title">
               Giao cho nhân viên
