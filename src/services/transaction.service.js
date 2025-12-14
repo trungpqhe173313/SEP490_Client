@@ -25,5 +25,10 @@ export const transactionService = {
     getExportWeight: async (fromDate, toDate) => {
         const response = await API.get(`/transaction/export-weight/?fromDate=${formatDateToInput(fromDate)}&toDate=${formatDateToInput(toDate)}`); 
         return response.data;
+    },
+
+    changeEmployee: async (id, data) => {
+        const response = await API.put(`/transaction/UpdateResponsible/${id}`, data); 
+        return response.data;
     }
 };

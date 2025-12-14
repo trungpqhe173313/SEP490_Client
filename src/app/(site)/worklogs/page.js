@@ -370,133 +370,135 @@ export default function Worklog() {
         <div className="flex gap-4 p-4">
 
             <div className="flex flex-col gap-4 w-2/3 justify-between">
-                <div className="flex flex-col gap-4 overflow-y-scroll scrollbar-hidden">
+                <div className="flex flex-col gap-4">
                     <div className="p-4 bg-white rounded-xl">
                         <p className="text-xl font-bold">Danh sách chấm công ngày {selectedDate.toLocaleDateString('vi-VN')}</p>
                     </div>
-                    <TableContainer component={Paper}>
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow className="background-primary">
-                                    <TableCell sx={{ color: "white" }} align="center">Mã nhân viên</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Tên nhân viên</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Số điện thoại</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Công việc</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Số lượng bốc vác (tấn)</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Ghi chú</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Trạng thái</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {employeeList.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={8} align="center">
-                                            <p className="text-lg my-10">
-                                                Chưa có chấm công
-                                            </p>
-                                        </TableCell>
+                    <div className="max-h-[80vh] overflow-y-scroll scrollbar-hidden">
+                        <TableContainer component={Paper}>
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow className="background-primary">
+                                        <TableCell sx={{ color: "white" }} align="center">Mã nhân viên</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Tên nhân viên</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Số điện thoại</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Công việc</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Số lượng bốc vác (tấn)</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Ghi chú</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Trạng thái</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
                                     </TableRow>
-                                ) : (
-                                    employeeList.map((employee) => (
-                                        <TableRow key={employee.userId} hover>
-                                            <TableCell align="center">{employee.userId}</TableCell>
-                                            <TableCell align="center">{employee.fullName}</TableCell>
-                                            <TableCell align="center">{employee.phone}</TableCell>
-                                            <TableCell align="center" sx={{ width: '12rem' }}>
-                                                <div className="flex flex-row items-center justify-center flex-wrap">
-                                                    {jobs.map((job) => (
-                                                        <label
-                                                            key={job.id}
-                                                            className="flex items-center my-1 rounded-xl cursor-pointer gap-2 w-full"
-                                                        >
-                                                            <input
-                                                                type="checkbox"
-                                                                value={job.id}
-                                                                disabled={employee.isActive}
-                                                                checked={employee.job.includes(job.id)}
-                                                                onChange={() => handleCheckboxChange(employee.userId, job.id)}
-                                                                className="w-6 h-6 accent-green-600 cursor-pointer"
-                                                            />
-                                                            <span className="text-sm">{job.jobName}</span>
-                                                        </label>
-                                                    ))}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell align="center" >
-                                                <TextField
-                                                    type="number"
-                                                    size="small"
-                                                    disabled={!employee.job.includes(2) || employee.isActive}
-                                                    inputProps={{
-                                                        min: 0,
-                                                        style: {
-                                                            width: 50,
-                                                            textAlign: "center",
-                                                            height: 10
-                                                        },
-                                                    }}
-                                                    value={removeLeadingZero(employee.quantity)}
-                                                    onChange={(e) => handleChangeEmployeeList(employee.userId, "quantity", e.target.value)}
-                                                    variant="outlined"
-                                                    error={employee.quantity < 0}
-                                                />
-                                            </TableCell>
-                                            <TableCell align="center" >
-                                                <textarea
-                                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                                    value={employee.note}
-                                                    disabled={employee.isActive}
-                                                    onChange={(e) => handleChangeEmployeeList(employee.userId, "note", e.target.value)}
-                                                />
-                                            </TableCell>
-                                            <TableCell align="center" sx={{ width: '10rem' }}>{employee.isActive ? <p className="text-green-600">Đã chấm công</p> : <p className="text-red-600">Chưa chấm công</p>}</TableCell>
-                                            <TableCell align="center" sx={{ width: '10rem' }}>
-                                                {worklogData.find(w => w.employeeId === employee.userId) ? (
-                                                    !employee.isActive ?
-                                                        <div className="flex flex-col gap-1">
-                                                            <button
-                                                                className="bg-cyan-600 px-4 py-2 text-white rounded-md"
-                                                                onClick={() => { handleUpdate(employee) }}
-                                                            >
-                                                                Lưu thay đổi
-                                                            </button>
-                                                            {selectedDate.toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
-                                                                <button
-                                                                    className="bg-green-600 px-4 py-2 text-white rounded-md"
-                                                                    onClick={() => { handleCheckIn(employee) }}
-                                                                >
-                                                                    Chấm công
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                        :
-                                                        <button
-                                                            className="bg-gray-600 px-4 py-2 text-white rounded-md"
-                                                            disabled
-                                                        >
-                                                            Đã chấm công
-                                                        </button>
-                                                ) :
-                                                    <button
-                                                        className="bg-green-600 px-4 py-2 text-white rounded-md"
-                                                        onClick={() => { handleCreate(employee) }}
-                                                    >
-                                                        Tạo công
-                                                    </button>
-                                                }
+                                </TableHead>
+                                <TableBody>
+                                    {employeeList.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={8} align="center">
+                                                <p className="text-lg my-10">
+                                                    Chưa có chấm công
+                                                </p>
                                             </TableCell>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                    ) : (
+                                        employeeList.map((employee) => (
+                                            <TableRow key={employee.userId} hover>
+                                                <TableCell align="center">{employee.userId}</TableCell>
+                                                <TableCell align="center">{employee.fullName}</TableCell>
+                                                <TableCell align="center">{employee.phone}</TableCell>
+                                                <TableCell align="center" sx={{ width: '12rem' }}>
+                                                    <div className="flex flex-row items-center justify-center flex-wrap">
+                                                        {jobs.map((job) => (
+                                                            <label
+                                                                key={job.id}
+                                                                className="flex items-center my-1 rounded-xl cursor-pointer gap-2 w-full"
+                                                            >
+                                                                <input
+                                                                    type="checkbox"
+                                                                    value={job.id}
+                                                                    disabled={employee.isActive}
+                                                                    checked={employee.job.includes(job.id)}
+                                                                    onChange={() => handleCheckboxChange(employee.userId, job.id)}
+                                                                    className="w-6 h-6 accent-green-600 cursor-pointer"
+                                                                />
+                                                                <span className="text-sm">{job.jobName}</span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell align="center" >
+                                                    <TextField
+                                                        type="number"
+                                                        size="small"
+                                                        disabled={!employee.job.includes(2) || employee.isActive}
+                                                        inputProps={{
+                                                            min: 0,
+                                                            style: {
+                                                                width: 50,
+                                                                textAlign: "center",
+                                                                height: 10
+                                                            },
+                                                        }}
+                                                        value={removeLeadingZero(employee.quantity)}
+                                                        onChange={(e) => handleChangeEmployeeList(employee.userId, "quantity", e.target.value)}
+                                                        variant="outlined"
+                                                        error={employee.quantity < 0}
+                                                    />
+                                                </TableCell>
+                                                <TableCell align="center" >
+                                                    <textarea
+                                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                                        value={employee.note}
+                                                        disabled={employee.isActive}
+                                                        onChange={(e) => handleChangeEmployeeList(employee.userId, "note", e.target.value)}
+                                                    />
+                                                </TableCell>
+                                                <TableCell align="center" sx={{ width: '10rem' }}>{employee.isActive ? <p className="text-green-600">Đã chấm công</p> : <p className="text-red-600">Chưa chấm công</p>}</TableCell>
+                                                <TableCell align="center" sx={{ width: '10rem' }}>
+                                                    {worklogData.find(w => w.employeeId === employee.userId) ? (
+                                                        !employee.isActive ?
+                                                            <div className="flex flex-col gap-1">
+                                                                <button
+                                                                    className="bg-cyan-600 px-4 py-2 text-white rounded-md"
+                                                                    onClick={() => { handleUpdate(employee) }}
+                                                                >
+                                                                    Lưu thay đổi
+                                                                </button>
+                                                                {selectedDate.toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
+                                                                    <button
+                                                                        className="bg-green-600 px-4 py-2 text-white rounded-md"
+                                                                        onClick={() => { handleCheckIn(employee) }}
+                                                                    >
+                                                                        Chấm công
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                            :
+                                                            <button
+                                                                className="bg-gray-600 px-4 py-2 text-white rounded-md"
+                                                                disabled
+                                                            >
+                                                                Đã chấm công
+                                                            </button>
+                                                    ) :
+                                                        <button
+                                                            className="bg-green-600 px-4 py-2 text-white rounded-md"
+                                                            onClick={() => { handleCreate(employee) }}
+                                                        >
+                                                            Tạo công
+                                                        </button>
+                                                    }
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </div>
                 </div>
             </div>
 
             <div className="w-1/3 flex flex-col gap-4">
-                <div className="p-4 bg-white rounded-xl h-1/2">
+                <div className="p-4 bg-white rounded-xl overflow-hidden">
                     <p className="text-xl font-bold">Tìm kiếm nhân viên</p>
                     <input
                         type="text"
@@ -504,19 +506,21 @@ export default function Worklog() {
                         className="px-4 py-2 border border-gray-300 rounded-xl w-full"
                         onChange={(e) => handleSearch(e.target.value)}
                     />
-                    {filteredEmployees.length > 0 ? (
-                        filteredEmployees.map((employee) => (
-                            <div
-                                key={employee.userId}
-                                className="flex items-center my-2 px-4 py-2 border border-gray-300 rounded-xl cursor-pointer gap-4"
-                                onClick={() => handleAddEmployeeList(employee)}
-                            >
-                                <span className="text-md w-full">{employee.fullName}</span>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-lg my-10 text-center">Không tìm thấy nhân viên</p>
-                    )}
+                    <div className="overflow-y-scroll max-h-80 scrollbar-hidden h-full">
+                        {filteredEmployees.length > 0 ? (
+                            filteredEmployees.map((employee) => (
+                                <div
+                                    key={employee.userId}
+                                    className="flex items-center my-2 px-4 py-2 border border-gray-300 rounded-xl cursor-pointer gap-4"
+                                    onClick={() => handleAddEmployeeList(employee)}
+                                >
+                                    <span className="text-md w-full">{employee.fullName} - {employee.phone}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-lg my-10 text-center">Không tìm thấy nhân viên</p>
+                        )}
+                    </div>
                 </div>
                 <Calendar value={selectedDate} onChange={selectedDate => setSelectedDate(selectedDate)} />
             </div>

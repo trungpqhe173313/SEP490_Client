@@ -161,13 +161,6 @@ export default function UpdateImport({ params }) {
                 setTotalCost(response.data.totalCost);
                 setSelectedSupplier(response.data.supplier);
                 fetchExactWarehouse(response.data.warehouseName);
-                if (response.data.responsibleId && response.data.responsibleName) {
-                    const employee = {
-                        userId: response.data.responsibleId,
-                        fullName: response.data.responsibleName,
-                    }
-                    setSelectedEmployee(employee);
-                }
             })
             .catch((error) => {
                 console.log(error);
@@ -612,17 +605,8 @@ export default function UpdateImport({ params }) {
                     }
                     {!selectedSupplier && <span className="text-red-500">{validSupplierMessage}</span>}
                 </div>
-                {user.roles.includes("Manager") && <div className="my-4">
+                {user.roles.includes("Manager") && type === "create" && <div className="my-4">
                     <label className="block text-md font-bold">Nhân viên phụ trách</label>
-                    {/* {id ?
-                        <input
-                            type="text"
-                            name="employeeName"
-                            disabled
-                            value={selectedEmployee?.fullName || ""}
-                            className="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                        : */}
                     <AutocompleteCommon
                         name="employeeId"
                         value={selectedEmployee}
@@ -630,10 +614,9 @@ export default function UpdateImport({ params }) {
                         options={employees}
                         onSelect={(item) => handleChangeDropdown(item, "employeeId")}
                         onSearch={fetchEmployees}
-                        getOptionLabel={(option) => option.fullName}
+                        getOptionLabel={(option) => option.fullName + " - " + option.phone}
                         getOptionKey={(option) => option.userId}
                     />
-                    {/* } */}
                     {!selectedEmployee && <span className="text-red-500">{validEmployeeMessage}</span>}
                 </div>}
                 <div className="my-4">

@@ -26,6 +26,7 @@ export default function ExportDetail({ params }) {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [modalAssignOpen, setModalAssignOpen] = useState(false);
+    const [modalReassignOpen, setModalReassignOpen] = useState(false);
     const [mode, setMode] = useState("createPayment");
     const [paidAmount, setPaidAmount] = useState(0);
 
@@ -169,6 +170,26 @@ export default function ExportDetail({ params }) {
         setRowPerPage(parseInt(event.target.value, 10));
         setPageIndex(0);
     };
+
+    const handleReassign = () => {
+        setModalReassignOpen(true);
+    }
+
+    const handleConfirmReassign = async (data) => {
+        setLoading(true);
+        try {
+            await transactionService.changeEmployee(id, data);
+            setModalSuccessMessage("Sửa nhân viên phụ trách thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const handleCopy = () => {
         router.push(`/exports/modify/create/${id}`);
@@ -314,7 +335,10 @@ export default function ExportDetail({ params }) {
                         <p>Trạng thái: </p>
                         {getExportStatus(transaction.status)}
                     </div>
-                    <p className='my-2'>Nhân viên phụ trách: {transaction.responsibleName || "Chưa có"}</p>
+                    <div className='my-2 flex flex-row gap-2'>
+                       <p>Nhân viên phụ trách: {transaction.responsibleName || "Chưa có"}</p> 
+                       {user.roles.includes("Manager") && transaction?.status === 2 && <button className='cursor-pointer px-4 text-white bg-yellow-500 rounded-xl' onClick={handleReassign}>Sửa</button>}
+                    </div>
                 </div>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Khách hàng</h1>
@@ -391,6 +415,7 @@ export default function ExportDetail({ params }) {
                 mode={mode}
             />
             <AssignForm isOpen={modalAssignOpen} onClose={() => setModalAssignOpen(false)} onConfirm={handleConfirmUpdateOrder} />
+            <AssignForm isOpen={modalReassignOpen} onClose={() => setModalReassignOpen(false)} onConfirm={handleConfirmReassign} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>

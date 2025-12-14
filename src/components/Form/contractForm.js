@@ -35,6 +35,7 @@ export function ContractForm({
       const supplierData = response.data.items.map((supplier) => ({
         name: supplier.supplierName,
         id: supplier.supplierId,
+        phone: supplier.phone
       }));
       setSuppliers(supplierData);
     } catch (error) {
@@ -54,6 +55,7 @@ export function ContractForm({
       const customerData = response.data.items.map((customer) => ({
         name: customer.fullName,
         id: customer.userId,
+        phone: customer.phone
       }));
       setCustomers(customerData);
     } catch (error) {
@@ -227,7 +229,7 @@ export function ContractForm({
                     options={options}
                     onSelect={(item) => handleChangeDropdown(item)}
                     onSearch={handleSearch}
-                    getOptionLabel={(option) => option.name || ""}
+                    getOptionLabel={(option) => option.name + " - " + option.phone || ""}
                     getOptionKey={(option) => option.id}
                   />
                 </div>

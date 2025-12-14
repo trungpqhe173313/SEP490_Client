@@ -36,7 +36,8 @@ export function AssignForm({
 
   useEffect(() => {
     fetchEmployees();
-  }, []);
+    setSelectedEmployee(null);
+  }, [isOpen]);
 
   const handleChangeDropdown = (item) => {
     if (item) {
@@ -91,7 +92,7 @@ export function AssignForm({
                   options={employees}
                   onSelect={(item) => handleChangeDropdown(item)}
                   onSearch={fetchEmployees}
-                  getOptionLabel={(option) => option.fullName}
+                  getOptionLabel={(option) => option.fullName + " - " + option.phone}
                   getOptionKey={(option) => option.userId}
                 />
               </div>

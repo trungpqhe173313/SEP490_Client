@@ -11,6 +11,7 @@ import { getTransferStatus } from "@/lib/getStatus";
 import SuccessModal from '@/components/Modal/successModal';
 import FailedModal from '@/components/Modal/failedModal';
 import { TableRow, TableCell } from '@mui/material';
+import { AssignForm } from '@/components/Form/assignForm';
 
 
 export default function TransferDetail({ params }) {
@@ -18,6 +19,7 @@ export default function TransferDetail({ params }) {
     const { id } = React.use(params);
     const router = useRouter();
     const { isLogin, user, refreshUserInfo } = useLogin();
+    const [modalReassignOpen, setModalReassignOpen] = useState(false);
 
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
@@ -116,6 +118,26 @@ export default function TransferDetail({ params }) {
         )
     }
 
+    const handleReassign = () => {
+        setModalReassignOpen(true);
+    }
+
+    const handleConfirmReassign = async (data) => {
+        setLoading(true);
+        try {
+            await transactionService.changeEmployee(id, data);
+            setModalSuccessMessage("Sửa nhân viên phụ trách thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const handleCopy = () => {
         router.push(`/transfer/modify/create/${id}`);
     }
@@ -171,8 +193,11 @@ export default function TransferDetail({ params }) {
                         <p>Trạng thái: </p>
                         {getTransferStatus(transaction.status)}
                     </div>
-                    <p className='my-2'>Nhân viên phụ trách: {transaction.responsibleName || "Chưa có"}</p>
                     <p className='my-2'>Ghi chú: {transaction.note || "Chưa có"}</p>
+                    <div className='my-2 flex flex-row gap-2'>
+                        <p>Nhân viên phụ trách: {transaction.responsibleName || "Chưa có"}</p>
+                        {user.roles.includes("Manager") && transaction?.status === 9 && <button className='cursor-pointer px-4 text-white bg-yellow-500 rounded-xl' onClick={handleReassign}>Sửa</button>}
+                    </div>
                 </div>
             </div>
 
@@ -204,6 +229,7 @@ export default function TransferDetail({ params }) {
                     <h2>{convertKgToTon(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))}</h2>
                 </div>
             </div>
+            <AssignForm isOpen={modalReassignOpen} onClose={() => setModalReassignOpen(false)} onConfirm={handleConfirmReassign} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>

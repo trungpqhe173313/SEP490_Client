@@ -357,7 +357,7 @@ export default function Transfer() {
                                 options={employees}
                                 onSelect={(item) => handleChangeDropdown(item, "employeeId")}
                                 onSearch={fetchEmployees}
-                                getOptionLabel={(option) => option.fullName}
+                                getOptionLabel={(option) => option.fullName + " - " + option.phone}
                                 getOptionKey={(option) => option.userId}
                             />
                         </div>

@@ -107,13 +107,6 @@ export default function ModifyTransfer({ params }) {
                 warehouseId: await fetchExactWarehouse(response.data.destinationWarehouseName),
                 warehouseName: response.data.destinationWarehouseName
             });
-            if (response.data.responsibleId && response.data.responsibleName) {
-                const employee = {
-                    userId: response.data.responsibleId,
-                    fullName: response.data.responsibleName,
-                }
-                setSelectedEmployee(employee);
-            }
         } catch (error) {
             setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
@@ -548,15 +541,6 @@ export default function ModifyTransfer({ params }) {
                 </div>
                 {user.roles.includes("Manager") && type === "create" && <div className="my-4">
                     <label className="block text-md font-bold">Nhân viên phụ trách</label>
-                    {/* {id ?
-                        <input
-                            type="text"
-                            name="fullName"
-                            disabled
-                            value={transferData?.responsibleId || ""}
-                            className="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                        :  */}
                     <AutocompleteCommon
                         name="employeeId"
                         value={selectedEmployee}
@@ -564,10 +548,9 @@ export default function ModifyTransfer({ params }) {
                         options={employees}
                         onSelect={(item) => handleChangeDropdown(item, "employeeId")}
                         onSearch={fetchEmployees}
-                        getOptionLabel={(option) => option.fullName}
+                        getOptionLabel={(option) => option.fullName + " - " + option.phone}
                         getOptionKey={(option) => option.userId}
                     />
-                    {/* } */}
                 </div>}
                 <div className="my-4">
                     <label className="block text-md font-bold">Ghi chú</label>

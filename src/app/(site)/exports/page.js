@@ -149,7 +149,8 @@ export default function Exports() {
       const response = await customerService.getAllCustomers(body);
       const customerData = response.data.items.map((customer) => ({
         customerId: customer.userId,
-        customerName: customer.fullName
+        customerName: customer.fullName,
+        phone: customer.phone
       }))
       setCustomers(customerData);
     } catch (error) {
@@ -332,7 +333,7 @@ export default function Exports() {
               options={customers}
               onSelect={(item) => handleChangeDropdown(item, "customerId")}
               onSearch={fetchCustomers}
-              getOptionLabel={(option) => option.customerName}
+              getOptionLabel={(option) => option.customerName + " - " + option.phone}
               getOptionKey={(option) => option.customerId}
             />
           </div>
@@ -359,7 +360,7 @@ export default function Exports() {
                 options={employees}
                 onSelect={(item) => handleChangeDropdown(item, "employeeId")}
                 onSearch={fetchEmployees}
-                getOptionLabel={(option) => option.fullName}
+                getOptionLabel={(option) => option.fullName + " - " + option.phone}
                 getOptionKey={(option) => option.userId}
               />
             </div>

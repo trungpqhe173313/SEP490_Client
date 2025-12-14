@@ -165,7 +165,6 @@ export default function UpdateExport({ params }) {
             }
             const response = await customerService.getAllCustomers(body);
             setCustomers(response.data.items);
-            console.log(response.data.items);
         } catch (error) {
             console.log(error);
         } finally {
@@ -550,8 +549,8 @@ export default function UpdateExport({ params }) {
                                 options={customers}
                                 onSelect={(item) => handleChangeDropdown(item, "customerId")}
                                 onSearch={fetchCustomers}
-                                getOptionLabel={(option) => option.fullName}
-                                getOptionKey={(option) => option.customerId}
+                                getOptionLabel={(option) => option.fullName + " - " + option.phone}
+                                getOptionKey={(option) => option.userId}
                             />
                             }
                         </div>
