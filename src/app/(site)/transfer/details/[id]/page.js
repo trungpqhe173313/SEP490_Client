@@ -166,7 +166,10 @@ export default function TransferDetail({ params }) {
         }
         setLoading(true);
         try {
-            await transferService.completeTransfer(id);
+            const body = {
+                responsibleId: user.id
+            }
+            await transferService.completeTransfer(id, body);
             setModalSuccessMessage("Xác nhận chuyển kho thành công");
             setModalSuccessOpen(true);
             fetchTransaction();

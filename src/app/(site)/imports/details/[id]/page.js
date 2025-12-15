@@ -114,12 +114,12 @@ export default function ImportDetail({ params }) {
         {
             key: "expireDate",
             label: "Ngày hết hạn",
-            customValue: (item) => item.expireDate && <div>{new Date(item.expireDate).toLocaleString('vi-VN')}</div>
+            customValue: (item) => item.expireDate ? <div>{new Date(item.expireDate).toLocaleString('vi-VN')}</div> : <div>Chưa có</div>
         },
         {
             key: "note",
             label: "Ghi chú",
-            customValue: (item) => item.note && <div>{item.note}</div>
+            customValue: (item) => item.note ? <div>{item.note}</div> : <div>Chưa có</div>
         },
         {
             key: "weightPerUnit",
@@ -209,7 +209,10 @@ export default function ImportDetail({ params }) {
         }
         setLoading(true);
         try {
-            await importService.updateToChecked(id);
+            const body = {
+                responsibleId: user.id
+            }
+            await importService.updateToChecked(id, body);
             setModalSuccessMessage("Xác nhận kiểm phiếu nhập kho thành công");
             setModalSuccessOpen(true);
             fetchTransaction();
@@ -224,6 +227,22 @@ export default function ImportDetail({ params }) {
 
     const handleEdit = () => {
         router.push(`/imports/modify/update/${id}`);
+    }
+
+    const handleCancel = async () => {
+        setLoading(true);
+        try {
+            await importService.deleteImport(id);
+            setModalSuccessMessage("Hủy phiếu nhập kho thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const handleDelete = () => {
@@ -328,13 +347,13 @@ export default function ImportDetail({ params }) {
                         {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
-                        {user?.roles.includes("Manager") && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>}
+                        {user?.roles.includes("Manager") && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>}
                         {/* {transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>} */}
                         {user?.roles.includes("Manager") && transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2'>
-                        {/* {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleCancel}>Hủy</button>} */}
+                        {user?.roles.includes("Manager") && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleCancel}>Hủy</button>}
                     </div>
                 </div>
             </div>

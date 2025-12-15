@@ -116,7 +116,7 @@ export function ProfileForm({
             return;
         }
         setError("");
-        handleChange('image', file);
+        handleChange('imageFile', file);
     };
 
     return (
@@ -147,10 +147,10 @@ export function ProfileForm({
                                 >
                                     Chọn hình ảnh
                                 </label>
-                                {form.image && <button
+                                {form.imageFile && <button
                                     type="button"
                                     className="px-3 py-2 rounded-md bg-red-600 text-white cursor-pointer"
-                                    onClick={() => handleChange("image", "")}
+                                    onClick={() => handleChange("imageFile", "")}
                                 >
                                     Xóa hình ảnh
                                 </button>}
@@ -162,9 +162,9 @@ export function ProfileForm({
                                 onChange={(e) => handleFileChange(e.target.files?.[0])}
                                 hidden
                             />
-                            {form.image && (
+                            {form.imageFile && (
                                 <div className="mt-2 flex justify-center">
-                                    <Image src={formatImageURL(form.image)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
+                                    <Image src={formatImageURL(form.imageFile)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
                                 </div>
                             )}
                         </div>

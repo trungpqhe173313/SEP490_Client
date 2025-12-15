@@ -25,12 +25,12 @@ export const exportService = {
         const response = await API.put(`/stockoutput/UpdateToOrderStatus/${id}`, data);
         return response.data;
     },
-    updateToDelivering: async (id) => {
-        const response = await API.put(`/stockoutput/UpdateToDeliveringStatus/${id}`);
+    updateToDelivering: async (id, data) => {
+        const response = await API.put(`/stockoutput/UpdateToDeliveringStatus/${id}`, data);
         return response.data;
     },
-    updateToDone: async (id) => {
-        const response = await API.put(`/stockoutput/UpdateToDoneStatus/${id}`);
+    updateToDone: async (id, data) => {
+        const response = await API.put(`/stockoutput/UpdateToDoneStatus/${id}`, data);
         return response.data;
     },
     deleteExport: async (id) => {

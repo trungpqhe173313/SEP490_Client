@@ -239,7 +239,10 @@ export default function ExportDetail({ params }) {
         }
         setLoading(true);
         try {
-            await exportService.updateToDelivering(id);
+            const body = {
+                responsibleId: user.id
+            }
+            await exportService.updateToDelivering(id, body);
             setModalSuccessMessage("Xác nhận xuất kho thành công");
             setModalSuccessOpen(true);
             fetchTransaction();
@@ -260,7 +263,10 @@ export default function ExportDetail({ params }) {
         }
         setLoading(true);
         try {
-            await exportService.updateToDone(id);
+            const body = {
+                responsibleId: user.id
+            }
+            await exportService.updateToDone(id, body);
             setModalSuccessMessage("Giao hàng thành công");
             setModalSuccessOpen(true);
             fetchTransaction();

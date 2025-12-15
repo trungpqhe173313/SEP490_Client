@@ -49,6 +49,8 @@ export const getExportStatusText = (status) => {
 export const getImportStatus = (status) => {
     if (!status && status !== 0) return <p className="text-black">Không có trạng thái</p>
     switch (parseInt(status)) {
+        case 0:
+            return <p className="text-red-600">Đã hủy</p>
         case 1:
             return <p className="text-yellow-600">Đang kiểm</p>
         case 2:
@@ -67,6 +69,8 @@ export const getImportStatus = (status) => {
 export const getImportStatusText = (status) => {
     if (!status && status !== 0) return "Không có trạng thái"
     switch (parseInt(status)) {
+        case 0:
+            return "Đã hủy"
         case 1:
             return "Đang kiểm"
         case 2:
