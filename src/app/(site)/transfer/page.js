@@ -112,7 +112,7 @@ export default function Transfer() {
         {
             key: "responsibleName",
             label: "Nhân viên phụ trách",
-            customValue: (item) => item.responsibleName ? <div>{item.responsibleName}</div> : <div>Chưa có</div>
+            customValue: (item) => item.responsibleName ? <div><div>{item.responsibleName}</div><div>{item.employeePhone}</div></div> : <div>Chưa có</div>
         },
         {
             key: "action",

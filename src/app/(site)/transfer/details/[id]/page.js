@@ -203,7 +203,7 @@ export default function TransferDetail({ params }) {
                     </div>
                     <p className='my-2'>Ghi chú: {transaction.note || "Chưa có"}</p>
                     <div className='my-2 flex flex-row gap-2'>
-                        <p>Nhân viên phụ trách: {transaction.responsibleName || "Chưa có"}</p>
+                        <p>Nhân viên phụ trách: {transaction.responsibleName ? transaction.responsibleName + " - " + transaction.employeePhone : "Chưa có"}</p>
                         {user.roles.includes("Manager") && transaction?.status === 9 && <button className='cursor-pointer px-4 text-white bg-yellow-500 rounded-xl' onClick={handleReassign}>Sửa</button>}
                     </div>
                 </div>

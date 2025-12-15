@@ -156,7 +156,7 @@ export default function UpdateImport({ params }) {
         await importService.getImportDetail(id)
             .then((response) => {
                 setImportData(response.data);
-                setExpireDate(new Date(response.data.list[0].expireDate));
+                //setExpireDate(new Date(response.data.list[0].expireDate));
                 setNote(response.data.list[0].note);
                 setTotalCost(response.data.totalCost);
                 setSelectedSupplier(response.data.supplier);
@@ -624,7 +624,7 @@ export default function UpdateImport({ params }) {
                     <input
                         type="date"
                         name="expireDate"
-                        disabled={id && type === "update"}
+                        disabled={type === "update"}
                         value={expireDate && formatDateToInput(expireDate)}
                         onChange={(e) => {
                             const date = new Date(e.target.value);
