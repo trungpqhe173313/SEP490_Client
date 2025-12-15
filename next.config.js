@@ -20,7 +20,7 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: `
               default-src 'self';
-              img-src 'self' https://res.cloudinary.com data:;
+              img-src 'self' https://res.cloudinary.com blob: data:;
               script-src 'self' 'unsafe-eval' 'unsafe-inline';
               style-src 'self' 'unsafe-inline';
               font-src 'self' data:;

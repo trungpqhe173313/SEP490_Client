@@ -96,7 +96,16 @@ export default function EmployeeDetail({ params }) {
 
             <div className="w-full bg-white p-4 rounded-xl grid grid-cols-3 gap-4">
                 <div className="col-span-1 flex items-center justify-center">
-                    {employee.image && <Image src={formatImageURL(employee.image)} alt="avatar" className="w-80 aspect-square object-cover rounded-full border border-black" width={400} height={400} />}
+                    {employee.image ?
+                        <Image src={formatImageURL(employee.image)} alt="Nhân viên" className="w-80 aspect-square object-cover rounded-full border border-black" width={400} height={400}
+                            unoptimized
+                            onError={(e) => {
+                                e.currentTarget.src = "/altImage.jpg";
+                            }}
+                        />
+                        :
+                        <Image src="/altImage.jpg" alt="Nhân viên" className="w-80 aspect-square object-cover rounded-full border border-black" width={400} height={400} />
+                    }
                 </div>
                 <div className="col-span-1">
                     <h1 className="text-2xl font-bold mb-4">Thông tin nhân viên</h1>

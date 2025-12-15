@@ -1,8 +1,19 @@
 export const formatImageURL = (url) => {
     if (typeof url === 'string') {
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
         return `${process.env.NEXT_PUBLIC_CLOUDINARY_LINK}${url}`;
     }
     return URL.createObjectURL(url);
+};
+
+export const removeLeadingZero = (value) => {
+    const num = Number(value);
+    if (!Number.isFinite(num) || num === 0) return "0";
+
+    const str = num.toString();
+    return str.startsWith("0.") ? str.slice(1) : str;
 };
 
 export const formatLargeNumber = (number) => {

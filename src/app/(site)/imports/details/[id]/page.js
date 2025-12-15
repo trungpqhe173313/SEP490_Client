@@ -202,6 +202,11 @@ export default function ImportDetail({ params }) {
     }
 
     const handleConfirm = async () => {
+        if (transaction.responsibleId !== user.id) {
+            setModalFailedMessage(`Bạn không phụ trách phiếu nhập kho này`);
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         try {
             await importService.updateToChecked(id);

@@ -238,12 +238,13 @@ export function ContractForm({
             <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
               <div className="grid grid-cols-1">
                 <label className="block text-md font-bold">Hình ảnh</label>
-                <p className="text-xs text-gray-500">Chọn hình ảnh hợp đồng (JPG, PNG, GIF, WEBP)</p>
+                <p className="text-xs text-gray-500">Chọn hình ảnh hợp đồng (JPG, PNG)</p>
               </div>
               <div className="flex items-center gap-4">
                 <label
                   htmlFor="image"
                   className="px-3 py-2 rounded-md background-primary text-white cursor-pointer"
+                  onClick={() => document.getElementById("image").value = ""}
                 >
                   Chọn hình ảnh
                 </label>
@@ -258,7 +259,7 @@ export function ContractForm({
               <input
                 id="image"
                 type="file"
-                accept="image/jpeg,image/png,image/gif,image/webp"
+                accept="image/jpeg,image/png"
                 onChange={(e) => handleFileChange(e.target.files?.[0])}
                 hidden
               />

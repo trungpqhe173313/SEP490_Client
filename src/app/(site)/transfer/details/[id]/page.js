@@ -159,6 +159,11 @@ export default function TransferDetail({ params }) {
     }
 
     const handleUpdateDone = async () => {
+        if (transaction.responsibleId !== user.id) {
+            setModalFailedMessage(`Bạn không phụ trách phiếu chuyển kho này`);
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         try {
             await transferService.completeTransfer(id);

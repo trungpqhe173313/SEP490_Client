@@ -28,7 +28,8 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { formatLargeNumber } from '@/lib/formattingLib';
+import { formatImageURL, formatLargeNumber } from '@/lib/formattingLib';
+import Image from "next/image";
 
 export default function UpdateExport({ params }) {
     const router = useRouter();
@@ -576,7 +577,27 @@ export default function UpdateExport({ params }) {
                                 onClick={() => handleAddCart(product)}
                             >
                                 <div className="h-full">
-                                    <InsertPhotoIcon sx={{ height: '100%', width: 'auto' }} />
+                                    {product.imageUrl ?
+                                        <Image
+                                            src={formatImageURL(product.imageUrl)}
+                                            alt=""
+                                            className="w-15 aspect-square object-cover"
+                                            width={100}
+                                            height={100}
+                                            unoptimized
+                                            onError={(e) => {
+                                                e.currentTarget.src = "/altImage.jpg";
+                                            }}
+                                        />
+                                        :
+                                        <Image
+                                            src="/altImage.jpg"
+                                            alt=""
+                                            className="w-15 aspect-square object-cover"
+                                            width={100}
+                                            height={100}
+                                        />
+                                    }
                                 </div>
                                 <div>
                                     <p className="text-sm text-ellipsis whitespace-nowrap">

@@ -232,6 +232,11 @@ export default function ExportDetail({ params }) {
     }
 
     const handleUpdateDelivering = async () => {
+        if (transaction.responsibleId !== user.id) {
+            setModalFailedMessage(`Bạn không phụ trách phiếu xuất kho này`);
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         try {
             await exportService.updateToDelivering(id);
@@ -248,6 +253,11 @@ export default function ExportDetail({ params }) {
     }
 
     const handleUpdateDone = async () => {
+        if (transaction.responsibleId !== user.id) {
+            setModalFailedMessage(`Bạn không phụ trách phiếu xuất kho này`);
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         try {
             await exportService.updateToDone(id);
