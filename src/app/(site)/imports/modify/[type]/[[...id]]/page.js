@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
-import { formatLargeNumber, formatDateToInput } from '@/lib/formattingLib';
+import { formatLargeNumber, formatDateToInput, removeLeadingZero } from '@/lib/formattingLib';
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 
 import { productService } from "@/services/product.service";
@@ -99,11 +99,6 @@ export default function UpdateImport({ params }) {
         }
 
     }, [isLogin, user, loading]);
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     const fetchProduct = async () => {
         const body = { pageIndex: 1, pageSize: 1000, isActive: true };

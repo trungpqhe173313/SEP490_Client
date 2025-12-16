@@ -8,13 +8,12 @@ export const formatImageURL = (url) => {
     return URL.createObjectURL(url);
 };
 
-export const removeLeadingZero = (value) => {
-    const num = Number(value);
-    if (!Number.isFinite(num) || num === 0) return "0";
-
-    const str = num.toString();
-    return str.startsWith("0.") ? str.slice(1) : str;
-};
+export const removeLeadingZero = (number) => {
+    if (number === null || isNaN(number) || number == 0) return 0;
+    let result = number.toString().replace(/^0+/, '');
+    if (result.startsWith('.')) result = '0' + result;
+    return result;
+}
 
 export const formatLargeNumber = (number) => {
     if (number === null || isNaN(number)) return 0;

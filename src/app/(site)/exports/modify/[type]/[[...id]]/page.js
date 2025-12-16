@@ -28,7 +28,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { formatImageURL, formatLargeNumber } from '@/lib/formattingLib';
+import { formatImageURL, formatLargeNumber, removeLeadingZero } from '@/lib/formattingLib';
 import Image from "next/image";
 
 export default function UpdateExport({ params }) {
@@ -309,11 +309,6 @@ export default function UpdateExport({ params }) {
         setCart(updatedCart);
         setTotalCost(updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0));
     }, [selectedPriceListDetail]);
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     const validateFields = (cartArg = cart, selectedCustomerArg = selectedCustomer) => {
         if (selectedCustomerArg === null) {

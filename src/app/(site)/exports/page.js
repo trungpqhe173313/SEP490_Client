@@ -315,9 +315,9 @@ export default function Exports() {
         <div className="flex flex-col mr-4">
           <h1 className="text-2xl font-bold">Danh sách phiếu xuất</h1>
         </div>
-        <div className="flex flex-col gap-2">
+        {user.roles.includes("Manager") && <div className="flex flex-col gap-2">
           <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => navigate("/exports/modify/create")}>Tạo phiếu xuất mới</button>
-        </div>
+        </div>}
       </div>
 
       {/* Filter sidebar */}

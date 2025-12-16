@@ -23,6 +23,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
+import { removeLeadingZero } from "@/lib/formattingLib";
 
 export default function ModifyProduction({ params }) {
   const router = useRouter();
@@ -110,7 +111,7 @@ export default function ModifyProduction({ params }) {
   }
 
   const fetchProducts = async () => {
-    const body = { pageIndex: 1, pageSize: 1000, productName: "" };
+    const body = { pageIndex: 1, pageSize: 1000, productName: "", categoryId: 6 };
     await productService.getProductAvailable(body)
       .then((response) => {
         setProducts(response.data.items);
@@ -312,11 +313,6 @@ export default function ModifyProduction({ params }) {
     }
     setErrors("")
     return true
-  }
-
-  const removeLeadingZero = (number) => {
-    if (number === null || isNaN(number) || number == 0) return 0;
-    return number.toString().replace(/^0+/, '');
   }
 
   const handleExit = () => {

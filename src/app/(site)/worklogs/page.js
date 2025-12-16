@@ -22,6 +22,7 @@ import ConfirmModal from "@/components/Modal/confirmModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
 import { Calendar } from "@/components/Calendar/calendar";
+import { removeLeadingZero } from "@/lib/formattingLib";
 
 export default function Worklog() {
     const router = useRouter();
@@ -347,11 +348,6 @@ export default function Worklog() {
             setLoading(false);
         }
     };
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     useEffect(() => {
         if (!pageReady) return;

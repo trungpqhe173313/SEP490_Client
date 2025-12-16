@@ -22,6 +22,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
+import { removeLeadingZero } from "@/lib/formattingLib";
 
 export default function ModifyInventory({ params }) {
     const router = useRouter();
@@ -259,11 +260,6 @@ export default function ModifyInventory({ params }) {
             setSelectedWarehouse(item);
         }
     };
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     const handleSubmit = async (action) => {
         if (!selectedWarehouse) {

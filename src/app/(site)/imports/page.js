@@ -411,7 +411,7 @@ export default function Imports() {
                 <div className="flex flex-col mr-4">
                     <h1 className="text-2xl font-bold">Danh sách phiếu nhập</h1>
                 </div>
-                <div className="flex flex-col gap-2">
+                {user.roles.includes("Manager") && <div className="flex flex-col gap-2">
                     <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => navigate("/imports/modify/create")}>Tạo phiếu nhập mới</button>
 
                     <label
@@ -432,7 +432,7 @@ export default function Imports() {
                     />
 
                     <button className="block border bg-blue-500 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => handleDownloadTemplate()}>Tải xuống mẫu phiếu nhập</button>
-                </div>
+                </div>}
             </div>
 
             {/* Filter sidebar */}

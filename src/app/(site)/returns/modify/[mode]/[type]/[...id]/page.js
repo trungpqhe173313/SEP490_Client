@@ -24,7 +24,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { formatLargeNumber } from '@/lib/formattingLib';
+import { formatLargeNumber, removeLeadingZero } from '@/lib/formattingLib';
 
 
 export default function Returns({ params }) {
@@ -266,11 +266,6 @@ export default function Returns({ params }) {
     const handleCustomReason = (e) => {
         setCustomReason(e.target.value);
     };
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     const handleExit = () => {
         if (type === "import") {

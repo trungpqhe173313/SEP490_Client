@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { priceListService } from '@/services/priceList.service';
 import { productService } from '@/services/product.service';
-import { formatLargeNumber } from '@/lib/formattingLib';
+import { formatLargeNumber, removeLeadingZero } from '@/lib/formattingLib';
 
 import { useLoading } from '@/context/LoadingContext';
 import { useLogin } from '@/context/LoginContext';
@@ -237,11 +237,6 @@ export default function ModifyPriceList({ params }) {
             setSelectedPriceList(item);
         }
     };
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
