@@ -80,6 +80,7 @@ export function JobForm({
         }
         break;
       case "rate":
+        newValue = parseInt(value);
         if (value <= 0) {
           setValidRate(false);
           setErrorRate("Mức trả phải lớn hơn 0.");
@@ -168,9 +169,9 @@ export function JobForm({
               <input
                 type="number"
                 name="rate"
-                value={form.rate}
+                value={form.rate || 0}
                 onChange={(e) => handleChange("rate", e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded px-3 py-2"
+                className={`w-full bg-white border ${!validRate ? "border-red-600" : "border-green-600"} rounded px-3 py-2`}
                 required
               />
               {!validRate && <p className="text-red-500 text-xs">{errorRate}</p>}

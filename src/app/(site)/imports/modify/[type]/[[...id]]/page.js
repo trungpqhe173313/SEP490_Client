@@ -491,7 +491,7 @@ export default function UpdateImport({ params }) {
                                                     style: { width: 50, textAlign: "center", height: 10 },
                                                 }}
                                                 sx={{ marginX: "5px" }}
-                                                value={r.importQuantity}
+                                                value={removeLeadingZero(r.importQuantity)}
                                                 error={r.importQuantity < 0}
                                                 onChange={(e) => handleChangeCart(r.productId, "importQuantity", e.target.value)}
                                                 variant="outlined"
