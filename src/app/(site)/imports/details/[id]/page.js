@@ -16,6 +16,7 @@ import { paymentService } from '@/services/payment.service';
 import { PaymentForm } from '@/components/Form/paymentForm';
 import { transactionService } from '@/services/transaction.service';
 import { AssignForm } from '@/components/Form/assignForm';
+import { ExpireDateForm } from '@/components/Form/expireDateForm';
 
 
 export default function ImportDetail({ params }) {
@@ -26,6 +27,7 @@ export default function ImportDetail({ params }) {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [modalReassignOpen, setModalReassignOpen] = useState(false);
+    const [modalExpireDateOpen, setModalExpireDateOpen] = useState(false);
     const [mode, setMode] = useState("createPayment");
     const [paidAmount, setPaidAmount] = useState(0);
 
@@ -201,7 +203,11 @@ export default function ImportDetail({ params }) {
         router.push(`/imports/modify/create/${id}`);
     }
 
-    const handleConfirm = async () => {
+    const handleOpenExpireDate = () => {
+        setModalExpireDateOpen(true);
+    }
+
+    const handleConfirm = async (data) => {
         if (transaction.responsibleId !== user.id) {
             setModalFailedMessage(`Bạn không phụ trách phiếu nhập kho này`);
             setModalFailedOpen(true);
@@ -210,7 +216,8 @@ export default function ImportDetail({ params }) {
         setLoading(true);
         try {
             const body = {
-                responsibleId: user.id
+                responsibleId: user.id,
+                expireDate: data.expireDate
             }
             await importService.updateToChecked(id, body);
             setModalSuccessMessage("Xác nhận kiểm phiếu nhập kho thành công");
@@ -343,7 +350,7 @@ export default function ImportDetail({ params }) {
                 />
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>
-                        {user?.roles.includes("Employee") && transaction && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleConfirm}>Xác nhận nhập kho</button>}
+                        {user?.roles.includes("Employee") && transaction && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleOpenExpireDate}>Xác nhận nhập kho</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
@@ -390,6 +397,7 @@ export default function ImportDetail({ params }) {
                 initialData={transaction}
                 mode={mode}
             />
+            <ExpireDateForm isOpen={modalExpireDateOpen} onClose={() => setModalExpireDateOpen(false)} onConfirm={handleConfirm} />
             <AssignForm isOpen={modalReassignOpen} onClose={() => setModalReassignOpen(false)} onConfirm={handleConfirmReassign} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
