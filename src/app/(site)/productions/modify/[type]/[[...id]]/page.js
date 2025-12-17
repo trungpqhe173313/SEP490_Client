@@ -111,7 +111,7 @@ export default function ModifyProduction({ params }) {
   }
 
   const fetchProducts = async () => {
-    const body = { pageIndex: 1, pageSize: 1000, productName: "", categoryId: 6 };
+    const body = { pageIndex: 1, pageSize: 1000, productName: "", categoryId: 9 };
     await productService.getProductAvailable(body)
       .then((response) => {
         setProducts(response.data.items);
