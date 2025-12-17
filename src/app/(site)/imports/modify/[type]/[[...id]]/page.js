@@ -241,6 +241,16 @@ export default function UpdateImport({ params }) {
             setModalFailedOpen(true);
             return false;
         }
+        if (cart.find((r) => Number.isInteger(r.importQuantity) === false)) {
+            setModalFailedMessage("Số lượng sản phẩm phải là số nguyên");
+            setModalFailedOpen(true);
+            return false;
+        }
+        if (cart.find((r) => Number.isInteger(r.unitPrice) === false)) {
+            setModalFailedMessage("Giá sản phẩm phải là số nguyên");
+            setModalFailedOpen(true);
+            return false;
+        }
         if (cart.find((r) => r.unitPrice < 0)) {
             setModalFailedMessage("Giá sản phẩm không thể là số âm");
             setModalFailedOpen(true);

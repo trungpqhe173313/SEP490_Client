@@ -331,6 +331,14 @@ export default function UpdateExport({ params }) {
             setErrors("Giá sản phẩm không thể là số âm");
             return false;
         }
+        if (cartArg.find((p) => Number.isInteger(p.orderQuantity) === false)) {
+            setErrors("Số lượng sản phẩm phải là số nguyên");
+            return false;
+        }
+        if (cartArg.find((p) => Number.isInteger(p.unitPrice) === false)) {
+            setErrors("Giá sản phẩm phải là số nguyên");
+            return false;
+        }
         setErrors("");
         return true;
     }

@@ -206,8 +206,8 @@ export default function ModifyPriceList({ params }) {
     }, [searchTerm]);
 
     const handleChange = (id, value) => {
-        const updatedPriceListDetail = selectedPriceListDetail.map((detail) => (detail.productId === id ? { ...detail, unitPrice: value } : detail));
-        const updatedPriceListDetailFiltered = filteredPriceListDetail.map((detail) => (detail.productId === id ? { ...detail, unitPrice: value } : detail));
+        const updatedPriceListDetail = selectedPriceListDetail.map((detail) => (detail.productId === id ? { ...detail, unitPrice: parseInt(value) } : detail));
+        const updatedPriceListDetailFiltered = filteredPriceListDetail.map((detail) => (detail.productId === id ? { ...detail, unitPrice: parseInt(value) } : detail));
         setSelectedPriceListDetail(updatedPriceListDetail);
         setFilteredPriceListDetail(updatedPriceListDetailFiltered);
     };

@@ -106,6 +106,11 @@ export default function Imports() {
             customValue: (item) => item.transactionDate && <div>{new Date(item.transactionDate).toLocaleString('vi-VN')}</div>
         },
         {
+            key: "expireDate",
+            label: "Ngày hết hạn",
+            customValue: (item) => item.expireDate ? <div>{new Date(item.expireDate).toLocaleDateString('vi-VN')}</div> : <div>Chưa có</div>
+        },
+        {
             key: "note",
             label: "Ghi chú",
             customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>

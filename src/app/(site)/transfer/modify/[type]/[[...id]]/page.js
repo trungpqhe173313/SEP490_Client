@@ -327,6 +327,10 @@ export default function ModifyTransfer({ params }) {
             setErrors("Số lượng chuyển kho đang lớn hơn số lượng trong kho");
             return false
         }
+        if (cart.find((p) => Number.isInteger(p.transferQuantity) === false)) {
+            setErrors("Số lượng chuyển kho không thể là số thập phân");
+            return false
+        }
         if (!selectedWarehouse) {
             setErrors("Kho xuất không được để trống")
             return false
@@ -367,9 +371,10 @@ export default function ModifyTransfer({ params }) {
     }, [selectedWarehouse]);
 
     useEffect(() => {
-        if (!products || !transferData) return;
+        if (type === "create") return;
+        if (!products || !transferData || !transferData.list || !selectedWarehouse) return;
         fetchCart();
-    }, [transferData, products]);
+    }, [transferData, products, selectedWarehouse, type]);
 
     useEffect(() => {
         if (!pageReady) return;

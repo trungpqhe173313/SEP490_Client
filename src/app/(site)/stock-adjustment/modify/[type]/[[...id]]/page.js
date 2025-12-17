@@ -211,6 +211,8 @@ export default function ModifyInventory({ params }) {
             setErrors("Sản phẩm không được để trống");
         } else if (cart.find((item) => item.actualQuantity < 0)) {
             setErrors("Số lượng sản phẩm không thể là số âm");
+        } else if (cart.find((item) => Number.isInteger(item.actualQuantity) === false)) {
+            setErrors("Số lượng sản phẩm không thể là số thập phân");
         } else {
             setErrors("");
         }
@@ -272,6 +274,10 @@ export default function ModifyInventory({ params }) {
         }
         if (cart.find((item) => item.actualQuantity < 0)) {
             setErrors("Số lượng sản phẩm không thể là số âm");
+            return;
+        }
+        if (cart.find((item) => Number.isInteger(item.actualQuantity) === false)) {
+            setErrors("Số lượng sản phẩm không thể là số thập phân");
             return;
         }
         setLoading(true);

@@ -299,8 +299,8 @@ export default function ModifyProduction({ params }) {
       setErrors("Thành phẩm không được để trống");
       return false
     }
-    if (!selectedMaterial || selectedMaterial.produceQuantity <= 0) {
-      setErrors("Nguyên liệu không được để trống, bằng 0 hoặc là số âm");
+    if (!selectedMaterial || selectedMaterial.produceQuantity <= 0 || Number.isInteger(selectedMaterial.produceQuantity) === false) {
+      setErrors("Nguyên liệu không được để trống và phải là số nguyên dương");
       return false
     }
     if (selectedMaterial.produceQuantity > selectedMaterial.quantity) {
@@ -310,6 +310,10 @@ export default function ModifyProduction({ params }) {
     if (cart.find((p) => p.productId === selectedMaterial.productId)) {
       setErrors("Đang sản xuất ra cùng 1 loại sản phẩm")
       return false
+    }
+    if (cart.find((p) => Number.isInteger(p.produceQuantity) === false)) {
+      setErrors("Số lượng thành phẩm phải là số nguyên");
+      return false;
     }
     setErrors("")
     return true
@@ -411,7 +415,7 @@ export default function ModifyProduction({ params }) {
                     />
                     <IconButton
                       size="small"
-                      onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity + 1)}
+                      onClick={() => handleChangeMaterial(selectedMaterial, parseInt(selectedMaterial.produceQuantity) + 1)}
                       sx={{ border: "1px solid #ccc", height: "28px" }}
                     //disabled={type === 'update'}
                     >

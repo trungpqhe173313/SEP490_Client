@@ -189,7 +189,10 @@ export default function Worklog() {
     const handleChangeEmployeeList = (id, field, value) => {
         const updatedEmployeeList = employeeList.map((employee) =>
             employee.userId === id
-                ? { ...employee, [field]: value }
+                ? {
+                    ...employee,
+                    [field]: field === "quantity" ? parseFloat(value) : value
+                }
                 : employee
         );
         setEmployeeList(updatedEmployeeList);
@@ -239,7 +242,7 @@ export default function Worklog() {
             setModalFailedOpen(true);
             return;
         }
-        if (employee.job.includes(2) && employee.quantity <= 0) {
+        if (employee.job.includes(2) && (employee.quantity <= 0 || Number.isInteger(employee.quantity) === false)) {
             setModalFailedMessage(`Lỗi: Số lượng bốc vác không hợp lệ`);
             setModalFailedOpen(true);
             return;
@@ -278,7 +281,7 @@ export default function Worklog() {
             setModalConfirmOpen(true);
             return;
         }
-        if (employee.job.includes(2) && employee.quantity <= 0) {
+        if (employee.job.includes(2) && (employee.quantity <= 0 || Number.isInteger(employee.quantity) === false)) {
             setModalFailedMessage(`Lỗi: Số lượng bốc vác không hợp lệ`);
             setModalFailedOpen(true);
             return;
@@ -323,7 +326,7 @@ export default function Worklog() {
             setModalFailedOpen(true);
             return;
         }
-        if (employee.job.includes(2) && employee.quantity <= 0) {
+        if (employee.job.includes(2) && (employee.quantity <= 0 || Number.isInteger(employee.quantity) === false)) {
             setModalFailedMessage(`Lỗi: Số lượng bốc vác không hợp lệ`);
             setModalFailedOpen(true);
             return;

@@ -154,6 +154,11 @@ export default function Returns({ params }) {
             setModalFailedOpen(true);
             return false;
         }
+        if (rows.find((r) => Number.isInteger(r.returnQuantity) === false)) {
+            setModalFailedMessage("Số lượng sản phẩm không thể là số thập phân");
+            setModalFailedOpen(true);
+            return false;
+        }
         if (rows.find((r) => r.returnQuantity > r.quantity)) {
             setModalFailedMessage("Không thể trả quá số lượng đã đặt");
             setModalFailedOpen(true);
