@@ -159,7 +159,6 @@ export function ProductForm({
                 newValue = value === "true";
                 break;
             case "weightPerUnit":
-                newValue = parseInt(value);
                 if (newValue <= 0) {
                     setValidWeightPerUnit(false);
                     setErrorWeightPerUnit("Khối lượng của sản phẩm phải lớn hơn 0");
@@ -249,9 +248,9 @@ export function ProductForm({
 
     const handleFileChange = (file) => {
         if (!file) return;
-        const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+        const allowedImageTypes = ["image/jpeg", "image/png", "image/jfif"];
         if (!allowedImageTypes.includes(file.type)) {
-            setError("Chỉ chấp nhận định dạng ảnh: JPG, PNG, GIF, WEBP");
+            setError("Chỉ chấp nhận định dạng ảnh: JPG, PNG, JFIF");
             return;
         }
         setError("");
@@ -282,7 +281,7 @@ export function ProductForm({
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
                                 <label className="block text-md font-bold">Hình ảnh</label>
-                                <p className="text-xs text-gray-500">Chọn hình ảnh cho sản phẩm (JPG, PNG)</p>
+                                <p className="text-xs text-gray-500">Chọn hình ảnh cho sản phẩm (JPG, PNG, JFIF)</p>
                             </div>
                             <div className="flex items-center gap-4">
                                 <label
@@ -303,7 +302,7 @@ export function ProductForm({
                             <input
                                 id="image"
                                 type="file"
-                                accept="image/jpeg,image/png"
+                                accept="image/jpeg,image/png,image/jfif"
                                 onChange={(e) => handleFileChange(e.target.files?.[0])}
                                 hidden
                             />
