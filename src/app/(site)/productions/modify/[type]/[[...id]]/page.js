@@ -174,7 +174,7 @@ export default function ModifyProduction({ params }) {
       productCode: item.productCode,
       productName: item.productName,
       productId: item.productId,
-      produceQuantity: produceQuantity,
+      produceQuantity: parseInt(produceQuantity),
       quantity: await getMaterialQuantity(item.productId),
       weightPerUnit: item.weightPerUnit
     };
