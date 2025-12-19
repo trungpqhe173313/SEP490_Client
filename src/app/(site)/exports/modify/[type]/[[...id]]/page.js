@@ -551,7 +551,7 @@ export default function UpdateExport({ params }) {
                                 onSelect={(item) => handleChangeDropdown(item, "customerId")}
                                 onSearch={fetchCustomers}
                                 getOptionLabel={(option) => option.fullName}
-                                getOptionKey={(option) => option.customerId}
+                                getOptionKey={(option) => option.userId}
                             />
                             }
                         </div>
