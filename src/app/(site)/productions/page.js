@@ -6,10 +6,9 @@ import { useLoading } from "@/context/LoadingContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useLogin } from "@/context/LoginContext";
-import DateInput from "@/components/Input/DateInput";
 
 import TableCommon from "@/components/Table/table";
-import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
+import { DeviceForm } from "@/components/Form/deviceForm";
 import { getProductionStatus, getProductionStatusText } from '@/lib/getStatus';
 import { formatDateToInput } from '@/lib/formattingLib';
 
@@ -28,6 +27,8 @@ export default function Productions() {
     //Data state
     const [productions, setProductions] = useState([]);
     const [productionDetails, setProductionDetails] = useState([]);
+    const [producingId, setProducingId] = useState(null);
+    const [selectedProductionId, setSelectedProductionId] = useState(null);
 
     //Modal state
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
@@ -36,6 +37,8 @@ export default function Productions() {
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
     const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
+
+    const [modalDeviceOpen, setModalDeviceOpen] = useState(false);
 
     //Filter state
     const [filterStatus, setFilterStatus] = useState(null);
@@ -124,6 +127,9 @@ export default function Productions() {
             const response = await productionService.getAllProductions(body);
             setProductions(response.data.items);
             setTotalCount(response.data.totalCount);
+            if (response.data.items.find(item => item.status === 1)) {
+                setProducingId(response.data.items.find(item => item.status === 1).id);
+            }
         } catch (error) {
             setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
@@ -209,14 +215,28 @@ export default function Productions() {
     };
 
     const handleUpdateToProcessing = async (id) => {
+        if (producingId) {
+            setModalFailedMessage(`Đang sản xuất phiếu với mã ${producingId}. Vui lòng hoàn thành phiếu đó trước`);
+            setModalFailedOpen(true);
+            return;
+        }
+        setSelectedProductionId(id);
+        setModalDeviceOpen(true);
+    }
+
+    const handleConfirmUpdateToProcessing = async (data) => {
+        if (!selectedProductionId) return;
         try {
-            await productionService.updateProductionToProcessing(id);
+            setLoading(true);
+            await productionService.updateProductionToProcessing(selectedProductionId, data);
             setModalSuccessMessage(`Sản phẩm đang được sản xuất`);
             setModalSuccessOpen(true);
             fetchProductions();
         } catch (error) {
             setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -226,6 +246,7 @@ export default function Productions() {
 
     const handleUpdateToCancel = async (id) => {
         try {
+            setLoading(true);
             await productionService.updateProductionToCancel(id);
             setModalSuccessMessage(`Hủy sản xuất thành công`);
             setModalSuccessOpen(true);
@@ -233,6 +254,8 @@ export default function Productions() {
         } catch (error) {
             setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -272,7 +295,7 @@ export default function Productions() {
             {
                 key: "quantity",
                 label: "Số lượng",
-                customValue: (item) => item.quantity && <div>{item.quantity}</div>
+                customValue: (item) => production.status === 2 && item.quantity > 0 ? <div>{item.quantity}</div> : <div>Chưa có</div>
             }
         ];
 
@@ -463,6 +486,7 @@ export default function Productions() {
                 useDetail={true}
                 tableDetail={tableDetail}
             />
+            <DeviceForm isOpen={modalDeviceOpen} onClose={() => setModalDeviceOpen(false)} onConfirm={handleConfirmUpdateToProcessing} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>

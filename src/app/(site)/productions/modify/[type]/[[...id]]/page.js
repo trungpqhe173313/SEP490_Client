@@ -41,6 +41,7 @@ export default function ModifyProduction({ params }) {
   const [materialLoading, setMaterialLoading] = useState(false);
 
   const [productionData, setProductionData] = useState(null);
+  const [productionWeightLog, setProductionWeightLog] = useState(null);
 
   const [cart, setCart] = useState([]);
   const [note, setNote] = useState("");
@@ -78,15 +79,17 @@ export default function ModifyProduction({ params }) {
   const fetchProduction = async () => {
     setLoading(true);
     try {
-      if (!id) return;
+      if (!id || type === "create") return;
       const response = await productionService.getProductionDetail(id);
+      const weightLog = await productionService.getProductionWeight(id);
       setProductionData(response.data);
+      setProductionWeightLog(weightLog.data);
       const cart = response.data.finishProducts.map((item) => ({
         productCode: item.productCode,
         productName: item.productName,
         productId: item.productId,
-        produceQuantity: item.quantity,
-        quantity: getQuantity(item.productId),
+        produceQuantity: weightLog.data.products.find((p) => p.productId === item.productId)?.totalBags || item.quantity,
+        actualWeight: weightLog.data.products.find((p) => p.productId === item.productId)?.totalWeight || 0,
         weightPerUnit: item.weightPerUnit
       }));
       setCart(cart)
@@ -218,11 +221,6 @@ export default function ModifyProduction({ params }) {
     setCart(updatedCart);
   };
 
-  const getQuantity = (id) => {
-    const product = products.find((p) => p.productId === id);
-    return product ? product.quantity : 5;
-  };
-
   const getMaterialQuantity = async (id) => {
     try {
       const body = { productId: id };
@@ -241,9 +239,9 @@ export default function ModifyProduction({ params }) {
         materialProductId: selectedMaterial.productId,
         materialQuantity: selectedMaterial.produceQuantity,
         note: note,
-        listFinishProduct: cart.filter((p) => p.produceQuantity > 0).map((item) => ({
+        listFinishProduct: cart.map((item) => ({
           productId: item.productId,
-          quantity: item.produceQuantity,
+          quantity: 1,
         })),
       }
       await productionService.createProduction(body)
@@ -295,7 +293,11 @@ export default function ModifyProduction({ params }) {
       setErrors("Số lượng thành phẩm không thể là số âm");
       return false
     }
-    if (cart.filter((p) => p.produceQuantity > 0).length === 0) {
+    if ((cart.filter((p) => p.produceQuantity > 0).length === 0) && type === "update") {
+      setErrors("Thành phẩm không được để trống");
+      return false
+    }
+    if ((cart.length === 0) && type === "create") {
       setErrors("Thành phẩm không được để trống");
       return false
     }
@@ -377,7 +379,7 @@ export default function ModifyProduction({ params }) {
                   <TableCell>{selectedMaterial.productCode}</TableCell>
                   <TableCell>{selectedMaterial.productName}</TableCell>
                   <TableCell align="center">{selectedMaterial.quantity}</TableCell>
-                  <TableCell align="center">{selectedMaterial.weightPerUnit}</TableCell>
+                  <TableCell align="center">{selectedMaterial.weightPerUnit} kg</TableCell>
                   <TableCell align="center" sx={{ width: 200 }}>
                     <IconButton
                       size="small"
@@ -428,6 +430,29 @@ export default function ModifyProduction({ params }) {
             </TableBody>
           </Table>
         </TableContainer>
+        {productionWeightLog && <div className="p-4 bg-white rounded-xl">
+          <p className="text-xl font-bold">Chi tiết phiếu cân</p>
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableHead>
+                <TableRow className="background-primary">
+                  <TableCell sx={{ color: "white" }}>Tên sản phẩm</TableCell>
+                  <TableCell sx={{ color: "white" }}>Số lượng (Bao)</TableCell>
+                  <TableCell sx={{ color: "white" }}>Tổng khối lượng</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {productionWeightLog.products.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.productName}</TableCell>
+                    <TableCell align="center">{item.totalBags}</TableCell>
+                    <TableCell align="center">{item.totalWeight} kg</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>}
         <div className="p-4 bg-white rounded-xl">
           <h1 className="text-xl font-bold">Ghi chú</h1>
           <textarea
@@ -466,15 +491,16 @@ export default function ModifyProduction({ params }) {
                   <TableCell sx={{ color: "white" }}>Mã thành phẩm</TableCell>
                   <TableCell sx={{ color: "white" }}>Tên thành phẩm</TableCell>
                   <TableCell sx={{ color: "white" }} align="center">Khối lượng</TableCell>
-                  <TableCell sx={{ color: "white" }} align="center">Số lượng sản xuất</TableCell>
-                  <TableCell sx={{ color: "white" }} align="center">{type === 'update' ? 'Sản lượng thực tế' : 'Sản lượng dự kiến'}</TableCell>
+                  {type === "update" && <TableCell sx={{ color: "white" }} align="center">Số lượng sản xuất</TableCell>}
+                  {type === "update" && <TableCell sx={{ color: "white" }} align="center">Sản lượng dự kiến</TableCell>}
+                  {type === "update" && <TableCell sx={{ color: "white" }} align="center">Sản lượng thực tế</TableCell>}
                   <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {cart.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={7} align="center">
                       <p className="my-10 text-xl">
                         Chưa có sản phẩm
                       </p>
@@ -485,8 +511,8 @@ export default function ModifyProduction({ params }) {
                     <TableRow key={product.productId} hover>
                       <TableCell>{product.productCode}</TableCell>
                       <TableCell>{product.productName}</TableCell>
-                      <TableCell align="center">{product.weightPerUnit}</TableCell>
-                      <TableCell align="center" sx={{ width: 200 }}>
+                      <TableCell align="center">{product.weightPerUnit} kg</TableCell>
+                      {type === "update" && <TableCell align="center" sx={{ width: 200 }}>
                         <IconButton
                           size="small"
                           onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
@@ -527,7 +553,9 @@ export default function ModifyProduction({ params }) {
                           <AddIcon fontSize="small" />
                         </IconButton>
                       </TableCell>
-                      <TableCell align="center">{product.produceQuantity * product.weightPerUnit} kg</TableCell>
+                      }
+                      {type === "update" && <TableCell align="center">{product.produceQuantity * product.weightPerUnit} kg</TableCell>}
+                      {type === "update" && <TableCell align="center">{product.actualWeight} kg</TableCell>}
                       <TableCell align="center">
                         <IconButton
                           size="small"
