@@ -129,6 +129,8 @@ export default function Productions() {
             setTotalCount(response.data.totalCount);
             if (response.data.items.find(item => item.status === 1)) {
                 setProducingId(response.data.items.find(item => item.status === 1).id);
+            } else {
+                setProducingId(null);
             }
         } catch (error) {
             setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
