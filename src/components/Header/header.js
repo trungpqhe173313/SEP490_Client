@@ -5,6 +5,8 @@ import authService from "@/services/auth.service";
 import ConfirmModal from "@/components/Modal/confirmModal";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useLogin } from "@/context/LoginContext";
+import Image from "next/image";
+import { formatImageURL } from "@/lib/formattingLib";
 
 const Header = () => {
   const router = useRouter();
@@ -47,7 +49,18 @@ const Header = () => {
             className="w-8 h-8 background-primary rounded-full flex items-center justify-center cursor-pointer relative"
             onClick={() => setToggle(!toggle)}
           >
-            <AccountCircleIcon className="text-white" />
+            {user.image ?
+              <Image
+                src={formatImageURL(user.image)}
+                alt="Profile"
+                unoptimized
+                onError={(e) => {
+                  e.currentTarget.src = "/altImage.jpg";
+                }}
+                className="w-full h-full object-cover rounded-full"
+              />
+              :
+              <AccountCircleIcon className="text-white" />}
             {toggle && (
               <div className="absolute top-10 right-0 bg-white shadow-md w-40 background-primary text-white">
                 <div

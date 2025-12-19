@@ -2,6 +2,7 @@
 import { exportService } from "@/services/export.service";
 import { warehouseService } from "@/services/warehouse.service";
 import { customerService } from "@/services/customer.service";
+import { employeeService } from "@/services/employee.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
@@ -44,6 +45,7 @@ export default function Exports() {
   const [filterStatus, setFilterStatus] = useState(null);
   const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
   const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
+  const [filterResponsibleId, setFilterResponsibleId] = useState(null);
 
   const [errorToTransactionDate, setErrorToTransactionDate] = useState("");
 
@@ -59,6 +61,9 @@ export default function Exports() {
   const [warehouses, setWarehouses] = useState([]);
   const [customerLoading, setCustomerLoading] = useState(false);
   const [warehouseLoading, setWarehouseLoading] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [employeeLoading, setEmployeeLoading] = useState(false);
 
   const { loading, setLoading } = useLoading();
   const buttonRef = useRef(null);
@@ -114,6 +119,11 @@ export default function Exports() {
       customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
     },
     {
+      key: "responsibleName",
+      label: "Nhân viên phụ trách",
+      customValue: (item) => item.responsibleName ? <div><div>{item.responsibleName}</div><div>{item.employeePhone}</div></div> : <div>Chưa có</div>
+    },
+    {
       key: "action",
       label: "Hành động",
       customValue: (item) => item.transactionId ? <button className="text-white bg-cyan-500 px-4 py-2 rounded-xl" onClick={() => navigate(`/exports/details/${item.transactionId}`)}>Chi tiết</button> : <div>Không có</div>
@@ -137,7 +147,11 @@ export default function Exports() {
         fullName: value
       };
       const response = await customerService.getAllCustomers(body);
-      const customerData = response.data.items
+      const customerData = response.data.items.map((customer) => ({
+        customerId: customer.userId,
+        customerName: customer.fullName,
+        phone: customer.phone
+      }))
       setCustomers(customerData);
     } catch (error) {
       console.error("Error fetching customers:", error);
@@ -168,10 +182,30 @@ export default function Exports() {
     }
   }
 
+  const fetchEmployees = async (value) => {
+    try {
+      setEmployeeLoading(true);
+      const body = {
+        pageIndex: 1,
+        pageSize: 1000,
+        isActive: true,
+        employeeName: value
+      };
+      const response = await employeeService.getAllEmployees(body);
+      const employeeData = response.data.items
+      setEmployees(employeeData);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    } finally {
+      setEmployeeLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (!pageReady) return;
     fetchCustomers("");
     fetchWarehouses("");
+    fetchEmployees("");
   }, [pageReady]);
 
   const fetchExports = async () => {
@@ -185,7 +219,8 @@ export default function Exports() {
         status: parseInt(filterStatus) || null,
         type: 'Export',
         transactionFromDate: filterTransactionFromDate || null,
-        transactionToDate: filterTransactionToDate || null
+        transactionToDate: filterTransactionToDate || null,
+        responsibleId: user.roles.includes("Manager") ? filterResponsibleId || null : user.id
       };
       const response = await exportService.getAllExports(body);
       setExports(response.data.items);
@@ -212,12 +247,15 @@ export default function Exports() {
 
   const handleChangeDropdown = (item, field) => {
     if (item) {
-      if (item.userId) {
+      if (item.customerId) {
         setSelectedCustomer(item);
-        setFilterCustomerId(item.userId);
+        setFilterCustomerId(item.customerId);
       } else if (item.warehouseId) {
         setSelectedWarehouse(item);
         setFilterWarehouseId(item.warehouseId);
+      } else if (item.userId) {
+        setSelectedEmployee(item);
+        setFilterResponsibleId(item.userId);
       }
     } else {
       if (field === "customerId") {
@@ -226,6 +264,9 @@ export default function Exports() {
       } else if (field === "warehouseId") {
         setSelectedWarehouse(null);
         setFilterWarehouseId(null);
+      } else if (field === "employeeId") {
+        setSelectedEmployee(null);
+        setFilterResponsibleId(null);
       }
     }
   };
@@ -255,6 +296,8 @@ export default function Exports() {
     setSelectedCustomer(null);
     setFilterWarehouseId(null);
     setSelectedWarehouse(null);
+    setFilterResponsibleId(null);
+    setSelectedEmployee(null);
     setFilterStatus(null);
     setFilterTransactionFromDate("");
     setFilterTransactionToDate("");
@@ -272,9 +315,9 @@ export default function Exports() {
         <div className="flex flex-col mr-4">
           <h1 className="text-2xl font-bold">Danh sách phiếu xuất</h1>
         </div>
-        <div className="flex flex-col gap-2">
+        {user.roles.includes("Manager") && <div className="flex flex-col gap-2">
           <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => navigate("/exports/modify/create")}>Tạo phiếu xuất mới</button>
-        </div>
+        </div>}
       </div>
 
       {/* Filter sidebar */}
@@ -290,7 +333,7 @@ export default function Exports() {
               options={customers}
               onSelect={(item) => handleChangeDropdown(item, "customerId")}
               onSearch={fetchCustomers}
-              getOptionLabel={(option) => option.fullName}
+              getOptionLabel={(option) => option.customerName + " - " + option.phone}
               getOptionKey={(option) => option.customerId}
             />
           </div>
@@ -307,6 +350,21 @@ export default function Exports() {
               getOptionKey={(option) => option.warehouseId}
             />
           </div>
+          {user.roles.includes("Manager") &&
+            <div className="mt-2 w-[24.25%]">
+              <label className="mr-2">Nhân viên phụ trách:</label>
+              <AutocompleteCommon
+                name="employeeId"
+                value={selectedEmployee}
+                loading={employeeLoading}
+                options={employees}
+                onSelect={(item) => handleChangeDropdown(item, "employeeId")}
+                onSearch={fetchEmployees}
+                getOptionLabel={(option) => option.fullName + " - " + option.phone}
+                getOptionKey={(option) => option.userId}
+              />
+            </div>
+          }
           <div className="mt-2 w-[24.25%]">
             <label className="mr-2">Trạng thái:</label>
             <select

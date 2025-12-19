@@ -95,7 +95,16 @@ export default function ProductDetail({ params }) {
 
             <div className="w-full bg-white p-4 rounded-xl grid grid-cols-3 gap-4">
                 <div className="col-span-1 flex flex-col items-center justify-center gap-4">
-                    {product.imageUrl && <Image src={formatImageURL(product.imageUrl)} alt="Sản phẩm" className="w-full aspect-square object-cover border border-black" width={400} height={400} />}
+                    {product.imageUrl ?
+                        <Image src={formatImageURL(product.imageUrl)} alt="Sản phẩm" className="w-full aspect-square object-cover border border-black" width={400} height={400}
+                            unoptimized
+                            onError={(e) => {
+                                e.currentTarget.src = "/altImage.jpg";
+                            }}
+                        />
+                        :
+                        <Image src="/altImage.jpg" alt="Sản phẩm" className="w-full aspect-square object-cover border border-black" width={400} height={400} />
+                    }
                 </div>
                 <div className="col-span-2">
                     <table className="w-full">

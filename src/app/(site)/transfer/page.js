@@ -1,6 +1,7 @@
 "use client";
 import { transferService } from "@/services/transfer.service";
 import { warehouseService } from "@/services/warehouse.service";
+import { employeeService } from "@/services/employee.service";
 
 import React, { useState, useEffect } from "react";
 import { useLoading } from "@/context/LoadingContext";
@@ -43,6 +44,7 @@ export default function Transfer() {
     const [filterStatus, setFilterStatus] = useState(null);
     const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
     const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
+    const [filterResponsibleId, setFilterResponsibleId] = useState(null);
 
     const [errorToTransactionDate, setErrorToTransactionDate] = useState("");
     //Pagination state
@@ -54,6 +56,10 @@ export default function Transfer() {
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
     const [warehouses, setWarehouses] = useState([]);
     const [warehouseLoading, setWarehouseLoading] = useState(false);
+
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [employees, setEmployees] = useState([]);
+    const [employeeLoading, setEmployeeLoading] = useState(false);
 
     const { loading, setLoading } = useLoading();
     const buttonRef = useRef(null);
@@ -101,7 +107,12 @@ export default function Transfer() {
         {
             key: "note",
             label: "Ghi chú",
-            customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
+            customValue: (item) => item.note ? <div>{item.note}</div> : <div>Chưa có</div>
+        },
+        {
+            key: "responsibleName",
+            label: "Nhân viên phụ trách",
+            customValue: (item) => item.responsibleName ? <div><div>{item.responsibleName}</div><div>{item.employeePhone}</div></div> : <div>Chưa có</div>
         },
         {
             key: "action",
@@ -139,9 +150,29 @@ export default function Transfer() {
         }
     }
 
+    const fetchEmployees = async (value) => {
+        try {
+            setEmployeeLoading(true);
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                isActive: true,
+                employeeName: value
+            };
+            const response = await employeeService.getAllEmployees(body);
+            const employeeData = response.data.items
+            setEmployees(employeeData);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+        } finally {
+            setEmployeeLoading(false);
+        }
+    }
+
     useEffect(() => {
         if (!pageReady) return;
         fetchWarehouses("");
+        fetchEmployees("");
     }, [pageReady]);
 
     const fetchTransfers = async () => {
@@ -153,7 +184,8 @@ export default function Transfer() {
                 warehouseId: filterWarehouseId || null,
                 status: parseInt(filterStatus) || null,
                 transactionFromDate: filterTransactionFromDate || null,
-                transactionToDate: filterTransactionToDate || null
+                transactionToDate: filterTransactionToDate || null,
+                responsibleId: user.roles.includes("Manager") ? filterResponsibleId || null : user.id
             };
             const response = await transferService.getAllTransfers(body);
             setTransfers(response.data.items);
@@ -183,11 +215,17 @@ export default function Transfer() {
             if (item.warehouseId) {
                 setSelectedWarehouse(item);
                 setFilterWarehouseId(item.warehouseId);
+            } else if (item.userId) {
+                setSelectedEmployee(item);
+                setFilterResponsibleId(item.userId);
             }
         } else {
             if (field === "warehouseId") {
                 setSelectedWarehouse(null);
                 setFilterWarehouseId(null);
+            } else if (field === "employeeId") {
+                setSelectedEmployee(null);
+                setFilterResponsibleId(null);
             }
         }
     };
@@ -216,6 +254,8 @@ export default function Transfer() {
         setFilterWarehouseId(null);
         setSelectedWarehouse(null);
         setFilterStatus(null);
+        setFilterResponsibleId(null);
+        setSelectedEmployee(null);
         setFilterTransactionFromDate("");
         setFilterTransactionToDate("");
         setErrorToTransactionDate("");
@@ -232,9 +272,9 @@ export default function Transfer() {
                 <div className="flex flex-col mr-4">
                     <h1 className="text-2xl font-bold">Danh sách phiếu chuyển kho</h1>
                 </div>
-                <div className="flex flex-col gap-2">
+                {user.roles.includes("Manager") && <div className="flex flex-col gap-2">
                     <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => navigate("/transfer/modify/create")}>Tạo phiếu chuyển kho mới</button>
-                </div>
+                </div>}
             </div>
 
             {/* Filter sidebar */}
@@ -306,6 +346,23 @@ export default function Transfer() {
                         />
                     </div>
                 </div>
+                {user.roles.includes("Manager") &&
+                    <div className="flex items-center my-4 gap-4">
+                        <div className="mt-2 w-[24.25%]">
+                            <label className="mr-2">Nhân viên phụ trách:</label>
+                            <AutocompleteCommon
+                                name="employeeId"
+                                value={selectedEmployee}
+                                loading={employeeLoading}
+                                options={employees}
+                                onSelect={(item) => handleChangeDropdown(item, "employeeId")}
+                                onSearch={fetchEmployees}
+                                getOptionLabel={(option) => option.fullName + " - " + option.phone}
+                                getOptionKey={(option) => option.userId}
+                            />
+                        </div>
+                    </div>
+                }
                 <div className="flex flex-col justify-center">
                     {errorToTransactionDate && <span className="text-red-500 text-center mb-2">{errorToTransactionDate}</span>}
                     <div className="flex flex-row items-center justify-center gap-4">

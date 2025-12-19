@@ -28,7 +28,8 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { formatLargeNumber } from '@/lib/formattingLib';
+import { formatImageURL, formatLargeNumber, removeLeadingZero } from '@/lib/formattingLib';
+import Image from "next/image";
 
 export default function UpdateExport({ params }) {
     const router = useRouter();
@@ -165,7 +166,6 @@ export default function UpdateExport({ params }) {
             }
             const response = await customerService.getAllCustomers(body);
             setCustomers(response.data.items);
-            console.log(response.data.items);
         } catch (error) {
             console.log(error);
         } finally {
@@ -310,11 +310,6 @@ export default function UpdateExport({ params }) {
         setTotalCost(updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0));
     }, [selectedPriceListDetail]);
 
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
-
     const validateFields = (cartArg = cart, selectedCustomerArg = selectedCustomer) => {
         if (selectedCustomerArg === null) {
             setErrors("Khách hàng không được để trống");
@@ -334,6 +329,14 @@ export default function UpdateExport({ params }) {
         }
         if (cartArg.find((p) => p.unitPrice < 0)) {
             setErrors("Giá sản phẩm không thể là số âm");
+            return false;
+        }
+        if (cartArg.find((p) => Number.isInteger(p.orderQuantity) === false)) {
+            setErrors("Số lượng sản phẩm phải là số nguyên");
+            return false;
+        }
+        if (cartArg.find((p) => Number.isInteger(p.unitPrice) === false)) {
+            setErrors("Giá sản phẩm phải là số nguyên");
             return false;
         }
         setErrors("");
@@ -550,7 +553,7 @@ export default function UpdateExport({ params }) {
                                 options={customers}
                                 onSelect={(item) => handleChangeDropdown(item, "customerId")}
                                 onSearch={fetchCustomers}
-                                getOptionLabel={(option) => option.fullName}
+                                getOptionLabel={(option) => option.fullName + " - " + option.phone}
                                 getOptionKey={(option) => option.userId}
                             />
                             }
@@ -577,7 +580,27 @@ export default function UpdateExport({ params }) {
                                 onClick={() => handleAddCart(product)}
                             >
                                 <div className="h-full">
-                                    <InsertPhotoIcon sx={{ height: '100%', width: 'auto' }} />
+                                    {product.imageUrl ?
+                                        <Image
+                                            src={formatImageURL(product.imageUrl)}
+                                            alt=""
+                                            className="w-15 aspect-square object-cover"
+                                            width={100}
+                                            height={100}
+                                            unoptimized
+                                            onError={(e) => {
+                                                e.currentTarget.src = "/altImage.jpg";
+                                            }}
+                                        />
+                                        :
+                                        <Image
+                                            src="/altImage.jpg"
+                                            alt=""
+                                            className="w-15 aspect-square object-cover"
+                                            width={100}
+                                            height={100}
+                                        />
+                                    }
                                 </div>
                                 <div>
                                     <p className="text-sm text-ellipsis whitespace-nowrap">

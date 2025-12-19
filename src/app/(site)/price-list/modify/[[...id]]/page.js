@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { priceListService } from '@/services/priceList.service';
 import { productService } from '@/services/product.service';
-import { formatLargeNumber } from '@/lib/formattingLib';
+import { formatLargeNumber, removeLeadingZero } from '@/lib/formattingLib';
 
 import { useLoading } from '@/context/LoadingContext';
 import { useLogin } from '@/context/LoginContext';
@@ -206,8 +206,8 @@ export default function ModifyPriceList({ params }) {
     }, [searchTerm]);
 
     const handleChange = (id, value) => {
-        const updatedPriceListDetail = selectedPriceListDetail.map((detail) => (detail.productId === id ? { ...detail, unitPrice: value } : detail));
-        const updatedPriceListDetailFiltered = filteredPriceListDetail.map((detail) => (detail.productId === id ? { ...detail, unitPrice: value } : detail));
+        const updatedPriceListDetail = selectedPriceListDetail.map((detail) => (detail.productId === id ? { ...detail, unitPrice: parseInt(value) } : detail));
+        const updatedPriceListDetailFiltered = filteredPriceListDetail.map((detail) => (detail.productId === id ? { ...detail, unitPrice: parseInt(value) } : detail));
         setSelectedPriceListDetail(updatedPriceListDetail);
         setFilteredPriceListDetail(updatedPriceListDetailFiltered);
     };
@@ -237,11 +237,6 @@ export default function ModifyPriceList({ params }) {
             setSelectedPriceList(item);
         }
     };
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);

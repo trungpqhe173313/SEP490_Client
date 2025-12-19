@@ -4,6 +4,7 @@ import { productService } from "@/services/product.service";
 import { transferService } from "@/services/transfer.service";
 import { warehouseService } from "@/services/warehouse.service";
 import { inventoryService } from "@/services/inventory.service";
+import { employeeService } from "@/services/employee.service";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
@@ -21,14 +22,11 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
-import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { formatLargeNumber } from '@/lib/formattingLib';
+import { removeLeadingZero } from "@/lib/formattingLib";
 
 
 export default function ModifyTransfer({ params }) {
@@ -39,6 +37,7 @@ export default function ModifyTransfer({ params }) {
 
     const [products, setProducts] = useState(null);
     const [warehouses, setWarehouses] = useState([]);
+    const [employees, setEmployees] = useState([]);
     const [warehousesForSearch, setWarehousesForSearch] = useState([]);
     const [warehousesInForSearch, setWarehousesInForSearch] = useState([]);
 
@@ -51,12 +50,13 @@ export default function ModifyTransfer({ params }) {
     const [warehouseLoading, setWarehouseLoading] = useState(false);
     const [selectedWarehouseIn, setSelectedWarehouseIn] = useState(null);
     const [warehouseInLoading, setWarehouseInLoading] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [employeeLoading, setEmployeeLoading] = useState(false);
 
     const [transferData, setTransferData] = useState({});
 
     const [cart, setCart] = useState([]);
     const [note, setNote] = useState("");
-    const [totalCost, setTotalCost] = useState(0);
 
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
@@ -155,6 +155,17 @@ export default function ModifyTransfer({ params }) {
                 setWarehouses(response.data.items);
                 setWarehousesForSearch(response.data.items);
                 setWarehousesInForSearch(response.data.items);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
+    const fetchEmployees = async (name) => {
+        const body = { pageIndex: 1, pageSize: 1000, employeeName: name, isActive: true };
+        await employeeService.getAllEmployees(body)
+            .then((response) => {
+                setEmployees(response.data.items);
             })
             .catch((error) => {
                 console.log(error);
@@ -260,21 +271,21 @@ export default function ModifyTransfer({ params }) {
                 }, 0);
             }
         }
+        if (field === "employeeId") {
+            setSelectedEmployee(item);
+        }
     };
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     const handleSubmit = async () => {
         if (!validate()) return;
-        setLoading(true); const body = {
+        setLoading(true);
+        const body = {
             note,
             listProductOrder: cart.filter((p) => p.transferQuantity > 0).map((p) => ({ productId: p.productId, quantity: p.transferQuantity, unitPrice: p.sellingPrice })),
             warehouseId: selectedWarehouse.warehouseId,
-            warehouseInId: selectedWarehouseIn.warehouseId
+            warehouseInId: selectedWarehouseIn.warehouseId,
         };
+        if (selectedEmployee) body.responsibleId = selectedEmployee.userId;
         if (type === "create") {
             await transferService.createTransfer(body)
                 .then((response) => {
@@ -316,12 +327,20 @@ export default function ModifyTransfer({ params }) {
             setErrors("Số lượng chuyển kho đang lớn hơn số lượng trong kho");
             return false
         }
+        if (cart.find((p) => Number.isInteger(p.transferQuantity) === false)) {
+            setErrors("Số lượng chuyển kho không thể là số thập phân");
+            return false
+        }
         if (!selectedWarehouse) {
             setErrors("Kho xuất không được để trống")
             return false
         }
         if (!selectedWarehouseIn) {
             setErrors("Kho nhập không được để trống")
+            return false
+        }
+        if (!selectedEmployee && type === "create") {
+            setErrors("Chưa có nhân viên phụ trách")
             return false
         }
         if (selectedWarehouse.warehouseId === selectedWarehouseIn.warehouseId) {
@@ -352,20 +371,17 @@ export default function ModifyTransfer({ params }) {
     }, [selectedWarehouse]);
 
     useEffect(() => {
-        if (!products || !transferData) return;
+        if (type === "create") return;
+        if (!products || !transferData || !transferData.list || !selectedWarehouse) return;
         fetchCart();
-    }, [transferData, products]);
-
-    useEffect(() => {
-        if (!cart) return;
-        setTotalCost(cart.reduce((total, item) => total + (item.sellingPrice * item.transferQuantity), 0));
-    }, [cart]);
+    }, [transferData, products, selectedWarehouse, type]);
 
     useEffect(() => {
         if (!pageReady) return;
         fetchTransfer();
         fetchProducts();
         fetchWarehouses();
+        fetchEmployees();
     }, [pageReady]);
 
     const handleExit = () => {
@@ -403,16 +419,14 @@ export default function ModifyTransfer({ params }) {
                                 <TableCell sx={{ color: "white" }}>Mã hàng</TableCell>
                                 <TableCell sx={{ color: "white" }}>Tên hàng</TableCell>
                                 <TableCell sx={{ color: "white" }} align="center">Số lượng trong kho (Bao)</TableCell>
-                                <TableCell sx={{ color: "white" }} align="center">Giá bán</TableCell>
                                 <TableCell sx={{ color: "white" }} align="center">Số lượng chuyển (Bao)</TableCell>
-                                <TableCell sx={{ color: "white" }} align="right">Thành tiền (VND)</TableCell>
                                 <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {cart.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} align="center">
+                                    <TableCell colSpan={5} align="center">
                                         <p className="my-10 text-xl">
                                             Không tìm thấy sản phẩm
                                         </p>
@@ -424,8 +438,7 @@ export default function ModifyTransfer({ params }) {
                                         <TableCell>{r.productCode}</TableCell>
                                         <TableCell>{r.productName}</TableCell>
                                         <TableCell align="center">{r.quantity}</TableCell>
-                                        <TableCell align="center">{formatLargeNumber(r.sellingPrice)}</TableCell>
-                                        <TableCell align="center" >
+                                        <TableCell align="center" sx={{ width: 200 }}>
                                             <IconButton
                                                 size="small"
                                                 onClick={() => handleChangeCart(r.productId, "transferQuantity", r.transferQuantity - 1)}
@@ -455,9 +468,6 @@ export default function ModifyTransfer({ params }) {
                                                 <AddIcon fontSize="small" />
                                             </IconButton>
                                         </TableCell>
-                                        <TableCell align="right">
-                                            {(r.transferQuantity * r.sellingPrice).toLocaleString('vi-VN')}₫
-                                        </TableCell>
                                         <TableCell align="center">
                                             <IconButton
                                                 size="small"
@@ -485,10 +495,6 @@ export default function ModifyTransfer({ params }) {
                 <div className="flex justify-between mb-2 text-sm">
                     <span>Tổng số lượng sản phẩm:</span>
                     <span>{cart.reduce((total, row) => total + row.transferQuantity, 0)}</span>
-                </div>
-                <div className="flex justify-between mb-2 text-sm">
-                    <span>Tổng tiền hàng:</span>
-                    <span>{totalCost?.toLocaleString('vi-VN') || 0} ₫</span>
                 </div>
                 <div className="my-4">
                     <label className="block text-md font-bold">Nhà kho xuất</label>
@@ -534,6 +540,19 @@ export default function ModifyTransfer({ params }) {
                         />
                     }
                 </div>
+                {user.roles.includes("Manager") && type === "create" && <div className="my-4">
+                    <label className="block text-md font-bold">Nhân viên phụ trách</label>
+                    <AutocompleteCommon
+                        name="employeeId"
+                        value={selectedEmployee}
+                        loading={employeeLoading}
+                        options={employees}
+                        onSelect={(item) => handleChangeDropdown(item, "employeeId")}
+                        onSearch={fetchEmployees}
+                        getOptionLabel={(option) => option.fullName + " - " + option.phone}
+                        getOptionKey={(option) => option.userId}
+                    />
+                </div>}
                 <div className="my-4">
                     <label className="block text-md font-bold">Ghi chú</label>
                     <textarea

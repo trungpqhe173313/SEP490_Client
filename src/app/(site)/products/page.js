@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import TableCommon from "@/components/Table/table";
 import { ProductForm } from "@/components/Form/productForm";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
-import { formatLargeNumber, formatDateToInput } from '@/lib/formattingLib';
+import { formatLargeNumber, formatDateToInput, removeLeadingZero } from '@/lib/formattingLib';
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -381,11 +381,6 @@ export default function Products() {
             setLoading(false);
         }
     };
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     if (!pageReady) {
         return <Loader />;

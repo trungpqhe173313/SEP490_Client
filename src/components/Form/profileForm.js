@@ -116,7 +116,7 @@ export function ProfileForm({
             return;
         }
         setError("");
-        handleChange('image', file);
+        handleChange('imageFile', file);
     };
 
     return (
@@ -137,19 +137,20 @@ export function ProfileForm({
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
                                 <label className="block text-md font-bold">Hình ảnh</label>
-                                <p className="text-xs text-gray-500">Chọn hình ảnh cho hồ sơ (JPG, PNG, GIF, WEBP)</p>
+                                <p className="text-xs text-gray-500">Chọn hình ảnh cho hồ sơ (JPG, PNG)</p>
                             </div>
                             <div className="flex items-center gap-4">
                                 <label
                                     htmlFor="image"
                                     className="px-3 py-2 rounded-md background-primary text-white cursor-pointer"
+                                    onClick={() => document.getElementById("image").value = ""}
                                 >
                                     Chọn hình ảnh
                                 </label>
-                                {form.image && <button
+                                {form.imageFile && <button
                                     type="button"
                                     className="px-3 py-2 rounded-md bg-red-600 text-white cursor-pointer"
-                                    onClick={() => handleChange("image", "")}
+                                    onClick={() => handleChange("imageFile", "")}
                                 >
                                     Xóa hình ảnh
                                 </button>}
@@ -157,13 +158,13 @@ export function ProfileForm({
                             <input
                                 id="image"
                                 type="file"
-                                accept="image/jpeg,image/png,image/gif,image/webp"
+                                accept="image/jpeg,image/png"
                                 onChange={(e) => handleFileChange(e.target.files?.[0])}
                                 hidden
                             />
-                            {form.image && (
+                            {form.imageFile && (
                                 <div className="mt-2 flex justify-center">
-                                    <Image src={formatImageURL(form.image)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
+                                    <Image src={formatImageURL(form.imageFile)} alt="Preview" width={400} height={400} className="w-1/2 h-auto rounded-full aspect-square object-cover border border-black" />
                                 </div>
                             )}
                         </div>

@@ -21,16 +21,16 @@ export const exportService = {
         else if (status === 2) response = await API.put(`/stockoutput/UpdateTransactionInOrderStatus/${id}`, data);
         return response.data;
     },
-    updateToOrder: async (id) => {
-        const response = await API.put(`/stockoutput/UpdateToOrderStatus/${id}`);
+    updateToOrder: async (id, data) => {
+        const response = await API.put(`/stockoutput/UpdateToOrderStatus/${id}`, data);
         return response.data;
     },
-    updateToDelivering: async (id) => {
-        const response = await API.put(`/stockoutput/UpdateToDeliveringStatus/${id}`);
+    updateToDelivering: async (id, data) => {
+        const response = await API.put(`/stockoutput/UpdateToDeliveringStatus/${id}`, data);
         return response.data;
     },
-    updateToDone: async (id) => {
-        const response = await API.put(`/stockoutput/UpdateToDoneStatus/${id}`);
+    updateToDone: async (id, data) => {
+        const response = await API.put(`/stockoutput/UpdateToDoneStatus/${id}`, data);
         return response.data;
     },
     deleteExport: async (id) => {

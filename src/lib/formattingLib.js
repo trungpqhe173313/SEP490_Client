@@ -1,9 +1,19 @@
 export const formatImageURL = (url) => {
     if (typeof url === 'string') {
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
         return `${process.env.NEXT_PUBLIC_CLOUDINARY_LINK}${url}`;
     }
     return URL.createObjectURL(url);
 };
+
+export const removeLeadingZero = (number) => {
+    if (number === null || isNaN(number) || number == 0) return 0;
+    let result = number.toString().replace(/^0+/, '');
+    if (result.startsWith('.')) result = '0' + result;
+    return result;
+}
 
 export const formatLargeNumber = (number) => {
     if (number === null || isNaN(number)) return 0;

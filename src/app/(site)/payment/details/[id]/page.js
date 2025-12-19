@@ -38,7 +38,7 @@ export default function ExportDetail({ params }) {
     const [payroll, setPayroll] = useState(null);
 
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Admin"];
+    const pageRole = ["Manager"];
 
     // Check authorization
     useEffect(() => {

@@ -90,7 +90,11 @@ class AuthService {
 
   async updateProfile(data) {
     try {
-      const response = await API.put("/Account/profile", data);
+      const response = await API.put("/Account/profile", data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
       return response.data;
     } catch (error) {
       throw error;

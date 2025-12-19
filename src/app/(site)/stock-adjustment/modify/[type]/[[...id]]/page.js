@@ -22,6 +22,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
+import { removeLeadingZero } from "@/lib/formattingLib";
 
 export default function ModifyInventory({ params }) {
     const router = useRouter();
@@ -210,6 +211,8 @@ export default function ModifyInventory({ params }) {
             setErrors("Sản phẩm không được để trống");
         } else if (cart.find((item) => item.actualQuantity < 0)) {
             setErrors("Số lượng sản phẩm không thể là số âm");
+        } else if (cart.find((item) => Number.isInteger(item.actualQuantity) === false)) {
+            setErrors("Số lượng sản phẩm không thể là số thập phân");
         } else {
             setErrors("");
         }
@@ -260,11 +263,6 @@ export default function ModifyInventory({ params }) {
         }
     };
 
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
-
     const handleSubmit = async (action) => {
         if (!selectedWarehouse) {
             setValidWarehouseMessage("Vui lòng chọn kho");
@@ -276,6 +274,10 @@ export default function ModifyInventory({ params }) {
         }
         if (cart.find((item) => item.actualQuantity < 0)) {
             setErrors("Số lượng sản phẩm không thể là số âm");
+            return;
+        }
+        if (cart.find((item) => Number.isInteger(item.actualQuantity) === false)) {
+            setErrors("Số lượng sản phẩm không thể là số thập phân");
             return;
         }
         setLoading(true);

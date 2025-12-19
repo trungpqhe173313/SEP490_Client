@@ -34,8 +34,8 @@ export const importService = {
         return response.data;
     },
 
-    createImport: async (data) => {
-        const response = await API.post('/stockinput/CreateStockInputs', data);
+    createImport: async (id,data) => {
+        const response = await API.post(`/stockinput/CreateStockInputs/${id}`, data);
         return response.data;
     },
     deleteImport: async (id) => {
@@ -46,8 +46,8 @@ export const importService = {
         const response = await API.put(`/stockinput/UpdateImportTransaction/${id}`, data);
         return response.data;
     },
-    updateToChecked: async (id) => {
-        const response = await API.put(`/stockinput/UpdateToCheckedStatus/${id}`);
+    updateToChecked: async (id, data) => {
+        const response = await API.put(`/stockinput/UpdateToCheckedStatus/${id}`, data);
         return response.data;
     },
 }

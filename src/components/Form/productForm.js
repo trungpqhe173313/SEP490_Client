@@ -159,8 +159,7 @@ export function ProductForm({
                 newValue = value === "true";
                 break;
             case "weightPerUnit":
-                newValue = parseInt(value);
-                if (newValue < 0) {
+                if (newValue <= 0) {
                     setValidWeightPerUnit(false);
                     setErrorWeightPerUnit("Khối lượng của sản phẩm phải lớn hơn 0");
                 } else {
@@ -170,7 +169,7 @@ export function ProductForm({
                 break;
             case "sellingPrice":
                 newValue = parseInt(value);
-                if (newValue < 0) {
+                if (newValue <= 0) {
                     setValidSellingPrice(false);
                     setErrorSellingPrice("Giá bán phải lớn hơn 0");
                 } else {
@@ -227,7 +226,7 @@ export function ProductForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (form.productName === "" || form.weightPerUnit <= 0 || form.sellingPrice <= 0 ||form.supplierId === "" || form.categoryId === "") {
+        if (form.productName === "" || form.weightPerUnit <= 0 || form.sellingPrice <= 0 || form.supplierId === "" || form.categoryId === "") {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return
         }
@@ -249,9 +248,9 @@ export function ProductForm({
 
     const handleFileChange = (file) => {
         if (!file) return;
-        const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+        const allowedImageTypes = ["image/jpeg", "image/png", "image/jfif"];
         if (!allowedImageTypes.includes(file.type)) {
-            setError("Chỉ chấp nhận định dạng ảnh: JPG, PNG, GIF, WEBP");
+            setError("Chỉ chấp nhận định dạng ảnh: JPG, PNG, JFIF");
             return;
         }
         setError("");
@@ -282,12 +281,13 @@ export function ProductForm({
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
                                 <label className="block text-md font-bold">Hình ảnh</label>
-                                <p className="text-xs text-gray-500">Chọn hình ảnh cho sản phẩm (JPG, PNG, GIF, WEBP)</p>
+                                <p className="text-xs text-gray-500">Chọn hình ảnh cho sản phẩm (JPG, PNG, JFIF)</p>
                             </div>
                             <div className="flex items-center gap-4">
                                 <label
                                     htmlFor="image"
                                     className="px-3 py-2 rounded-md background-primary text-white cursor-pointer"
+                                    onClick={() => document.getElementById("image").value = ""}
                                 >
                                     Chọn hình ảnh
                                 </label>
@@ -302,7 +302,7 @@ export function ProductForm({
                             <input
                                 id="image"
                                 type="file"
-                                accept="image/jpeg,image/png,image/gif,image/webp"
+                                accept="image/jpeg,image/png,image/jfif"
                                 onChange={(e) => handleFileChange(e.target.files?.[0])}
                                 hidden
                             />
@@ -327,49 +327,85 @@ export function ProductForm({
                             />
                             {!validProductName && <p className="text-red-500 text-xs italic">{errorProductName}</p>}
                         </div>
-                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
-                            <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Mã</label>
-                                <p className="text-xs text-gray-500">Nhập mã sản phẩm</p>
+                        <div className="flex flex-row gap-4">
+                            <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 w-full">
+                                <div className="grid grid-cols-1">
+                                    <label className="block text-md font-bold">Mã</label>
+                                    <p className="text-xs text-gray-500">Nhập mã sản phẩm</p>
+                                </div>
+                                <input
+                                    type="text"
+                                    name="code"
+                                    value={form.code}
+                                    onChange={(e) => handleChange("code", e.target.value)}
+                                    className={`w-full bg-white border rounded px-3 py-2 ${!validCode ? "border-red-500" : "border-green-500"}`}
+                                />
                             </div>
-                            <input
-                                type="text"
-                                name="code"
-                                value={form.code}
-                                onChange={(e) => handleChange("code", e.target.value)}
-                                className={`w-full bg-white border rounded px-3 py-2 ${!validCode ? "border-red-500" : "border-green-500"}`}
-                            />
-                            {!validCode && <p className="text-red-500 text-xs italic">{errorCode}</p>}
+                            <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 w-full">
+                                <div className="grid grid-cols-1">
+                                    <label className="block text-md font-bold">Khối lượng</label>
+                                    <p className="text-xs text-gray-500">Nhập khối lượng sản phẩm</p>
+                                </div>
+                                <input
+                                    type="number"
+                                    name="weightPerUnit"
+                                    value={form.weightPerUnit || ""}
+                                    onChange={(e) => handleChange("weightPerUnit", e.target.value)}
+                                    className={`w-full bg-white border rounded px-3 py-2 ${!validWeightPerUnit ? "border-red-500" : "border-green-500"}`}
+                                    required
+                                />
+                            </div>
+                            <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 w-full">
+                                <div className="grid grid-cols-1">
+                                    <label className="block text-md font-bold">Giá bán</label>
+                                    <p className="text-xs text-gray-500">Nhập giá bán sản phẩm</p>
+                                </div>
+                                <input
+                                    type="number"
+                                    name="sellingPrice"
+                                    value={form.sellingPrice || ""}
+                                    onChange={(e) => handleChange("sellingPrice", e.target.value)}
+                                    className={`w-full bg-white border rounded px-3 py-2 ${!validSellingPrice ? "border-red-500" : "border-green-500"}`}
+                                    required
+                                />
+                            </div>
                         </div>
-                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
-                            <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Khối lượng</label>
-                                <p className="text-xs text-gray-500">Nhập khối lượng sản phẩm</p>
+                        {!validCode && <p className="text-red-500 text-xs italic">{errorCode}</p>}
+                        {!validWeightPerUnit && <p className="text-red-500 text-xs italic">{errorWeightPerUnit}</p>}
+                        {!validSellingPrice && <p className="text-red-500 text-xs italic">{errorSellingPrice}</p>}
+                        <div className="flex flex-row gap-4">
+                            <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 w-full">
+                                <div className="grid grid-cols-1">
+                                    <label className="block text-md font-bold">Nhà cung cấp</label>
+                                    <p className="text-xs text-gray-500">Nhập tên nhà cung cấp</p>
+                                </div>
+                                <AutocompleteCommon
+                                    name="supplierId"
+                                    value={selectedSupplier}
+                                    loading={supplierLoading}
+                                    options={suppliers}
+                                    onSelect={(item) => handleChangeDropdown(item)}
+                                    onSearch={fetchSuppliers}
+                                    getOptionLabel={(option) => option.supplierName}
+                                    getOptionKey={(option) => option.supplierId}
+                                />
                             </div>
-                            <input
-                                type="number"
-                                name="weightPerUnit"
-                                value={form.weightPerUnit || ""}
-                                onChange={(e) => handleChange("weightPerUnit", e.target.value)}
-                                className={`w-full bg-white border rounded px-3 py-2 ${!validWeightPerUnit ? "border-red-500" : "border-green-500"}`}
-                                required
-                            />
-                            {!validWeightPerUnit && <p className="text-red-500 text-xs italic">{errorWeightPerUnit}</p>}
-                        </div>
-                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
-                            <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Giá bán</label>
-                                <p className="text-xs text-gray-500">Nhập giá bán sản phẩm</p>
+                            <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 w-full">
+                                <div className="grid grid-cols-1">
+                                    <label className="block text-md font-bold">Danh mục</label>
+                                    <p className="text-xs text-gray-500">Nhập tên danh mục</p>
+                                </div>
+                                <AutocompleteCommon
+                                    name="categoryId"
+                                    value={selectedCategory}
+                                    loading={categoryLoading}
+                                    options={categories}
+                                    onSelect={(item) => handleChangeDropdown(item)}
+                                    onSearch={fetchCategories}
+                                    getOptionLabel={(option) => option.categoryName}
+                                    getOptionKey={(option) => option.categoryId}
+                                />
                             </div>
-                            <input
-                                type="number"
-                                name="sellingPrice"
-                                value={form.sellingPrice || ""}
-                                onChange={(e) => handleChange("sellingPrice", e.target.value)}
-                                className={`w-full bg-white border rounded px-3 py-2 ${!validSellingPrice ? "border-red-500" : "border-green-500"}`}
-                                required
-                            />
-                            {!validSellingPrice && <p className="text-red-500 text-xs italic">{errorSellingPrice}</p>}
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div className="grid grid-cols-1">
@@ -382,38 +418,6 @@ export function ProductForm({
                                 value={form.description}
                                 onChange={(e) => handleChange("description", e.target.value)}
                                 className="w-full bg-white border border-gray-300 rounded px-3 py-2"
-                            />
-                        </div>
-                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
-                            <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Nhà cung cấp</label>
-                                <p className="text-xs text-gray-500">Nhập tên nhà cung cấp</p>
-                            </div>
-                            <AutocompleteCommon
-                                name="supplierId"
-                                value={selectedSupplier}
-                                loading={supplierLoading}
-                                options={suppliers}
-                                onSelect={(item) => handleChangeDropdown(item)}
-                                onSearch={fetchSuppliers}
-                                getOptionLabel={(option) => option.supplierName}
-                                getOptionKey={(option) => option.supplierId}
-                            />
-                        </div>
-                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
-                            <div className="grid grid-cols-1">
-                                <label className="block text-md font-bold">Danh mục</label>
-                                <p className="text-xs text-gray-500">Nhập tên danh mục</p>
-                            </div>
-                            <AutocompleteCommon
-                                name="categoryId"
-                                value={selectedCategory}
-                                loading={categoryLoading}
-                                options={categories}
-                                onSelect={(item) => handleChangeDropdown(item)}
-                                onSearch={fetchCategories}
-                                getOptionLabel={(option) => option.categoryName}
-                                getOptionKey={(option) => option.categoryId}
                             />
                         </div>
                         {initialData && <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">

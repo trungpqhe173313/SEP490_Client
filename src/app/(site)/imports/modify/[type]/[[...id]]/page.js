@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
-import { formatLargeNumber, formatDateToInput } from '@/lib/formattingLib';
+import { formatLargeNumber, removeLeadingZero } from '@/lib/formattingLib';
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 
 import { productService } from "@/services/product.service";
 import { warehouseService } from "@/services/warehouse.service";
 import { supplierService } from "@/services/supplier.service";
 import { importService } from "@/services/import.service";
+import { employeeService } from "@/services/employee.service";
 
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
@@ -44,14 +45,14 @@ export default function UpdateImport({ params }) {
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     const [supplierLoading, setSupplierLoading] = useState(false);
 
+    const [employees, setEmployees] = useState([]);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [employeeLoading, setEmployeeLoading] = useState(false);
+
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [products, setProducts] = useState([]);
     const [productsForSearch, setProductsForSearch] = useState([]);
     const [productLoading, setProductLoading] = useState(false);
-
-    const [expireDate, setExpireDate] = useState(
-        new Date(Date.now() + 3 * 30 * 24 * 60 * 60 * 1000)
-    );
 
     const today = new Date();
 
@@ -69,6 +70,7 @@ export default function UpdateImport({ params }) {
 
     const [validWarehouseMessage, setValidWarehouseMessage] = useState("");
     const [validSupplierMessage, setValidSupplierMessage] = useState("");
+    const [validEmployeeMessage, setValidEmployeeMessage] = useState("");
     const [validExpireDateMessage, setValidExpireDateMessage] = useState("");
     const [pageReady, setPageReady] = useState(false);
     const pageRole = ["Manager", "Employee"];
@@ -93,11 +95,6 @@ export default function UpdateImport({ params }) {
         }
 
     }, [isLogin, user, loading]);
-
-    const removeLeadingZero = (number) => {
-        if (number === null || isNaN(number) || number == 0) return 0;
-        return number.toString().replace(/^0+/, '');
-    }
 
     const fetchProduct = async () => {
         const body = { pageIndex: 1, pageSize: 1000, isActive: true };
@@ -150,7 +147,6 @@ export default function UpdateImport({ params }) {
         await importService.getImportDetail(id)
             .then((response) => {
                 setImportData(response.data);
-                setExpireDate(new Date(response.data.list[0].expireDate));
                 setNote(response.data.list[0].note);
                 setTotalCost(response.data.totalCost);
                 setSelectedSupplier(response.data.supplier);
@@ -186,6 +182,18 @@ export default function UpdateImport({ params }) {
             });
     }
 
+    const fetchEmployees = async (name) => {
+        const body = { pageIndex: 1, pageSize: 1000, employeeName: name, isActive: true };
+        await employeeService
+            .getAllEmployees(body)
+            .then((response) => {
+                setEmployees(response.data.items);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
     const fetchExactWarehouse = async (warehouseName) => {
         const body = { pageIndex: 1, pageSize: 1000, warehouseName: warehouseName };
         await warehouseService
@@ -200,7 +208,7 @@ export default function UpdateImport({ params }) {
 
     useEffect(() => {
         validateFields();
-    }, [selectedSupplier, selectedWarehouse, expireDate]);
+    }, [selectedSupplier, selectedWarehouse, selectedEmployee]);
 
     const validateFields = () => {
         if (!selectedSupplier) {
@@ -211,17 +219,14 @@ export default function UpdateImport({ params }) {
             setValidWarehouseMessage("Vui lòng chọn kho");
             return false;
         }
-        if (!expireDate) {
-            setValidExpireDateMessage("Vui lòng nhập hạn sử dụng");
-            return false;
-        }
-        if (expireDate < today && type === "create") {
-            setValidExpireDateMessage("Hạn sử dụng phải là tương lai");
+        if (!selectedEmployee && type === "create") {
+            setValidEmployeeMessage("Vui lòng chọn nhân viên phụ trách");
             return false;
         }
         setValidExpireDateMessage("");
         setValidSupplierMessage("");
         setValidWarehouseMessage("");
+        setValidEmployeeMessage("");
         return true;
     }
 
@@ -233,6 +238,16 @@ export default function UpdateImport({ params }) {
         }
         if (cart.find((r) => r.importQuantity < 0)) {
             setModalFailedMessage("Số lượng sản phẩm không thể là số âm");
+            setModalFailedOpen(true);
+            return false;
+        }
+        if (cart.find((r) => Number.isInteger(r.importQuantity) === false)) {
+            setModalFailedMessage("Số lượng sản phẩm phải là số nguyên");
+            setModalFailedOpen(true);
+            return false;
+        }
+        if (cart.find((r) => Number.isInteger(r.unitPrice) === false)) {
+            setModalFailedMessage("Giá sản phẩm phải là số nguyên");
             setModalFailedOpen(true);
             return false;
         }
@@ -254,7 +269,6 @@ export default function UpdateImport({ params }) {
                 warehouseId: selectedWarehouse.warehouseId,
                 supplierId: selectedSupplier.supplierId,
                 note: note,
-                expireDate: expireDate,
                 products: cart
                     .filter((r) => r.importQuantity !== 0 && r.unitPrice !== 0)
                     .map((r) => ({
@@ -263,7 +277,7 @@ export default function UpdateImport({ params }) {
                         unitPrice: r.unitPrice
                     }))
             }
-            await importService.createImport(body)
+            await importService.createImport(selectedEmployee.userId, body)
                 .then((response) => {
                     setModalSuccessMessage("Tạo phiếu nhập kho thành công");
                     setModalSuccessOpen(true);
@@ -284,7 +298,6 @@ export default function UpdateImport({ params }) {
                         quantity: r.importQuantity,
                         unitPrice: r.unitPrice
                     })),
-                expireDate: expireDate,
                 note: note
             }
             await importService.updateImport(id, body)
@@ -347,7 +360,7 @@ export default function UpdateImport({ params }) {
         });
     };
 
-    const handleChangeDropdown = (item) => {
+    const handleChangeDropdown = (item, field) => {
         if (item) {
             if (item.warehouseId) {
                 setSelectedWarehouse(item);
@@ -361,6 +374,19 @@ export default function UpdateImport({ params }) {
                     setSelectedProduct(null);
                 }, 0);
             }
+            if (item.userId) {
+                setSelectedEmployee(item);
+            }
+        } else {
+            if (field === "warehouseId") {
+                setSelectedWarehouse(null);
+            }
+            if (field === "supplierId") {
+                setSelectedSupplier(null);
+            }
+            if (field === "employeeId") {
+                setSelectedEmployee(null);
+            }
         }
     }
 
@@ -370,6 +396,7 @@ export default function UpdateImport({ params }) {
         fetchProduct();
         fetchSupplier();
         fetchWarehouse();
+        fetchEmployees();
     }, [pageReady]);
 
     useEffect(() => {
@@ -459,7 +486,7 @@ export default function UpdateImport({ params }) {
                                                     style: { width: 50, textAlign: "center", height: 10 },
                                                 }}
                                                 sx={{ marginX: "5px" }}
-                                                value={r.importQuantity}
+                                                value={removeLeadingZero(r.importQuantity)}
                                                 error={r.importQuantity < 0}
                                                 onChange={(e) => handleChangeCart(r.productId, "importQuantity", e.target.value)}
                                                 variant="outlined"
@@ -536,7 +563,7 @@ export default function UpdateImport({ params }) {
                             value={selectedWarehouse}
                             loading={warehouseLoading}
                             options={warehouses}
-                            onSelect={(item) => handleChangeDropdown(item)}
+                            onSelect={(item) => handleChangeDropdown(item, "warehouseId")}
                             onSearch={fetchWarehouse}
                             getOptionLabel={(option) => option.warehouseName}
                             getOptionKey={(option) => option.warehouseId}
@@ -560,7 +587,7 @@ export default function UpdateImport({ params }) {
                             value={selectedSupplier}
                             loading={supplierLoading}
                             options={suppliers}
-                            onSelect={(item) => handleChangeDropdown(item)}
+                            onSelect={(item) => handleChangeDropdown(item, "supplierId")}
                             onSearch={fetchSupplier}
                             getOptionLabel={(option) => option.supplierName}
                             getOptionKey={(option) => option.supplierId}
@@ -568,21 +595,20 @@ export default function UpdateImport({ params }) {
                     }
                     {!selectedSupplier && <span className="text-red-500">{validSupplierMessage}</span>}
                 </div>
-                <div className="my-4">
-                    <label className="block text-md font-bold">Ngày hết hạn</label>
-                    <input
-                        type="date"
-                        name="expireDate"
-                        disabled={id && type === "update"}
-                        value={expireDate && formatDateToInput(expireDate)}
-                        onChange={(e) => {
-                            const date = new Date(e.target.value);
-                            setExpireDate(date);
-                        }}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                {user.roles.includes("Manager") && type === "create" && <div className="my-4">
+                    <label className="block text-md font-bold">Nhân viên phụ trách</label>
+                    <AutocompleteCommon
+                        name="employeeId"
+                        value={selectedEmployee}
+                        loading={employeeLoading}
+                        options={employees}
+                        onSelect={(item) => handleChangeDropdown(item, "employeeId")}
+                        onSearch={fetchEmployees}
+                        getOptionLabel={(option) => option.fullName + " - " + option.phone}
+                        getOptionKey={(option) => option.userId}
                     />
-                    {validExpireDateMessage && <span className="text-red-500">{validExpireDateMessage}</span>}
-                </div>
+                    {!selectedEmployee && <span className="text-red-500">{validEmployeeMessage}</span>}
+                </div>}
                 <div className="my-4">
                     <label className="block text-md font-bold">Ghi chú</label>
                     <textarea

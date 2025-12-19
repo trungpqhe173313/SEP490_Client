@@ -23,6 +23,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
+import { removeLeadingZero } from "@/lib/formattingLib";
 
 export default function ModifyProduction({ params }) {
   const router = useRouter();
@@ -110,7 +111,7 @@ export default function ModifyProduction({ params }) {
   }
 
   const fetchProducts = async () => {
-    const body = { pageIndex: 1, pageSize: 1000, productName: "" };
+    const body = { pageIndex: 1, pageSize: 1000, productName: "", categoryId: 9 };
     await productService.getProductAvailable(body)
       .then((response) => {
         setProducts(response.data.items);
@@ -173,7 +174,7 @@ export default function ModifyProduction({ params }) {
       productCode: item.productCode,
       productName: item.productName,
       productId: item.productId,
-      produceQuantity: produceQuantity,
+      produceQuantity: parseInt(produceQuantity),
       quantity: await getMaterialQuantity(item.productId),
       weightPerUnit: item.weightPerUnit
     };
@@ -298,8 +299,8 @@ export default function ModifyProduction({ params }) {
       setErrors("Thành phẩm không được để trống");
       return false
     }
-    if (!selectedMaterial || selectedMaterial.produceQuantity <= 0) {
-      setErrors("Nguyên liệu không được để trống, bằng 0 hoặc là số âm");
+    if (!selectedMaterial || selectedMaterial.produceQuantity <= 0 || Number.isInteger(selectedMaterial.produceQuantity) === false) {
+      setErrors("Nguyên liệu không được để trống và phải là số nguyên dương");
       return false
     }
     if (selectedMaterial.produceQuantity > selectedMaterial.quantity) {
@@ -310,13 +311,12 @@ export default function ModifyProduction({ params }) {
       setErrors("Đang sản xuất ra cùng 1 loại sản phẩm")
       return false
     }
+    if (cart.find((p) => Number.isInteger(p.produceQuantity) === false)) {
+      setErrors("Số lượng thành phẩm phải là số nguyên");
+      return false;
+    }
     setErrors("")
     return true
-  }
-
-  const removeLeadingZero = (number) => {
-    if (number === null || isNaN(number) || number == 0) return 0;
-    return number.toString().replace(/^0+/, '');
   }
 
   const handleExit = () => {
@@ -378,12 +378,12 @@ export default function ModifyProduction({ params }) {
                   <TableCell>{selectedMaterial.productName}</TableCell>
                   <TableCell align="center">{selectedMaterial.quantity}</TableCell>
                   <TableCell align="center">{selectedMaterial.weightPerUnit}</TableCell>
-                  <TableCell align="center" sx={{width: 200}}>
+                  <TableCell align="center" sx={{ width: 200 }}>
                     <IconButton
                       size="small"
                       onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity - 1)}
                       sx={{ border: "1px solid #ccc", height: "28px" }}
-                      // disabled={type === 'update'}
+                    // disabled={type === 'update'}
                     >
                       <RemoveIcon fontSize="small" />
                     </IconButton>
@@ -415,9 +415,9 @@ export default function ModifyProduction({ params }) {
                     />
                     <IconButton
                       size="small"
-                      onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity + 1)}
+                      onClick={() => handleChangeMaterial(selectedMaterial, parseInt(selectedMaterial.produceQuantity) + 1)}
                       sx={{ border: "1px solid #ccc", height: "28px" }}
-                      //disabled={type === 'update'}
+                    //disabled={type === 'update'}
                     >
                       <AddIcon fontSize="small" />
                     </IconButton>
@@ -458,89 +458,91 @@ export default function ModifyProduction({ params }) {
             getOptionKey={(option) => option.productId}
           />
         </div>
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow className="background-primary">
-                <TableCell sx={{ color: "white" }}>Mã thành phẩm</TableCell>
-                <TableCell sx={{ color: "white" }}>Tên thành phẩm</TableCell>
-                <TableCell sx={{ color: "white" }} align="center">Khối lượng</TableCell>
-                <TableCell sx={{ color: "white" }} align="center">Số lượng sản xuất</TableCell>
-                <TableCell sx={{ color: "white" }} align="center">{type === 'update' ? 'Sản lượng thực tế' : 'Sản lượng dự kiến'}</TableCell>
-                <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {cart.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    <p className="my-10 text-xl">
-                      Chưa có sản phẩm
-                    </p>
-                  </TableCell>
+        <div className="max-h-[80vh] overflow-y-scroll scrollbar-hidden">
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableHead>
+                <TableRow className="background-primary">
+                  <TableCell sx={{ color: "white" }}>Mã thành phẩm</TableCell>
+                  <TableCell sx={{ color: "white" }}>Tên thành phẩm</TableCell>
+                  <TableCell sx={{ color: "white" }} align="center">Khối lượng</TableCell>
+                  <TableCell sx={{ color: "white" }} align="center">Số lượng sản xuất</TableCell>
+                  <TableCell sx={{ color: "white" }} align="center">{type === 'update' ? 'Sản lượng thực tế' : 'Sản lượng dự kiến'}</TableCell>
+                  <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
                 </TableRow>
-              ) : (
-                cart.map((product) => (
-                  <TableRow key={product.productId} hover>
-                    <TableCell>{product.productCode}</TableCell>
-                    <TableCell>{product.productName}</TableCell>
-                    <TableCell align="center">{product.weightPerUnit}</TableCell>
-                    <TableCell align="center" sx={{width: 200}}>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
-                        sx={{ border: "1px solid #ccc", height: "28px" }}
-                      >
-                        <RemoveIcon fontSize="small" />
-                      </IconButton>
-                      <TextField
-                        type="number"
-                        size="small"
-                        inputProps={{
-                          min: 0,
-                          style: {
-                            width: 50,
-                            textAlign: "center",
-                            height: 10,
-                            color: product.produceQuantity < 0 ? 'red' : 'inherit'
-                          },
-                        }}
-                        value={removeLeadingZero(product.produceQuantity)}
-                        onChange={(e) => handleChangeCart(product.productId, "produceQuantity", e.target.value)}
-                        variant="outlined"
-                        error={product.produceQuantity < 0}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: product.produceQuantity < 0 ? 'red' : 'inherit',
-                            },
-                          },
-                          marginX: "5px",
-                        }}
-                      />
-                      <IconButton
-                        size="small"
-                        onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity + 1)}
-                        sx={{ border: "1px solid #ccc", height: "28px" }}
-                      >
-                        <AddIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                    <TableCell align="center">{product.produceQuantity * product.weightPerUnit} kg</TableCell>
-                    <TableCell align="center">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleRemoveCart(product.productId)}
-                        sx={{ backgroundColor: "red", height: "28px", color: "white" }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
+              </TableHead>
+              <TableBody>
+                {cart.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      <p className="my-10 text-xl">
+                        Chưa có sản phẩm
+                      </p>
                     </TableCell>
                   </TableRow>
-                )))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                ) : (
+                  cart.map((product) => (
+                    <TableRow key={product.productId} hover>
+                      <TableCell>{product.productCode}</TableCell>
+                      <TableCell>{product.productName}</TableCell>
+                      <TableCell align="center">{product.weightPerUnit}</TableCell>
+                      <TableCell align="center" sx={{ width: 200 }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
+                          sx={{ border: "1px solid #ccc", height: "28px" }}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                        <TextField
+                          type="number"
+                          size="small"
+                          inputProps={{
+                            min: 0,
+                            style: {
+                              width: 50,
+                              textAlign: "center",
+                              height: 10,
+                              color: product.produceQuantity < 0 ? 'red' : 'inherit'
+                            },
+                          }}
+                          value={removeLeadingZero(product.produceQuantity)}
+                          onChange={(e) => handleChangeCart(product.productId, "produceQuantity", e.target.value)}
+                          variant="outlined"
+                          error={product.produceQuantity < 0}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              '& fieldset': {
+                                borderColor: product.produceQuantity < 0 ? 'red' : 'inherit',
+                              },
+                            },
+                            marginX: "5px",
+                          }}
+                        />
+                        <IconButton
+                          size="small"
+                          onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity + 1)}
+                          sx={{ border: "1px solid #ccc", height: "28px" }}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell align="center">{product.produceQuantity * product.weightPerUnit} kg</TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleRemoveCart(product.productId)}
+                          sx={{ backgroundColor: "red", height: "28px", color: "white" }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  )))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
       </div>
       <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), handleExit() }} />
       <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />

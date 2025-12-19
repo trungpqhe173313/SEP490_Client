@@ -2,6 +2,7 @@
 import { importService } from "@/services/import.service";
 import { warehouseService } from "@/services/warehouse.service";
 import { supplierService } from "@/services/supplier.service";
+import { employeeService } from "@/services/employee.service";
 import { useLogin } from "@/context/LoginContext";
 
 import React, { useState, useEffect } from "react";
@@ -46,6 +47,7 @@ export default function Imports() {
     const [filterStatus, setFilterStatus] = useState(null);
     const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
     const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
+    const [filterResponsibleId, setFilterResponsibleId] = useState(null);
 
     const [errorToTransactionDate, setErrorToTransactionDate] = useState("");
 
@@ -61,6 +63,9 @@ export default function Imports() {
     const [warehouses, setWarehouses] = useState([]);
     const [supplierLoading, setSupplierLoading] = useState(false);
     const [warehouseLoading, setWarehouseLoading] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [employees, setEmployees] = useState([]);
+    const [employeeLoading, setEmployeeLoading] = useState(false);
 
     const pageRole = ["Manager", "Employee"];
     const { loading, setLoading } = useLoading();
@@ -101,9 +106,19 @@ export default function Imports() {
             customValue: (item) => item.transactionDate && <div>{new Date(item.transactionDate).toLocaleString('vi-VN')}</div>
         },
         {
+            key: "expireDate",
+            label: "Ngày hết hạn",
+            customValue: (item) => item.expireDate ? <div>{new Date(item.expireDate).toLocaleDateString('vi-VN')}</div> : <div>Chưa có</div>
+        },
+        {
             key: "note",
             label: "Ghi chú",
             customValue: (item) => item.note ? <div>{item.note}</div> : <div>Không có</div>
+        },
+        {
+            key: "responsibleName",
+            label: "Nhân viên phụ trách",
+            customValue: (item) => item.responsibleName ? <div><div>{item.responsibleName}</div><div>{item.employeePhone}</div></div> : <div>Chưa có</div>
         },
         {
             key: "action",
@@ -163,10 +178,30 @@ export default function Imports() {
         }
     }
 
+    const fetchEmployees = async (value) => {
+        try {
+            setEmployeeLoading(true);
+            const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                isActive: true,
+                employeeName: value
+            };
+            const response = await employeeService.getAllEmployees(body);
+            const employeeData = response.data.items
+            setEmployees(employeeData);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+        } finally {
+            setEmployeeLoading(false);
+        }
+    }
+
     useEffect(() => {
         if (!pageReady) return;
         fetchSuppliers("");
         fetchWarehouses("");
+        fetchEmployees("");
     }, [pageReady]);
 
     const fetchImports = async () => {
@@ -180,7 +215,8 @@ export default function Imports() {
                 status: parseInt(filterStatus) || null,
                 type: 'Import',
                 transactionFromDate: filterTransactionFromDate || null,
-                transactionToDate: filterTransactionToDate || null
+                transactionToDate: filterTransactionToDate || null,
+                responsibleId: user.roles.includes("Manager") ? filterResponsibleId || null : user.id
             };
             const response = await importService.getAllImports(body);
             setImports(response.data.items);
@@ -233,6 +269,9 @@ export default function Imports() {
             } else if (item.warehouseId) {
                 setSelectedWarehouse(item);
                 setFilterWarehouseId(item.warehouseId);
+            } else if (item.userId) {
+                setSelectedEmployee(item);
+                setFilterResponsibleId(item.userId);
             }
         } else {
             if (field === "supplierId") {
@@ -241,6 +280,9 @@ export default function Imports() {
             } else if (field === "warehouseId") {
                 setSelectedWarehouse(null);
                 setFilterWarehouseId(null);
+            } else if (field === "employeeId") {
+                setSelectedEmployee(null);
+                setFilterResponsibleId(null);
             }
         }
     };
@@ -270,6 +312,8 @@ export default function Imports() {
         setSelectedSupplier(null);
         setFilterWarehouseId(null);
         setSelectedWarehouse(null);
+        setFilterResponsibleId(null);
+        setSelectedEmployee(null);
         setFilterStatus(null);
         setFilterTransactionFromDate("");
         setFilterTransactionToDate("");
@@ -372,7 +416,7 @@ export default function Imports() {
                 <div className="flex flex-col mr-4">
                     <h1 className="text-2xl font-bold">Danh sách phiếu nhập</h1>
                 </div>
-                <div className="flex flex-col gap-2">
+                {user.roles.includes("Manager") && <div className="flex flex-col gap-2">
                     <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => navigate("/imports/modify/create")}>Tạo phiếu nhập mới</button>
 
                     <label
@@ -393,7 +437,7 @@ export default function Imports() {
                     />
 
                     <button className="block border bg-blue-500 text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto px-4" onClick={() => handleDownloadTemplate()}>Tải xuống mẫu phiếu nhập</button>
-                </div>
+                </div>}
             </div>
 
             {/* Filter sidebar */}
@@ -426,6 +470,21 @@ export default function Imports() {
                             getOptionKey={(option) => option.warehouseId}
                         />
                     </div>
+                    {user.roles.includes("Manager") &&
+                        <div className="mt-2 w-[24.25%]">
+                            <label className="mr-2">Nhân viên phụ trách:</label>
+                            <AutocompleteCommon
+                                name="employeeId"
+                                value={selectedEmployee}
+                                loading={employeeLoading}
+                                options={employees}
+                                onSelect={(item) => handleChangeDropdown(item, "employeeId")}
+                                onSearch={fetchEmployees}
+                                getOptionLabel={(option) => option.fullName + " - " + option.phone}
+                                getOptionKey={(option) => option.userId}
+                            />
+                        </div>
+                    }
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Trạng thái:</label>
                         <select

@@ -15,6 +15,8 @@ import FailedModal from '@/components/Modal/failedModal';
 import { paymentService } from '@/services/payment.service';
 import { PaymentForm } from '@/components/Form/paymentForm';
 import { transactionService } from '@/services/transaction.service';
+import { AssignForm } from '@/components/Form/assignForm';
+import { ExpireDateForm } from '@/components/Form/expireDateForm';
 
 
 export default function ImportDetail({ params }) {
@@ -24,6 +26,8 @@ export default function ImportDetail({ params }) {
     const { isLogin, user, refreshUserInfo } = useLogin();
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [modalReassignOpen, setModalReassignOpen] = useState(false);
+    const [modalExpireDateOpen, setModalExpireDateOpen] = useState(false);
     const [mode, setMode] = useState("createPayment");
     const [paidAmount, setPaidAmount] = useState(0);
 
@@ -112,12 +116,12 @@ export default function ImportDetail({ params }) {
         {
             key: "expireDate",
             label: "Ngày hết hạn",
-            customValue: (item) => item.expireDate && <div>{new Date(item.expireDate).toLocaleString('vi-VN')}</div>
+            customValue: (item) => item.expireDate ? <div>{new Date(item.expireDate).toLocaleDateString('vi-VN')}</div> : <div>Chưa có</div>
         },
         {
             key: "note",
             label: "Ghi chú",
-            customValue: (item) => item.note && <div>{item.note}</div>
+            customValue: (item) => item.note ? <div>{item.note}</div> : <div>Chưa có</div>
         },
         {
             key: "weightPerUnit",
@@ -175,14 +179,47 @@ export default function ImportDetail({ params }) {
         setPageIndex(0);
     };
 
+    const handleReassign = () => {
+        setModalReassignOpen(true);
+    }
+
+    const handleConfirmReassign = async (data) => {
+        setLoading(true);
+        try {
+            await transactionService.changeEmployee(id, data);
+            setModalSuccessMessage("Sửa nhân viên phụ trách thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const handleCopy = () => {
         router.push(`/imports/modify/create/${id}`);
     }
 
-    const handleConfirm = async () => {
+    const handleOpenExpireDate = () => {
+        setModalExpireDateOpen(true);
+    }
+
+    const handleConfirm = async (data) => {
+        if (transaction.responsibleId !== user.id) {
+            setModalFailedMessage(`Bạn không phụ trách phiếu nhập kho này`);
+            setModalFailedOpen(true);
+            return;
+        }
         setLoading(true);
         try {
-            await importService.updateToChecked(id);
+            const body = {
+                responsibleId: user.id,
+                expireDate: data.expireDate
+            }
+            await importService.updateToChecked(id, body);
             setModalSuccessMessage("Xác nhận kiểm phiếu nhập kho thành công");
             setModalSuccessOpen(true);
             fetchTransaction();
@@ -197,6 +234,22 @@ export default function ImportDetail({ params }) {
 
     const handleEdit = () => {
         router.push(`/imports/modify/update/${id}`);
+    }
+
+    const handleCancel = async () => {
+        setLoading(true);
+        try {
+            await importService.deleteImport(id);
+            setModalSuccessMessage("Hủy phiếu nhập kho thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const handleDelete = () => {
@@ -257,7 +310,7 @@ export default function ImportDetail({ params }) {
 
     return (
         <div className='flex flex-col gap-4 w-full'>
-            <div className='grid grid-cols-3 p-4 gap-4 w-full h-50'>
+            <div className='grid grid-cols-3 p-4 gap-4 w-full'>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Chi tiết phiếu nhập</h1>
                     <p className='my-2'>Mã giao dịch: {transaction.transactionId}</p>
@@ -266,6 +319,10 @@ export default function ImportDetail({ params }) {
                     <div className='my-2 flex flex-row gap-2'>
                         <p>Trạng thái: </p>
                         {getImportStatus(transaction.status)}
+                    </div>
+                    <div className='my-2 flex flex-row gap-2'>
+                        <p>Nhân viên phụ trách: {transaction.responsibleName ? transaction.responsibleName + " - " + transaction.employeePhone : "Chưa có"}</p>
+                        {user.roles.includes("Manager") && transaction?.status === 1 && <button className='cursor-pointer px-4 text-white bg-yellow-500 rounded-xl' onClick={handleReassign}>Sửa</button>}
                     </div>
                 </div>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
@@ -293,17 +350,17 @@ export default function ImportDetail({ params }) {
                 />
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>
-                        {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleConfirm}>Xác nhận nhập kho</button>}
-                        {transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
-                        {transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
-                        {transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
-                        <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>
+                        {user?.roles.includes("Employee") && transaction && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleOpenExpireDate}>Xác nhận nhập kho</button>}
+                        {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
+                        {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
+                        {user?.roles.includes("Manager") && transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
+                        {user?.roles.includes("Manager") && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>}
                         {/* {transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>} */}
-                        {transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
-                        {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
+                        {user?.roles.includes("Manager") && transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
+                        {user?.roles.includes("Manager") && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
                     <div className='flex flex-row items-center gap-2'>
-                        {/* {transaction && transaction.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleCancel}>Hủy</button>} */}
+                        {user?.roles.includes("Manager") && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleCancel}>Hủy</button>}
                     </div>
                 </div>
             </div>
@@ -340,6 +397,8 @@ export default function ImportDetail({ params }) {
                 initialData={transaction}
                 mode={mode}
             />
+            <ExpireDateForm isOpen={modalExpireDateOpen} onClose={() => setModalExpireDateOpen(false)} onConfirm={handleConfirm} />
+            <AssignForm isOpen={modalReassignOpen} onClose={() => setModalReassignOpen(false)} onConfirm={handleConfirmReassign} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>

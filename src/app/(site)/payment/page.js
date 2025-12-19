@@ -60,7 +60,7 @@ export default function FinancialTransactions() {
   const buttonRef = useRef(null);
   const [pageReady, setPageReady] = useState(false);
 
-  const pageRole = ["Admin"];
+  const pageRole = ["Manager"];
 
   useEffect(() => {
     if (loading) return;
