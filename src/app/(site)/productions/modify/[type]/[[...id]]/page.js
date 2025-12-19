@@ -442,7 +442,7 @@ export default function ModifyProduction({ params }) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {productionWeightLog.length > 0 ? productionWeightLog.products.map((item, index) => (
+                {productionWeightLog.products.length > 0 ? productionWeightLog.products.map((item, index) => (
                   <TableRow key={index}>
                     <TableCell>{item.productName}</TableCell>
                     <TableCell align="center">{item.totalBags}</TableCell>
