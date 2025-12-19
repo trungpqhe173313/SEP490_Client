@@ -88,7 +88,7 @@ export default function LoginPage() {
   const handleExit = () => {
     switch (roles[0]) {
       case 'Admin':
-        router.push('/dashboard');
+        router.push('/management/accounts');
         break;
       case 'Manager':
         router.push('/worklogs');
