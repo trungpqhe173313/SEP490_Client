@@ -371,7 +371,6 @@ export default function ModifyTransfer({ params }) {
     }, [selectedWarehouse]);
 
     useEffect(() => {
-        if (type === "create") return;
         if (!products || !transferData || !transferData.list || !selectedWarehouse) return;
         fetchCart();
     }, [transferData, products, selectedWarehouse, type]);
