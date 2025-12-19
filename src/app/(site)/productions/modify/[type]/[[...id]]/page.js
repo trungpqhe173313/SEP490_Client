@@ -430,8 +430,8 @@ export default function ModifyProduction({ params }) {
             </TableBody>
           </Table>
         </TableContainer>
-        {productionWeightLog.length > 0 && <div className="p-4 bg-white rounded-xl">
-          <p className="text-xl font-bold">Chi tiết phiếu cân</p>
+        {productionWeightLog && <div className="p-4 bg-white rounded-xl">
+          <p className="text-xl font-bold mb-4">Chi tiết phiếu cân</p>
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
@@ -442,13 +442,21 @@ export default function ModifyProduction({ params }) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {productionWeightLog.products.map((item, index) => (
+                {productionWeightLog.length > 0 ? productionWeightLog.products.map((item, index) => (
                   <TableRow key={index}>
                     <TableCell>{item.productName}</TableCell>
                     <TableCell align="center">{item.totalBags}</TableCell>
                     <TableCell align="center">{item.totalWeight} kg</TableCell>
                   </TableRow>
-                ))}
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center">
+                      <p className="text-lg">
+                        Chưa có dữ liệu cân thành phẩm
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -555,7 +563,7 @@ export default function ModifyProduction({ params }) {
                       </TableCell>
                       }
                       {type === "update" && <TableCell align="center">{product.produceQuantity * product.weightPerUnit} kg</TableCell>}
-                      {type === "update" && <TableCell align="center">{product.actualWeight} kg</TableCell>}
+                      {type === "update" && <TableCell align="center">{product.actualWeight ? product.actualWeight + " kg" : "Chưa cân"}</TableCell>}
                       <TableCell align="center">
                         <IconButton
                           size="small"
