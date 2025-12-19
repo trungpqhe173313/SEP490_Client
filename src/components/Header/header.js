@@ -58,6 +58,8 @@ const Header = () => {
                   e.currentTarget.src = "/altImage.jpg";
                 }}
                 className="w-full h-full object-cover rounded-full"
+                width={100}
+                height={100}
               />
               :
               <AccountCircleIcon className="text-white" />}
