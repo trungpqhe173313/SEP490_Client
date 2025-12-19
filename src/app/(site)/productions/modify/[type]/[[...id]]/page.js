@@ -430,15 +430,15 @@ export default function ModifyProduction({ params }) {
             </TableBody>
           </Table>
         </TableContainer>
-        {productionWeightLog && <div className="p-4 bg-white rounded-xl">
+        {productionWeightLog.length > 0 && <div className="p-4 bg-white rounded-xl">
           <p className="text-xl font-bold">Chi tiết phiếu cân</p>
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
                 <TableRow className="background-primary">
                   <TableCell sx={{ color: "white" }}>Tên sản phẩm</TableCell>
-                  <TableCell sx={{ color: "white" }}>Số lượng (Bao)</TableCell>
-                  <TableCell sx={{ color: "white" }}>Tổng khối lượng</TableCell>
+                  <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
+                  <TableCell sx={{ color: "white" }} align="center">Tổng khối lượng</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

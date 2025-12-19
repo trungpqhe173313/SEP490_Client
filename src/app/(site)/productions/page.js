@@ -146,7 +146,21 @@ export default function Productions() {
         for (const production of productionList) {
             try {
                 const response = await productionService.getProductionDetail(production.id);
-                detailsArr.push(response.data);
+                const weightLog = await productionService.getProductionWeight(production.id);
+                const cart = response.data.finishProducts.map((item) => ({
+                    productCode: item.productCode,
+                    productName: item.productName,
+                    warehouseName: item.warehouseName,
+                    productId: item.productId,
+                    quantity: weightLog.data.products.find((p) => p.productId === item.productId)?.totalBags || item.quantity,
+                    actualWeight: weightLog.data.products.find((p) => p.productId === item.productId)?.totalWeight || 0,
+                    expectedWeight: item.weightPerUnit * item.quantity,
+                    weightPerUnit: item.weightPerUnit
+                }));
+                detailsArr.push({
+                    ...response.data,
+                    cart: cart
+                });
             } catch (error) {
                 setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                 setModalFailedOpen(true);
@@ -295,10 +309,25 @@ export default function Productions() {
                 customValue: (item) => item.warehouseName && <div>{item.warehouseName}</div>
             },
             {
+                key: "weightPerUnit",
+                label: "Khối lượng",
+                customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit} kg</div>
+            },
+            {
                 key: "quantity",
                 label: "Số lượng",
                 customValue: (item) => production.status === 2 && item.quantity > 0 ? <div>{item.quantity}</div> : <div>Chưa có</div>
-            }
+            },
+            {
+                key: "expectedWeight",
+                label: "Sản lượng dự kiến",
+                customValue: (item) => production.status === 2 && item.expectedWeight ? <div>{item.expectedWeight} kg</div> : <div>Chưa có</div>
+            },
+            {
+                key: "actualWeight",
+                label: "Sản lượng thực tế",
+                customValue: (item) => production.status === 2 && item.actualWeight ? <div>{item.actualWeight} kg</div> : <div>Chưa có</div>
+            },
         ];
 
         return (
@@ -333,7 +362,7 @@ export default function Productions() {
                     <h1 className='text-xl font-bold py-2'>Danh sách thành phẩm</h1>
                     <TableCommon
                         headers={headers}
-                        tableData={production.finishProducts}
+                        tableData={production.cart}
                     />
                 </div>
             </div>
