@@ -1,6 +1,5 @@
 "use client";
 import { exportService } from "@/services/export.service";
-import { warehouseService } from "@/services/warehouse.service";
 import { customerService } from "@/services/customer.service";
 import { employeeService } from "@/services/employee.service";
 
@@ -41,7 +40,6 @@ export default function Exports() {
 
   //Filter state
   const [filterCustomerId, setFilterCustomerId] = useState(null);
-  const [filterWarehouseId, setFilterWarehouseId] = useState(null);
   const [filterStatus, setFilterStatus] = useState(null);
   const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
   const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
@@ -56,11 +54,8 @@ export default function Exports() {
 
   //Autocomplete
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [customers, setCustomers] = useState([]);
-  const [warehouses, setWarehouses] = useState([]);
   const [customerLoading, setCustomerLoading] = useState(false);
-  const [warehouseLoading, setWarehouseLoading] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [employees, setEmployees] = useState([]);
   const [employeeLoading, setEmployeeLoading] = useState(false);
@@ -97,11 +92,6 @@ export default function Exports() {
       key: "fullName",
       label: "Khách hàng",
       customValue: (item) => item.fullName && <div>{item.fullName === "N/A" ? "Chuyển kho" : item.fullName}</div>
-    },
-    {
-      key: "warehouseName",
-      label: "Nhà kho",
-      customValue: (item) => item.warehouseName && <div>{item.warehouseName}</div>
     },
     {
       key: "statusName",
@@ -160,28 +150,6 @@ export default function Exports() {
     }
   }
 
-  const fetchWarehouses = async (value) => {
-    try {
-      setWarehouseLoading(true);
-      const body = {
-        pageIndex: 1,
-        pageSize: 1000,
-        warehouseName: value,
-        isActive: true
-      };
-      const response = await warehouseService.getAllWarehouses(body);
-      const warehouseData = response.data.items.map((warehouse) => ({
-        warehouseId: warehouse.warehouseId,
-        warehouseName: warehouse.warehouseName
-      }));
-      setWarehouses(warehouseData);
-    } catch (error) {
-      console.error("Error fetching warehouses:", error);
-    } finally {
-      setWarehouseLoading(false);
-    }
-  }
-
   const fetchEmployees = async (value) => {
     try {
       setEmployeeLoading(true);
@@ -204,7 +172,6 @@ export default function Exports() {
   useEffect(() => {
     if (!pageReady) return;
     fetchCustomers("");
-    fetchWarehouses("");
     fetchEmployees("");
   }, [pageReady]);
 
@@ -215,7 +182,6 @@ export default function Exports() {
         pageIndex: pageIndex + 1,
         pageSize: rowPerPage,
         customerId: filterCustomerId || null,
-        warehouseId: filterWarehouseId || null,
         status: parseInt(filterStatus) || null,
         type: 'Export',
         transactionFromDate: filterTransactionFromDate || null,
@@ -250,9 +216,6 @@ export default function Exports() {
       if (item.customerId) {
         setSelectedCustomer(item);
         setFilterCustomerId(item.customerId);
-      } else if (item.warehouseId) {
-        setSelectedWarehouse(item);
-        setFilterWarehouseId(item.warehouseId);
       } else if (item.userId) {
         setSelectedEmployee(item);
         setFilterResponsibleId(item.userId);
@@ -261,9 +224,6 @@ export default function Exports() {
       if (field === "customerId") {
         setSelectedCustomer(null);
         setFilterCustomerId(null);
-      } else if (field === "warehouseId") {
-        setSelectedWarehouse(null);
-        setFilterWarehouseId(null);
       } else if (field === "employeeId") {
         setSelectedEmployee(null);
         setFilterResponsibleId(null);
@@ -294,8 +254,6 @@ export default function Exports() {
   const handleClearFilter = () => {
     setFilterCustomerId(null);
     setSelectedCustomer(null);
-    setFilterWarehouseId(null);
-    setSelectedWarehouse(null);
     setFilterResponsibleId(null);
     setSelectedEmployee(null);
     setFilterStatus(null);
@@ -337,19 +295,6 @@ export default function Exports() {
               getOptionKey={(option) => option.customerId}
             />
           </div>
-          <div className="mt-2 w-[24.25%]">
-            <label className="mr-2">Nhà kho:</label>
-            <AutocompleteCommon
-              name="warehouseId"
-              value={selectedWarehouse}
-              loading={warehouseLoading}
-              options={warehouses}
-              onSelect={(item) => handleChangeDropdown(item, "warehouseId")}
-              onSearch={fetchWarehouses}
-              getOptionLabel={(option) => option.warehouseName}
-              getOptionKey={(option) => option.warehouseId}
-            />
-          </div>
           {user.roles.includes("Manager") &&
             <div className="mt-2 w-[24.25%]">
               <label className="mr-2">Nhân viên phụ trách:</label>
@@ -378,8 +323,10 @@ export default function Exports() {
               <option value={2}>{getExportStatusText(2)}</option>
               <option value={3}>{getExportStatusText(3)}</option>
               <option value={4}>{getExportStatusText(4)}</option>
-              <option value={5}>{getExportStatusText(5)}</option>
+              {/* <option value={5}>{getExportStatusText(5)}</option> */}
               <option value={6}>{getExportStatusText(6)}</option>
+              <option value={11}>{getExportStatusText(11)}</option>
+              <option value={12}>{getExportStatusText(12)}</option>
             </select>
           </div>
         </div>

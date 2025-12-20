@@ -10,13 +10,14 @@ export function ExpireDateForm({
     const [form, setForm] = useState({});
     const [error, setError] = useState("");
     const today = new Date();
+    const [validExpireDate, setValidExpireDate] = useState(true);
 
     useEffect(() => {
         const threeMonthsLater = new Date(Date.now() + 3 * 30 * 24 * 60 * 60 * 1000);
         setForm({ expireDate: threeMonthsLater });
+        setError("");
+        setValidExpireDate(true);
     }, [isOpen]);
-
-    const [validExpireDate, setValidExpireDate] = useState(true);
 
     const handleChange = (date) => {
         if (date < today) {

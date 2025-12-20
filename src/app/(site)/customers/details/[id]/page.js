@@ -24,9 +24,8 @@ export default function CustomerDetail({ params }) {
     const [modalFailedMessage, setModalFailedMessage] = useState("");
 
     const [customer, setCustomer] = useState({});
-    const [showPassword, setShowPassword] = useState(false);
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Manager"];
+    const pageRole = ["Admin", "Manager"];
 
     // Check authorization
     useEffect(() => {
@@ -91,7 +90,7 @@ export default function CustomerDetail({ params }) {
         <div className='flex flex-col gap-4 w-full py-8 px-4'>
             <div className='w-full bg-white p-4 rounded-xl flex items-center justify-between'>
                 <h1 className='text-2xl font-semibold'>Chi tiết khách hàng</h1>
-                <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalOpen(true)}>Chỉnh sửa khách hàng</button>
+                {user?.roles?.includes("Admin") && <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalOpen(true)}>Chỉnh sửa khách hàng</button>}
             </div>
 
             <div className="w-full bg-white p-4 rounded-xl grid grid-cols-3 gap-4">
@@ -146,13 +145,8 @@ export default function CustomerDetail({ params }) {
                                 <td className="p-4">Tên đăng nhập</td>
                                 <td className="p-4 w-6/10">{customer.username}</td>
                             </tr>
-                            <tr>
-                                <td className="p-4">Mật khẩu</td>
-                                <td className="p-4 w-6/10">{showPassword ? customer.password : "************"}</td>
-                            </tr>
                         </tbody>
                     </table>
-                    <button className="background-primary text-white px-4 py-2 rounded-md mt-4" onClick={() => setShowPassword(!showPassword)}>{showPassword ? "Ẩn" : "Hiện"}</button>
                 </div>
             </div>
             <CustomerForm

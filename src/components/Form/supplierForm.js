@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Modal } from "@mui/material";
 import { supplierService } from "@/services/supplier.service";
+import { adminService } from "@/services/admin.service";
+import { useLogin } from "@/context/LoginContext";
 
 export function SupplierForm({
     isOpen,
@@ -10,17 +12,18 @@ export function SupplierForm({
 }) {
     const [form, setForm] = useState({});
     const [error, setError] = useState("");
+    const { user } = useLogin();
 
     //data for check exist
     const [suppliers, setSuppliers] = useState([]);
+    const [accounts, setAccounts] = useState([]);
 
     const fetchSuppliers = async () => {
+        if (user?.roles?.includes("Manager")) return;
         try {
             const body = {
                 pageIndex: 1,
-                pageSize: 1000,
-                isActive: null,
-                supplierName: ""
+                pageSize: 1000
             };
             const response = await supplierService.getAllSuppliers(body);
             const supplierData = response.data.items.map((supplier) => ({
@@ -28,6 +31,14 @@ export function SupplierForm({
                 email: supplier.email,
                 phone: supplier.phone
             }));
+            const accountResponse = await adminService.getAllAccounts(body);
+            const accountData = accountResponse.data.items.map((account) => ({
+                fullName: account.fullName,
+                username: account.username,
+                email: account.email,
+                phone: account.phone
+            }));
+            setAccounts(accountData);
             setSuppliers(supplierData);
         } catch (error) {
             console.error("Error fetching suppliers:", error);
@@ -79,22 +90,36 @@ export function SupplierForm({
                 newValue = value === "true";
                 break;
             case "supplierName":
-                const checkingSupplierName = value.trim().replace(/\s\s+/g, ' ');
+                const checkingSupplierName = value.trim();
+                const regexSupplierName = /^[\p{L}\p{N}]+(?: [\p{L}\p{N}]+)*$/u
                 const isExistingSupplierName = suppliers.find(supplier => supplier.supplierName.toLowerCase() === checkingSupplierName.toLowerCase() && supplier.supplierName !== initialData?.supplierName);
                 if (isExistingSupplierName) {
                     setValidSupplierName(false);
                     setErrorSupplierName(`Nhà cung cấp ${checkingSupplierName} đã tồn tại, vui lòng nhập tên khác`);
+                } else if (!regexSupplierName.test(checkingSupplierName)) {
+                    setValidFullName(false);
+                    setErrorFullName("Tên nhà cung cấp không hợp lệ.");
+                } else if (checkingSupplierName.length < 3 || checkingSupplierName.length > 60) {
+                    setValidSupplierName(false);
+                    setErrorSupplierName("Tên nhà cung cấp phải trong khoảng 3 đến 60 ky tự.");
                 } else {
                     setValidSupplierName(true);
                     setErrorSupplierName("");
                 }
                 break;
             case "email":
-                const checkingEmail = value.trim().replace(/\s\s+/g, ' ');
-                const isExistingEmail = suppliers.find(supplier => supplier.email.toLowerCase() === checkingEmail.toLowerCase() && supplier.email !== initialData?.email);
+                const checkingEmail = value.trim();
+                const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const isExistingEmail = suppliers.find(supplier => (supplier.email.toLowerCase() === checkingEmail.toLowerCase() || accounts.find(account => account.email.toLowerCase() === checkingEmail.toLowerCase())) && supplier.email !== initialData?.email);
                 if (isExistingEmail) {
                     setValidEmail(false);
                     setErrorEmail(`Email ${checkingEmail} đã tồn tại, vui lòng nhập email khác`);
+                } else if (!regexEmail.test(checkingEmail)) {
+                    setValidEmail(false);
+                    setErrorEmail("Email không hợp lệ.");
+                } else if (checkingEmail.length < 6 || checkingEmail.length > 60) {
+                    setValidEmail(false);
+                    setErrorEmail("Email phải trong khoảng 6 đến 60 ky tự.");
                 } else {
                     setValidEmail(true);
                     setErrorEmail("");
@@ -102,7 +127,7 @@ export function SupplierForm({
                 break;
             case "phone":
                 const checkingPhone = value.trim().replace(/\s\s+/g, ' ');
-                const isExistingPhone = suppliers.find(supplier => supplier.phone.toLowerCase() === checkingPhone.toLowerCase() && supplier.phone !== initialData?.phone);
+                const isExistingPhone = suppliers.find(supplier => (supplier.phone.toLowerCase() === checkingPhone.toLowerCase() || accounts.find(account => account.phone.toLowerCase() === checkingPhone.toLowerCase())) && supplier.phone !== initialData?.phone);
                 if (isExistingPhone) {
                     setValidPhone(false);
                     setErrorPhone(`Số ${checkingPhone} đã tồn tại, vui lòng điền số điện thoại khác`);

@@ -43,7 +43,7 @@ export default function Suppliers() {
     const router = useRouter();
     const buttonRef = useRef(null);
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Manager"];
+    const pageRole = ["Admin", "Manager"];
 
     const headerData = [
         {
@@ -78,6 +78,11 @@ export default function Suppliers() {
             label: "Ngày tạo",
             customValue: (item) => item.createdAt &&
                 <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div>
+        },
+        user?.roles?.includes("Manager") && {
+            key: "action",
+            label: "Hành động",
+            customValue: (item) => <button className="bg-cyan-500 text-white px-4 py-2 rounded-xl" onClick={() => router.push(`/suppliers/details/${item.supplierId}`)}>Chi tiết</button>
         }
     ];
 
@@ -291,9 +296,9 @@ export default function Suppliers() {
                     <div className="flex flex-col w-3/4 mr-4">
                         <h1 className="text-2xl font-bold">Danh sách nhà cung cấp</h1>
                     </div>
-                    <div className="flex flex-col w-1/4">
+                    {user?.roles?.includes("Admin") && <div className="flex flex-col w-1/4">
                         <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm nhà cung cấp</button>
-                    </div>
+                    </div>}
                 </div>
                 <TableCommon
                     headers={headerData}
@@ -312,7 +317,7 @@ export default function Suppliers() {
                     messagePopupDelete="Bạn có muốn xóa nhà cung cấp này không?"
                     usePagination={true}
                     useSearch={true}
-                    useAction={true}
+                    useAction={user.roles.includes("Admin") ? true : false}
                 />
             </div>
             <SupplierForm

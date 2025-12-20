@@ -103,7 +103,7 @@ const Navbar = () => {
         {
           name: "Nhân viên",
           link: "/employees",
-          role: ["Admin"],
+          role: ["Admin", "Manager"],
           icon: <AccessibilityNewIcon />
         },
         {
@@ -133,13 +133,13 @@ const Navbar = () => {
         {
           name: "Khách hàng",
           link: "/customers",
-          role: ["Manager"],
+          role: ["Admin", "Manager"],
           icon: <EmojiPeopleIcon />
         },
         {
           name: "Nhà cung cấp",
           link: "/suppliers",
-          role: ["Manager"],
+          role: ["Admin", "Manager"],
           icon: <PermContactCalendarIcon />
         },
         {

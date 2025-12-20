@@ -146,13 +146,12 @@ export default function ExportDetail({ params }) {
                     <h1 className='text-xl font-bold'>Chi tiết đơn hàng</h1>
                     <p className='my-2'>Mã giao dịch: {transaction.transactionId}</p>
                     <p className='my-2'>Ngày giao dịch: {new Date(transaction.transactionDate).toLocaleString('vi-VN')}</p>
-                    <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
                     <div className='my-2 flex flex-row gap-2'>
                         <p>Trạng thái: </p>
                         {getExportStatus(transaction.status)}
                     </div>
                 </div>
-                <div className='col-span-2 rounded-xl bg-white p-4'>
+                <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Chi tiết khách hàng</h1>
                     <p className='my-2'>Tên khách hàng: {customer.fullName}</p>
                     <p className='my-2'>Email: {customer.email}</p>
@@ -178,7 +177,7 @@ export default function ExportDetail({ params }) {
             </div>
 
 
-            <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2 p-4 text-right flex flex-col items-end gap-4'>
+            <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2 p-4 text-right flex flex-col items-end'>
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h2 className='w-1/3 text-left'>Tổng khối lượng:</h2>
                     <h2>{convertKgToTon(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))}</h2>

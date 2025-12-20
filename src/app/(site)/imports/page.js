@@ -497,6 +497,8 @@ export default function Imports() {
                             <option value={1}>{getImportStatusText(1)}</option>
                             <option value={2}>{getImportStatusText(2)}</option>
                             <option value={3}>{getImportStatusText(3)}</option>
+                            <option value={11}>{getImportStatusText(11)}</option>
+                            <option value={12}>{getImportStatusText(12)}</option>
                         </select>
                     </div>
                 </div>

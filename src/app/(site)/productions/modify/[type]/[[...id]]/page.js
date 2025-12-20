@@ -23,7 +23,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { removeLeadingZero } from "@/lib/formattingLib";
+import { removeLeadingZero, removeVietnameseTones } from "@/lib/formattingLib";
 
 export default function ModifyProduction({ params }) {
   const router = useRouter();
@@ -126,11 +126,12 @@ export default function ModifyProduction({ params }) {
   };
 
   const searchProducts = async (name) => {
+    const search = removeVietnameseTones(name);
     try {
       setProductLoading(true);
       setProductsForSearch(products.filter((p) =>
         p.productCode.toLowerCase().includes(name.toLowerCase()) ||
-        p.productName.toLowerCase().includes(name.toLowerCase())
+        removeVietnameseTones(p.productName).includes(search)
       ).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
     } catch (error) {
       console.log(error);
@@ -140,11 +141,12 @@ export default function ModifyProduction({ params }) {
   }
 
   const searchMaterial = async (name) => {
+    const search = removeVietnameseTones(name);
     try {
       setMaterialLoading(true);
       setMaterials(products.filter((p) =>
         p.productCode.toLowerCase().includes(name.toLowerCase()) ||
-        p.productName.toLowerCase().includes(name.toLowerCase())
+        removeVietnameseTones(p.productName).includes(search)
       ).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
     } catch (error) {
       console.log(error);

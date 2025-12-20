@@ -33,7 +33,7 @@ export default function Employees() {
     const [rowPerPage, setRowPerPage] = useState(20);
     const [totalCount, setTotalCount] = useState(0);
 
-    const pageRole = ["Admin"];
+    const pageRole = ["Admin", "Manager"];
     const { loading, setLoading } = useLoading();
     const { isLogin, user, refreshUserInfo } = useLogin();
     const router = useRouter();
@@ -70,6 +70,11 @@ export default function Employees() {
             key: "createdAt",
             label: "Ngày tạo",
             customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div>
+        },
+        user?.roles?.includes("Manager") && {
+            key: "action",
+            label: "Hành động",
+            customValue: (item) => <button className="bg-cyan-500 text-white px-4 py-2 rounded-xl" onClick={() => router.push(`/employees/details/${item.userId}`)}>Chi tiết</button>
         }
     ];
 
@@ -267,9 +272,9 @@ export default function Employees() {
                     <div className="flex flex-col w-3/4 mr-4">
                         <h1 className="text-2xl font-bold">Danh sách nhân viên</h1>
                     </div>
-                    <div className="flex flex-col w-1/4">
+                    {user?.roles?.includes("Admin") && <div className="flex flex-col w-1/4">
                         <button className="block border background-primary text-white cursor-pointer rounded-xl w-full font-semibold h-10 rounded my-auto" onClick={() => handleCreate()}>Thêm nhân viên</button>
-                    </div>
+                    </div>}
                 </div>
                 <TableCommon
                     headers={headerData}
@@ -287,7 +292,7 @@ export default function Employees() {
                     handleDelete={handleDelete}
                     messagePopupDelete="Bạn có muốn xóa nhân viên này không?"
                     usePagination={true}
-                    useAction={true}
+                    useAction={user.roles.includes("Admin") ? true : false}
                 />
             </div>
             <EmployeeForm

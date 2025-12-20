@@ -37,6 +37,7 @@ export function AssignForm({
   useEffect(() => {
     fetchEmployees();
     setSelectedEmployee(null);
+    setError("");
   }, [isOpen]);
 
   const handleChangeDropdown = (item) => {

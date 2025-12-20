@@ -1,7 +1,5 @@
 "use client";
 import { customerOrderService } from "@/services/customerOrder.service";
-import { warehouseService } from "@/services/warehouse.service";
-import { supplierService } from "@/services/supplier.service";
 
 import React, { useState, useEffect } from "react";
 import { useLogin } from "@/context/LoginContext";
@@ -27,8 +25,6 @@ export default function OrderHistory() {
   const pageRole = ["Customer", "Customer1"];
 
   //Filter state
-  const [filterSupplierId, setFilterSupplierId] = useState(null);
-  const [filterWarehouseId, setFilterWarehouseId] = useState(null);
   const [filterStatus, setFilterStatus] = useState(null);
   const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
   const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
@@ -39,14 +35,6 @@ export default function OrderHistory() {
   const [pageIndex, setPageIndex] = useState(0);
   const [rowPerPage, setRowPerPage] = useState(20);
   const [totalCount, setTotalCount] = useState(0);
-
-  //Autocomplete
-  const [selectedSupplier, setSelectedSupplier] = useState(null);
-  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
-  const [suppliers, setSuppliers] = useState([]);
-  const [warehouses, setWarehouses] = useState([]);
-  const [supplierLoading, setSupplierLoading] = useState(false);
-  const [warehouseLoading, setWarehouseLoading] = useState(false);
 
   const buttonRef = useRef(null);
 
@@ -66,11 +54,6 @@ export default function OrderHistory() {
       key: "transactionId",
       label: "Mã giao dịch",
       customValue: (item) => item.transactionId && <div>{item.transactionId}</div>
-    },
-    {
-      key: "warehouseName",
-      label: "Nhà kho",
-      customValue: (item) => item.warehouseName && <div>{item.warehouseName}</div>
     },
     {
       key: "statusName",
@@ -101,56 +84,6 @@ export default function OrderHistory() {
     setPageIndex(0);
   };
 
-  const fetchSuppliers = async (value) => {
-    try {
-      setSupplierLoading(true);
-      const body = {
-        pageIndex: 1,
-        pageSize: 1000,
-        isActive: true,
-        supplierName: value
-      };
-      const response = await supplierService.getAllSuppliers(body);
-      const supplierData = response.data.items.map((supplier) => ({
-        supplierId: supplier.supplierId,
-        supplierName: supplier.supplierName
-      }));
-      setSuppliers(supplierData);
-    } catch (error) {
-      console.error("Error fetching suppliers:", error);
-    } finally {
-      setSupplierLoading(false);
-    }
-  }
-
-  const fetchWarehouses = async (value) => {
-    try {
-      setWarehouseLoading(true);
-      const body = {
-        pageIndex: 1,
-        pageSize: 1000,
-        isActive: true,
-        warehouseName: value
-      };
-      const response = await warehouseService.getAllWarehouses(body);
-      const warehouseData = response.data.items.map((warehouse) => ({
-        warehouseId: warehouse.warehouseId,
-        warehouseName: warehouse.warehouseName
-      }));
-      setWarehouses(warehouseData);
-    } catch (error) {
-      console.error("Error fetching warehouses:", error);
-    } finally {
-      setWarehouseLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (!pageReady) return;
-    fetchSuppliers("");
-    fetchWarehouses("");
-  }, [pageReady]);
-
   const fetchOrders = async () => {
     setLoading(true);
     try {
@@ -158,8 +91,6 @@ export default function OrderHistory() {
         pageIndex: pageIndex + 1,
         pageSize: rowPerPage,
         customerId: user.id,
-        supplierId: filterSupplierId || null,
-        warehouseId: filterWarehouseId || null,
         status: parseInt(filterStatus) || null,
         transactionFromDate: filterTransactionFromDate || null,
         transactionToDate: filterTransactionToDate || null
@@ -187,26 +118,6 @@ export default function OrderHistory() {
     }
   };
 
-  const handleChangeDropdown = (item, field) => {
-    if (item) {
-      if (item.supplierId) {
-        setSelectedSupplier(item);
-        setFilterSupplierId(item.supplierId);
-      } else if (item.warehouseId) {
-        setSelectedWarehouse(item);
-        setFilterWarehouseId(item.warehouseId);
-      }
-    } else {
-      if (field === "supplierId") {
-        setSelectedSupplier(null);
-        setFilterSupplierId(null);
-      } else if (field === "warehouseId") {
-        setSelectedWarehouse(null);
-        setFilterWarehouseId(null);
-      }
-    }
-  };
-
   useEffect(() => {
     validateFields();
   }, [filterTransactionFromDate, filterTransactionToDate]);
@@ -228,10 +139,6 @@ export default function OrderHistory() {
   };
 
   const handleClearFilter = () => {
-    setFilterSupplierId(null);
-    setSelectedSupplier(null);
-    setFilterWarehouseId(null);
-    setSelectedWarehouse(null);
     setFilterStatus(null);
     setFilterTransactionFromDate("");
     setFilterTransactionToDate("");
@@ -259,34 +166,6 @@ export default function OrderHistory() {
         <h2 className="text-xl font-bold">Lọc đơn hàng</h2>
         <div className="flex items-center my-4 gap-4">
           <div className="mt-2 w-[24.25%]">
-            <label className="mr-2">Nhà cung cấp:</label>
-            <AutocompleteCommon
-              name="supplierId"
-              value={selectedSupplier}
-              loading={supplierLoading}
-              options={suppliers}
-              onSelect={(item) => handleChangeDropdown(item, "supplierId")}
-              onSearch={fetchSuppliers}
-              getOptionLabel={(option) => option.supplierName}
-              getOptionKey={(option) => option.supplierId}
-            />
-          </div>
-          <div className="mt-2 w-[24.25%]">
-            <label className="mr-2">Nhà kho:</label>
-            <AutocompleteCommon
-              name="warehouseId"
-              value={selectedWarehouse}
-              loading={warehouseLoading}
-              options={warehouses}
-              onSelect={(item) => handleChangeDropdown(item, "warehouseId")}
-              onSearch={fetchWarehouses}
-              getOptionLabel={(option) => option.warehouseName}
-              getOptionKey={(option) => option.warehouseId}
-            />
-          </div>
-        </div>
-        <div className="flex items-center my-4 gap-4">
-          <div className="mt-2 w-full">
             <label className="mr-2">Trạng thái:</label>
             <select
               className="w-full p-2 border border-gray-300 rounded"
@@ -297,10 +176,12 @@ export default function OrderHistory() {
               <option value="">Tất cả</option>
               <option value={3}>{getExportStatusText(3)}</option>
               <option value={4}>{getExportStatusText(4)}</option>
-              <option value={5}>{getExportStatusText(5)}</option>
+              <option value={6}>{getExportStatusText(6)}</option>
+              <option value={11}>{getExportStatusText(11)}</option>
+              <option value={12}>{getExportStatusText(12)}</option>
             </select>
           </div>
-          <div className="mt-2 w-full">
+          <div className="mt-2 w-[24.25%]">
             <label className="mr-2">Giao dịch từ ngày:</label>
             {/* <DateInput value={filterTransactionFromDate} onChange={(d) => setFilterTransactionFromDate(d)} className="w-full p-2 border border-gray-300 rounded" /> */}
             <input
@@ -314,7 +195,7 @@ export default function OrderHistory() {
               onKeyDown={handleKeyDown}
             />
           </div>
-          <div className="mt-2 w-full">
+          <div className="mt-2 w-[24.25%]">
             <label className="mr-2">Đến ngày:</label>
             {/* <DateInput value={filterTransactionToDate} onChange={(d) => setFilterTransactionToDate(d)} className="w-full p-2 border border-gray-300 rounded" /> */}
             <input

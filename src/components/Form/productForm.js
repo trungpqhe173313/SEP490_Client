@@ -5,7 +5,7 @@ import { supplierService } from "@/services/supplier.service";
 import { categoryService } from "@/services/category.service";
 import { productService } from "@/services/product.service";
 import Image from "next/image";
-import { formatImageURL } from "@/lib/formattingLib";
+import { formatImageURL, removeLeadingZero } from "@/lib/formattingLib";
 
 export function ProductForm({
     isOpen,
@@ -331,7 +331,7 @@ export function ProductForm({
                             <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 w-full">
                                 <div className="grid grid-cols-1">
                                     <label className="block text-md font-bold">Mã</label>
-                                    <p className="text-xs text-gray-500">Nhập mã sản phẩm</p>
+                                    <p className="text-xs text-gray-500">Nhập mã sản phẩm {!initialData && "(Để trống sẽ tự động tạo mã mới)"}</p>
                                 </div>
                                 <input
                                     type="text"
@@ -344,12 +344,12 @@ export function ProductForm({
                             <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 w-full">
                                 <div className="grid grid-cols-1">
                                     <label className="block text-md font-bold">Khối lượng</label>
-                                    <p className="text-xs text-gray-500">Nhập khối lượng sản phẩm</p>
+                                    <p className="text-xs text-gray-500">Nhập khối lượng sản phẩm (Đơn vị: Kg)</p>
                                 </div>
                                 <input
                                     type="number"
                                     name="weightPerUnit"
-                                    value={form.weightPerUnit || ""}
+                                    value={removeLeadingZero(form.weightPerUnit)}
                                     onChange={(e) => handleChange("weightPerUnit", e.target.value)}
                                     className={`w-full bg-white border rounded px-3 py-2 ${!validWeightPerUnit ? "border-red-500" : "border-green-500"}`}
                                     required

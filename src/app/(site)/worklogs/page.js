@@ -22,7 +22,7 @@ import ConfirmModal from "@/components/Modal/confirmModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
 import { Calendar } from "@/components/Calendar/calendar";
-import { removeLeadingZero } from "@/lib/formattingLib";
+import { removeLeadingZero, removeVietnameseTones } from "@/lib/formattingLib";
 
 export default function Worklog() {
     const router = useRouter();
@@ -210,15 +210,6 @@ export default function Worklog() {
                 : employee
         );
         setEmployeeList(updatedEmployeeList);
-    };
-
-    const removeVietnameseTones = (str) => {
-        return str
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/đ/g, "d")
-            .replace(/Đ/g, "D")
-            .toLowerCase();
     };
 
     const handleSearch = (value) => {

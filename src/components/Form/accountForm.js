@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Modal } from "@mui/material";
 import { adminService } from "@/services/admin.service";
+import { useLogin } from "@/context/LoginContext";
 
 export function AccountForm({
     isOpen,
@@ -10,6 +11,7 @@ export function AccountForm({
 }) {
     const [form, setForm] = useState({});
     const [error, setError] = useState("");
+    const { user } = useLogin();
 
     //data for check exist
     const [accounts, setAccounts] = useState([]);
@@ -25,7 +27,8 @@ export function AccountForm({
             const accountData = response.data.items.map((account) => ({
                 fullName: account.fullName,
                 username: account.username,
-                email: account.email
+                email: account.email,
+                phone: account.phone
             }));
             setAccounts(accountData);
         } catch (error) {
@@ -96,23 +99,28 @@ export function AccountForm({
                 newValue = value === "true";
                 break;
             case "email":
-                const checkingEmail = value.trim().replace(/\s\s+/g, ' ');
-                if (value.length > 60 || value.length < 6) {
+                const checkingEmail = value.trim();
+                const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (checkingEmail.length > 60 || checkingEmail.length < 6) {
                     setValidEmail(false);
                     setErrorEmail("Email phải trong khoảng 6 đến 60 ky tự.");
                 } else if (accounts.find(account => account.email.toLowerCase() === checkingEmail.toLowerCase() && account.email !== initialData?.email)) {
                     setValidEmail(false);
                     setErrorEmail(`Email ${checkingEmail} đã tồn tại, vui lòng nhập email khác.`);
+                } else if (!regexEmail.test(checkingEmail)) {
+                    setValidEmail(false);
+                    setErrorEmail("Email không hợp lệ.");
                 } else {
                     setValidEmail(true);
                     setErrorEmail("");
                 }
                 break;
             case "username":
-                const checkingUsername = value.trim().replace(/\s\s+/g, ' ');
-                if (value.length > 60 || value.length < 6) {
+                const checkingUsername = value.trim();
+                const regexUsername = /^[a-zA-Z0-9_]{3,20}$/;
+                if (!regexUsername.test(checkingUsername)) {
                     setValidUsername(false);
-                    setErrorUsername("Tên tài khoản phải trong khoảng 6 đến 60 ky tự.");
+                    setErrorUsername("Tên tài khoản phải trong khoảng 3 đến 20 ky tự và không có kí tự đặc biệt");
                 } else if (accounts.find(account => account.username.toLowerCase() === checkingUsername.toLowerCase() && account.username !== initialData?.username)) {
                     setValidUsername(false);
                     setErrorUsername(`Tài khoản ${checkingUsername} đã tồn tại, vui lòng nhập tên tài khoản khác.`);
@@ -122,21 +130,29 @@ export function AccountForm({
                 }
                 break;
             case "phone":
-                const checkingPhone = value.trim().replace(/\s\s+/g, ' ');
+                const checkingPhone = value.trim()
+                const regexPhone = /^\d{10,}$/;
                 const isExistingPhone = accounts.find(account => account.phone.toLowerCase() === checkingPhone.toLowerCase() && account.phone !== initialData?.phone);
                 if (isExistingPhone) {
                     setValidPhone(false);
                     setErrorPhone(`Số ${checkingPhone} đã tồn tại, vui lòng điền số điện thoại khác`);
+                } else if (!regexPhone.test(checkingPhone)) {
+                    setValidPhone(false);
+                    setErrorPhone("Vui lòng nhập đúng định dạng số điện thoại.");
                 } else {
                     setValidPhone(true);
                     setErrorPhone("");
                 }
                 break;
             case "fullName":
-                const checkingFullName = value.trim().replace(/\s\s+/g, ' ');
-                if (accounts.find(account => account.fullName.toLowerCase() === checkingFullName.toLowerCase() && account.fullName !== initialData?.fullName)) {
+                const checkingFullName = value.trim();
+                const regexFullName = /^[\p{L}\p{N}]+(?: [\p{L}\p{N}]+)*$/u
+                if (checkingFullName.length > 60 || checkingFullName.length < 3) {
                     setValidFullName(false);
-                    setErrorFullName(`Tên người dùng ${checkingFullName} đã tồn tại, vui lòng nhập tên người dùng khác.`);
+                    setErrorFullName("Họ tên phải trong khoảng 3 đến 60 ky tự.");
+                } else if (!regexFullName.test(checkingFullName)) {
+                    setValidFullName(false);
+                    setErrorFullName("Họ tên không hợp lệ.");
                 } else {
                     setValidFullName(true);
                     setErrorFullName("");
@@ -153,7 +169,7 @@ export function AccountForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (form.fullName === "" || form.username === "" || form.phone === "" || form.roles.length === 0) {
+        if (form.fullName === "" || form.username === "" || form.phone === "" || form.roles.length === 0 || form.email === "") {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return;
         }
@@ -167,10 +183,10 @@ export function AccountForm({
         onClose();
     };
 
-    const handleCheckboxChange = (name) => {
+    const handleRadioChange = (name) => {
         setForm((prev) => ({
             ...prev,
-            roles: prev.roles.includes(name) ? prev.roles.filter((role) => role !== name) : [...prev.roles, name],
+            roles: [name]
         }))
     };
 
@@ -230,6 +246,7 @@ export function AccountForm({
                                 value={form.email}
                                 onChange={(e) => handleChange("email", e.target.value)}
                                 className={`w-full bg-white border rounded px-3 py-2 ${!validEmail ? "border-red-500" : "border-green-500"}`}
+                                required
                             />
                             {errorEmail && <p className="text-red-500 text-xs italic">{errorEmail}</p>}
                         </div>
@@ -251,30 +268,29 @@ export function AccountForm({
                             />
                             {errorPhone && <p className="text-red-500 text-xs italic">{errorPhone}</p>}
                         </div>
-                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
+                        {initialData?.userId !== user.id && <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Vai trò</label>
                                 <p className="text-xs text-gray-500">Chọn 1 hoặc nhiều vai trò</p>
                             </div>
-                            {
-                                roles.map((role) => (
-                                    <label
-                                        key={role.roleId}
-                                        className="flex items-center my-2 px-4 py-2 border border-gray-300 rounded-xl cursor-pointer gap-4"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            value={role.roleName}
-                                            checked={form.roles.includes(role.roleName)}
-                                            onChange={() => handleCheckboxChange(role.roleName)}
-                                            className="w-6 h-6 accent-green-600 cursor-pointer"
-                                        />
-                                        <span className="text-md w-full">{role.description}</span>
-                                    </label>
-                                ))
+                            {roles.map((role) => (
+                                <label
+                                    key={role.roleId}
+                                    className="flex items-center my-2 px-4 py-2 border border-gray-300 rounded-xl cursor-pointer gap-4"
+                                >
+                                    <input
+                                        type="radio"
+                                        value={role.roleName}
+                                        checked={form.roles.includes(role.roleName)}
+                                        onChange={() => handleRadioChange(role.roleName)}
+                                        className="w-6 h-6 accent-green-600 cursor-pointer"
+                                    />
+                                    <span className="text-md w-full">{role.description}</span>
+                                </label>
+                            ))
                             }
-                        </div>
-                        {initialData && <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
+                        </div>}
+                        {initialData?.userId !== user.id && <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Trạng thái</label>
                                 <p className="text-xs text-gray-500">Chọn trạng thái tài khoản</p>

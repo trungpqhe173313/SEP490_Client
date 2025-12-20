@@ -88,7 +88,7 @@ export default function UserManagement() {
         {
             key: "fullName",
             label: "Tên người dùng",
-            customValue: (item) => item.fullName && <div>{item.fullName}</div>
+            customValue: (item) => item.fullName && <div>{item.fullName} {item.userId === user.id && <span>(Bạn)</span>}</div>
         },
         {
             key: "email",
