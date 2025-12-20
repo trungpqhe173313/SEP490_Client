@@ -324,7 +324,11 @@ export default function UpdateExport({ params }) {
             setErrors("Sản phẩm không được để trống");
             return false;
         }
-        if (cartArg.find((p) => p.orderQuantity > p.quantity)) {
+        if (exportData.status === 1 && cartArg.find((p) => p.orderQuantity > p.quantity)) {
+            setErrors("Sản phẩm đặt hàng đang lớn hơn sản phẩm trong kho");
+            return false;
+        }
+        if (exportData.status === 2 && cartArg.find((p) => p.orderQuantity > p.quantity + p.orderQuantity)) {
             setErrors("Sản phẩm đặt hàng đang lớn hơn sản phẩm trong kho");
             return false;
         }
@@ -392,6 +396,14 @@ export default function UpdateExport({ params }) {
 
     const handleExit = () => {
         (type === "create") ? router.push("/exports") : router.back();
+    }
+
+    const isValidQuantity = (product) => {
+        if (exportData.status === 1) {
+            return product.quantity >= product.orderQuantity;
+        } else {
+            return product.quantity + product.orderQuantity >= product.orderQuantity;
+        }
     }
 
     const indexOfLastProduct = currentPage * itemsPerPage;
@@ -467,17 +479,17 @@ export default function UpdateExport({ params }) {
                                                                 width: 50,
                                                                 textAlign: "center",
                                                                 height: 10,
-                                                                color: product.orderQuantity > product.quantity ? 'red' : 'inherit'
+                                                                color: isValidQuantity(product) ? 'red' : 'inherit'
                                                             },
                                                         }}
                                                         value={removeLeadingZero(product.orderQuantity)}
                                                         onChange={(e) => handleChangeCart(product.productId, "orderQuantity", e.target.value)}
                                                         variant="outlined"
-                                                        error={product.orderQuantity > product.quantity || product.orderQuantity < 0}
+                                                        error={isValidQuantity(product) || product.orderQuantity < 0}
                                                         sx={{
                                                             '& .MuiOutlinedInput-root': {
                                                                 '& fieldset': {
-                                                                    borderColor: product.orderQuantity > product.quantity ? 'red' : 'inherit',
+                                                                    borderColor: isValidQuantity(product) ? 'red' : 'inherit',
                                                                 },
                                                             },
                                                             margin: "5px"
