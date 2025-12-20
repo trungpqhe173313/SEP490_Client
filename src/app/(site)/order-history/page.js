@@ -9,7 +9,6 @@ import { useRef } from "react";
 import { formatDateToInput } from '@/lib/formattingLib';
 
 import TableCommon from "@/components/Table/table";
-import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 import { getExportStatus, getExportStatusText } from "@/lib/getStatus";
 import Loader from "@/components/Loader/loader";
 import DateInput from "@/components/Input/DateInput";
@@ -174,7 +173,6 @@ export default function OrderHistory() {
               onKeyDown={handleKeyDown}
             >
               <option value="">Tất cả</option>
-              <option value={3}>{getExportStatusText(3)}</option>
               <option value={4}>{getExportStatusText(4)}</option>
               <option value={6}>{getExportStatusText(6)}</option>
               <option value={11}>{getExportStatusText(11)}</option>
