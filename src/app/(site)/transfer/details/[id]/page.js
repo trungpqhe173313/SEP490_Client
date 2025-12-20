@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react'
 import { transferService } from '@/services/transfer.service';
+import { transactionService } from '@/services/transaction.service';
 import { convertKgToTon, formatLargeNumber } from '@/lib/formattingLib';
 import { useLoading } from '@/context/LoadingContext';
 import TableCommon from "@/components/Table/table";
@@ -130,6 +131,7 @@ export default function TransferDetail({ params }) {
             setModalSuccessOpen(true);
             fetchTransaction();
         } catch (error) {
+            console.log(error);
             setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
             setModalFailedSubMessages(error?.response?.data?.error?.messages);
             setModalFailedOpen(true);

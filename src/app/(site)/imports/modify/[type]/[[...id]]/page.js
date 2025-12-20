@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
-import { formatLargeNumber, removeLeadingZero } from '@/lib/formattingLib';
+import { formatLargeNumber, removeLeadingZero, removeVietnameseTones } from '@/lib/formattingLib';
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
 
 import { productService } from "@/services/product.service";
@@ -127,12 +127,13 @@ export default function UpdateImport({ params }) {
     }
 
     const searchProducts = async (name) => {
+        const search = removeVietnameseTones(name);
         try {
             setProductLoading(true);
             const body = { pageIndex: 1, pageSize: 1000, isActive: true, supplierId: selectedSupplier.supplierId };
             const response = await productService.getProductAvailable(body);
             setProductsForSearch(response.data.items
-                .filter((p) => p.productName.toLowerCase().includes(name.toLowerCase()) || p.productCode.toLowerCase().includes(name.toLowerCase()))
+                .filter((p) => removeVietnameseTones(p.productName).includes(search) || p.productCode.toLowerCase().includes(name.toLowerCase()))
                 .sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
         } catch (error) {
             console.log(error);

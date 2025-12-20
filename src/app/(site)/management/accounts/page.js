@@ -9,6 +9,7 @@ import { useRef } from "react";
 
 import TableCommon from "@/components/Table/table";
 import { AccountForm } from "@/components/Form/accountForm";
+import { PasswordManagementForm } from "@/components/Form/passwordManagementForm";
 import Loader from "@/components/Loader/loader";
 
 import SuccessModal from "@/components/Modal/successModal";
@@ -27,6 +28,8 @@ export default function UserManagement() {
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
+
+    const [modalResetPasswordOpen, setModalResetPasswordOpen] = useState(false);
 
     // Filter state
     const [filterFullName, setFilterFullName] = useState("");
@@ -88,7 +91,7 @@ export default function UserManagement() {
         {
             key: "fullName",
             label: "Tên người dùng",
-            customValue: (item) => item.fullName && <div>{item.fullName}</div>
+            customValue: (item) => item.fullName && <div>{item.fullName} {item.userId === user.id && <span>(Bạn)</span>}</div>
         },
         {
             key: "email",
@@ -123,7 +126,10 @@ export default function UserManagement() {
         {
             key: 'actions',
             label: 'Hành động',
-            customValue: (item) => <div><button className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-xl" onClick={() => handleEdit(item)}>Chỉnh sửa</button></div>
+            customValue: (item) => <div className="flex flex-col gap-2">
+                <button className="background-primary text-white px-4 py-2 rounded-xl" onClick={() => handleOpenResetPasswordModal(item)}>Đặt lại mật khẩu</button>
+                <button className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-xl" onClick={() => handleEdit(item)}>Chỉnh sửa</button>
+            </div>
         }
     ];
 
@@ -223,6 +229,25 @@ export default function UserManagement() {
         }
     };
 
+    const handleOpenResetPasswordModal = (account) => {
+        setEditingAccount(account);
+        setModalResetPasswordOpen(true);
+    };
+
+    const handleResetPassword = async (data) => {
+        setLoading(true);
+        try {
+            await adminService.resetPassword(data);
+            setModalSuccessMessage("Đặt lại mật khẩu thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const handleClearFilter = () => {
         setFilterFullName("");
         setFilterEmail("");
@@ -319,12 +344,18 @@ export default function UserManagement() {
                 handleDelete={handleDelete}
                 messagePopupDelete="Bạn có muốn xóa tài khoản này không?"
                 usePagination={true}
-                //useAction={true}
+            //useAction={true}
             />
             <AccountForm
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
                 onConfirm={handleConfirm}
+                initialData={editingAccount}
+            />
+            <PasswordManagementForm
+                isOpen={modalResetPasswordOpen}
+                onClose={() => setModalResetPasswordOpen(false)}
+                onConfirm={handleResetPassword}
                 initialData={editingAccount}
             />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />

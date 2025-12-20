@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Modal } from "@mui/material";
-import { customerService } from "@/services/customer.service";
-import { Eye, EyeOff } from "lucide-react";
+import { adminService } from "@/services/admin.service";
 import Image from "next/image";
 import { formatImageURL } from "@/lib/formattingLib";
+import { useLogin } from "@/context/LoginContext";
 
 export function CustomerForm({
     isOpen,
@@ -13,19 +13,20 @@ export function CustomerForm({
 }) {
     const [form, setForm] = useState({});
     const [error, setError] = useState("");
+    const { user } = useLogin();
 
     //data for check exist
     const [customers, setCustomers] = useState([]);
-    const [showPassword, setShowPassword] = useState(false);
 
     const fetchCustomers = async () => {
+        if (user?.roles?.includes("Manager")) return;
         try {
             const body = {
                 pageIndex: 1,
                 pageSize: 1000,
                 fullName: ""
             };
-            const response = await customerService.getAllCustomers(body);
+            const response = await adminService.getAllAccounts(body);
             const customerData = response.data.items.map((customer) => ({
                 fullName: customer.fullName,
                 username: customer.username,
@@ -42,7 +43,6 @@ export function CustomerForm({
         if (initialData) {
             setForm({
                 username: initialData.username || "",
-                password: initialData.password || "",
                 fullName: initialData.fullName || "",
                 image: initialData.image || "",
                 email: initialData.email || "",
@@ -68,12 +68,10 @@ export function CustomerForm({
         setErrorEmail("");
         setErrorFullName("");
         setErrorPhone("");
-        setErrorPassword("");
         setValidUsername(true);
         setValidEmail(true);
         setValidFullName(true);
         setValidPhone(true);
-        setValidPassword(true);
     };
 
     //Validation
@@ -81,13 +79,11 @@ export function CustomerForm({
     const [validEmail, setValidEmail] = useState(true);
     const [validFullName, setValidFullName] = useState(true);
     const [validPhone, setValidPhone] = useState(true);
-    const [validPassword, setValidPassword] = useState(true);
 
     const [errorUsername, setErrorUsername] = useState("");
     const [errorEmail, setErrorEmail] = useState("");
     const [errorFullName, setErrorFullName] = useState("");
     const [errorPhone, setErrorPhone] = useState("");
-    const [errorPassword, setErrorPassword] = useState("");
 
     const handleChange = (name, value) => {
         let newValue = value;
@@ -96,23 +92,28 @@ export function CustomerForm({
                 newValue = value === "true";
                 break;
             case "email":
-                const checkingEmail = value.trim().replace(/\s\s+/g, ' ');
-                if (value.length > 60 || value.length < 6) {
+                const checkingEmail = value.trim();
+                const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (checkingEmail.length > 60 || checkingEmail.length < 6) {
                     setValidEmail(false);
                     setErrorEmail("Email phải trong khoảng 6 đến 60 ky tự.");
                 } else if (customers.find(customer => customer.email.toLowerCase() === checkingEmail.toLowerCase() && customer.email !== initialData?.email)) {
                     setValidEmail(false);
                     setErrorEmail(`Email ${checkingEmail} đã tồn tại, vui lòng nhập email khác.`);
+                } else if (!regexEmail.test(checkingEmail)) {
+                    setValidEmail(false);
+                    setErrorEmail("Email không hợp lệ.");
                 } else {
                     setValidEmail(true);
                     setErrorEmail("");
                 }
                 break;
             case "username":
-                const checkingUsername = value.trim().replace(/\s\s+/g, ' ');
-                if (value.length > 60 || value.length < 6) {
+                const checkingUsername = value.trim();
+                const regexUsername = /^[a-zA-Z0-9_]{3,20}$/;
+                if (!regexUsername.test(checkingUsername)) {
                     setValidUsername(false);
-                    setErrorUsername("Tên tài khoản phải trong khoảng 6 đến 60 ky tự.");
+                    setErrorUsername("Tên tài khoản phải trong khoảng 3 đến 20 ky tự và không có kí tự đặc biệt");
                 } else if (customers.find(customer => customer.username.toLowerCase() === checkingUsername.toLowerCase() && customer.username !== initialData?.username)) {
                     setValidUsername(false);
                     setErrorUsername(`Tài khoản ${checkingUsername} đã tồn tại, vui lòng nhập tên tài khoản khác.`);
@@ -122,25 +123,32 @@ export function CustomerForm({
                 }
                 break;
             case "phone":
-                const checkingPhone = value.trim().replace(/\s\s+/g, ' ');
+                const checkingPhone = value.trim();
+                const regexPhone = /^\d{10,}$/;
                 const isExistingPhone = customers.find(customer => customer.phone.toLowerCase() === checkingPhone.toLowerCase() && customer.phone !== initialData?.phone);
                 if (isExistingPhone) {
                     setValidPhone(false);
                     setErrorPhone(`Số ${checkingPhone} đã tồn tại, vui lòng điền số điện thoại khác`);
+                } else if (!regexPhone.test(checkingPhone)) {
+                    setValidPhone(false);
+                    setErrorPhone("Vui lòng nhập đúng định dạng số điện thoại.");
                 } else {
                     setValidPhone(true);
                     setErrorPhone("");
                 }
                 break;
-            case "password":
-                const checkingPassword = value.trim();
-                const regex = /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\.-])[A-Za-z\d@$!%*?&_\.-]{8,}$/;
-                if (!regex.test(checkingPassword)) {
-                    setValidPassword(false);
-                    setErrorPassword("Mật khẩu phải có ít nhất 8 ký tự, chữ hoa, chữ thường, số và 1 trong các ký tự sau: @ $ ! % * ? & _ . -");
+            case "fullName":
+                const checkingFullName = value.trim();
+                const regexFullName = /^[\p{L}\p{N}]+(?: [\p{L}\p{N}]+)*$/u
+                if (checkingFullName.length > 60 || checkingFullName.length < 3) {
+                    setValidFullName(false);
+                    setErrorFullName("Họ tên phải trong khoảng 3 đến 60 ky tự.");
+                } else if (!regexFullName.test(checkingFullName)) {
+                    setValidFullName(false);
+                    setErrorFullName("Họ tên không hợp lệ.");
                 } else {
-                    setValidPassword(true);
-                    setErrorPassword("");
+                    setValidFullName(true);
+                    setErrorFullName("");
                 }
                 break;
             default:
@@ -154,11 +162,11 @@ export function CustomerForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (form.fullName === "" || form.username === "" || form.phone === "") {
+        if (form.fullName === "" || form.username === "" || form.phone === "" || form.email === "") {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return;
         }
-        const invalidForms = !validFullName || !validUsername || !validEmail || !validPhone || !validPassword;
+        const invalidForms = !validFullName || !validUsername || !validEmail || !validPhone;
         if (invalidForms) {
             setError("Có nhập liệu không hợp lệ, vui lòng thử lại.");
             return;
@@ -243,31 +251,6 @@ export function CustomerForm({
                             />
                             {errorUsername && <p className="text-red-500 text-xs italic">{errorUsername}</p>}
                         </div>
-                        {initialData &&
-                            <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 relative">
-                                <div>
-                                    <label className="block text-md font-bold">Mật khẩu *</label>
-                                    <p className="text-xs text-gray-500">Nhập mật khẩu tài khoản</p>
-                                </div>
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    name="password"
-                                    value={form.password}
-                                    onChange={(e) => handleChange("password", e.target.value)}
-                                    className={`w-full bg-white border rounded px-3 py-2 ${!validPassword ? "border-red-500" : "border-green-500"}`}
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-7 top-7/10 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                                >
-                                    {showPassword ? <EyeOff size={25} /> : <Eye size={25} />}
-                                </button>
-
-                            </div>
-                        }
-                        {errorPassword && <p className="text-red-500 text-xs italic">{errorPassword}</p>}
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300">
                             <div>
                                 <label className="block text-md font-bold">Tên khách hàng *</label>
@@ -294,6 +277,7 @@ export function CustomerForm({
                                 value={form.email}
                                 onChange={(e) => handleChange("email", e.target.value)}
                                 className={`w-full bg-white border rounded px-3 py-2 ${!validEmail ? "border-red-500" : "border-green-500"}`}
+                                required
                             />
                             {errorEmail && <p className="text-red-500 text-xs italic">{errorEmail}</p>}
                         </div>

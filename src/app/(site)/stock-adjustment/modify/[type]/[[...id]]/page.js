@@ -22,7 +22,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { removeLeadingZero } from "@/lib/formattingLib";
+import { removeLeadingZero, removeVietnameseTones } from "@/lib/formattingLib";
 
 export default function ModifyInventory({ params }) {
     const router = useRouter();
@@ -151,11 +151,12 @@ export default function ModifyInventory({ params }) {
     }
 
     const searchProducts = async (name) => {
+        const search = removeVietnameseTones(name);
         try {
             setProductLoading(true);
             setProductsForSearch(products.filter((p) =>
                 p.productCode.toLowerCase().includes(name.toLowerCase()) ||
-                p.productName.toLowerCase().includes(name.toLowerCase())
+                removeVietnameseTones(p.productName).includes(search)
             ).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
         } catch (error) {
             console.log(error);
@@ -388,7 +389,7 @@ export default function ModifyInventory({ params }) {
                                     <TableCell sx={{ color: "white" }} align="center">Tồn kho</TableCell>
                                     <TableCell sx={{ color: "white" }} align="center">Thực tế</TableCell>
                                     <TableCell sx={{ color: "white" }} align="center">Chênh lệch</TableCell>
-                                    <TableCell sx={{ color: "white" }} align="right">Hành động</TableCell>
+                                    <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>

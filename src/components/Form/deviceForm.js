@@ -1,42 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { Modal } from "@mui/material";
-import { formatDateToInput } from "@/lib/formattingLib";
+import { productionService } from "@/services/production.service";
 
-export function ExpireDateForm({
+export function DeviceForm({
     isOpen,
     onClose,
     onConfirm
 }) {
     const [form, setForm] = useState({});
     const [error, setError] = useState("");
-    const today = new Date();
-    const [validExpireDate, setValidExpireDate] = useState(true);
+    const [devices, setDevices] = useState([]);
+
+    const fetchDevices = async () => {
+        try {
+            const response = await productionService.getAllDevices();
+            const deviceData = response.data
+            setDevices(deviceData);
+        } catch (error) {
+            console.error("Error fetching devices:", error);
+        } 
+    }
 
     useEffect(() => {
-        const threeMonthsLater = new Date(Date.now() + 3 * 30 * 24 * 60 * 60 * 1000);
-        setForm({ expireDate: threeMonthsLater });
-        setError("");
-        setValidExpireDate(true);
+        fetchDevices();
+        setForm({});
     }, [isOpen]);
-
-    const handleChange = (date) => {
-        if (date < today) {
-            setError("Ngày hết hạn phải là tương lai");
-            setValidExpireDate(false);
-        } else {
-            setError("");
-            setValidExpireDate(true);
-        }
-        setForm({ ...form, expireDate: date });
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!form.expireDate) {
+        if (!form.deviceCode) {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return;
         }
-        if (!validExpireDate) return;
         setError("");
         onConfirm(form);
         onClose();
@@ -53,7 +48,7 @@ export function ExpireDateForm({
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-1/4 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
                     <div className="w-full background-primary text-white p-4 flex-row flex justify-between sticky top-0">
                         <h2 className="text-2xl font-bold my-auto" id="product-modal-title">
-                            Xác nhận nhập kho
+                            Chọn thiết bị
                         </h2>
                         <button className="text-white cursor-pointer bg-red-600 hover:bg-red-700 p-1" onClick={onClose}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -65,18 +60,23 @@ export function ExpireDateForm({
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
                                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                                    Ngày hết hạn
+                                    Thiết bị cân:
                                 </label>
-                                <input
-                                    type="date"
-                                    name="expireDate"
-                                    value={form.expireDate && formatDateToInput(form.expireDate)}
-                                    onChange={(e) => {
-                                        const date = new Date(e.target.value);
-                                        handleChange(date);
-                                    }}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                />
+                                <select
+                                    id="name"
+                                    name="deviceCode"
+                                    value={form.deviceCode || ""}
+                                    onChange={(e) => setForm({ ...form, deviceCode: e.target.value })}
+                                    className="w-full p-2 border border-gray-400 rounded"
+                                    required
+                                >
+                                    <option value="">-- Chọn thiết bị --</option>
+                                    {devices.map((device) => (
+                                        <option key={device.deviceCode} value={device.deviceCode}>
+                                            {device.deviceName}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
                             <div className="flex justify-end gap-2 pt-2">

@@ -24,7 +24,7 @@ export default function SupplierDetail({ params }) {
 
     const [supplier, setSupplier] = useState({});
     const [pageReady, setPageReady] = useState(false);
-    const pageRole = ["Manager"];
+    const pageRole = ["Admin", "Manager"];
 
     // Check authorization
     useEffect(() => {
@@ -88,7 +88,7 @@ export default function SupplierDetail({ params }) {
         <div className='flex flex-col gap-4 w-full p-4'>
             <div className='w-full bg-white p-4 rounded-xl flex justify-between items-center'>
                 <h1 className='text-2xl font-semibold'>Chi tiết nhà cung cấp</h1>
-                <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalOpen(true)}>Chỉnh sửa nhà cung cấp</button>
+                {user?.roles?.includes("Admin") && <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalOpen(true)}>Chỉnh sửa nhà cung cấp</button>}
             </div>
 
             <div className="w-full bg-white p-4 rounded-xl">

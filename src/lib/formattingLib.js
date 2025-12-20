@@ -15,6 +15,15 @@ export const removeLeadingZero = (number) => {
     return result;
 }
 
+export const removeVietnameseTones = (str) => {
+    return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .toLowerCase();
+};
+
 export const formatLargeNumber = (number) => {
     if (number === null || isNaN(number)) return 0;
     //if (number < 0) return (number * -1).toLocaleString('vi-VN', { maximumFractionDigits: 0 });

@@ -6,10 +6,9 @@ import { useLoading } from "@/context/LoadingContext";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useLogin } from "@/context/LoginContext";
-import DateInput from "@/components/Input/DateInput";
 
 import TableCommon from "@/components/Table/table";
-import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
+import { DeviceForm } from "@/components/Form/deviceForm";
 import { getProductionStatus, getProductionStatusText } from '@/lib/getStatus';
 import { formatDateToInput } from '@/lib/formattingLib';
 
@@ -28,6 +27,8 @@ export default function Productions() {
     //Data state
     const [productions, setProductions] = useState([]);
     const [productionDetails, setProductionDetails] = useState([]);
+    const [producingId, setProducingId] = useState(null);
+    const [selectedProductionId, setSelectedProductionId] = useState(null);
 
     //Modal state
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
@@ -36,6 +37,8 @@ export default function Productions() {
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
     const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
+
+    const [modalDeviceOpen, setModalDeviceOpen] = useState(false);
 
     //Filter state
     const [filterStatus, setFilterStatus] = useState(null);
@@ -124,6 +127,11 @@ export default function Productions() {
             const response = await productionService.getAllProductions(body);
             setProductions(response.data.items);
             setTotalCount(response.data.totalCount);
+            if (response.data.items.find(item => item.status === 1)) {
+                setProducingId(response.data.items.find(item => item.status === 1).id);
+            } else {
+                setProducingId(null);
+            }
         } catch (error) {
             setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
@@ -138,7 +146,21 @@ export default function Productions() {
         for (const production of productionList) {
             try {
                 const response = await productionService.getProductionDetail(production.id);
-                detailsArr.push(response.data);
+                const weightLog = await productionService.getProductionWeight(production.id);
+                const cart = response.data.finishProducts.map((item) => ({
+                    productCode: item.productCode,
+                    productName: item.productName,
+                    warehouseName: item.warehouseName,
+                    productId: item.productId,
+                    quantity: weightLog.data.products.find((p) => p.productId === item.productId)?.totalBags || item.quantity,
+                    actualWeight: weightLog.data.products.find((p) => p.productId === item.productId)?.totalWeight || 0,
+                    expectedWeight: item.weightPerUnit * item.quantity,
+                    weightPerUnit: item.weightPerUnit
+                }));
+                detailsArr.push({
+                    ...response.data,
+                    cart: cart
+                });
             } catch (error) {
                 setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
                 setModalFailedOpen(true);
@@ -209,14 +231,28 @@ export default function Productions() {
     };
 
     const handleUpdateToProcessing = async (id) => {
+        if (producingId) {
+            setModalFailedMessage(`Đang sản xuất phiếu với mã ${producingId}. Vui lòng hoàn thành phiếu đó trước`);
+            setModalFailedOpen(true);
+            return;
+        }
+        setSelectedProductionId(id);
+        setModalDeviceOpen(true);
+    }
+
+    const handleConfirmUpdateToProcessing = async (data) => {
+        if (!selectedProductionId) return;
         try {
-            await productionService.updateProductionToProcessing(id);
+            setLoading(true);
+            await productionService.updateProductionToProcessing(selectedProductionId, data);
             setModalSuccessMessage(`Sản phẩm đang được sản xuất`);
             setModalSuccessOpen(true);
             fetchProductions();
         } catch (error) {
             setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -226,6 +262,7 @@ export default function Productions() {
 
     const handleUpdateToCancel = async (id) => {
         try {
+            setLoading(true);
             await productionService.updateProductionToCancel(id);
             setModalSuccessMessage(`Hủy sản xuất thành công`);
             setModalSuccessOpen(true);
@@ -233,6 +270,8 @@ export default function Productions() {
         } catch (error) {
             setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -270,10 +309,25 @@ export default function Productions() {
                 customValue: (item) => item.warehouseName && <div>{item.warehouseName}</div>
             },
             {
+                key: "weightPerUnit",
+                label: "Khối lượng",
+                customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit} kg</div>
+            },
+            {
                 key: "quantity",
                 label: "Số lượng",
-                customValue: (item) => item.quantity && <div>{item.quantity}</div>
-            }
+                customValue: (item) => production.status === 2 && item.quantity > 0 ? <div>{item.quantity}</div> : <div>Chưa có</div>
+            },
+            {
+                key: "expectedWeight",
+                label: "Sản lượng dự kiến",
+                customValue: (item) => production.status === 2 && item.expectedWeight ? <div>{item.expectedWeight} kg</div> : <div>Chưa có</div>
+            },
+            {
+                key: "actualWeight",
+                label: "Sản lượng thực tế",
+                customValue: (item) => production.status === 2 && item.actualWeight ? <div>{item.actualWeight} kg</div> : <div>Chưa có</div>
+            },
         ];
 
         return (
@@ -308,7 +362,7 @@ export default function Productions() {
                     <h1 className='text-xl font-bold py-2'>Danh sách thành phẩm</h1>
                     <TableCommon
                         headers={headers}
-                        tableData={production.finishProducts}
+                        tableData={production.cart}
                     />
                 </div>
             </div>
@@ -463,6 +517,7 @@ export default function Productions() {
                 useDetail={true}
                 tableDetail={tableDetail}
             />
+            <DeviceForm isOpen={modalDeviceOpen} onClose={() => setModalDeviceOpen(false)} onConfirm={handleConfirmUpdateToProcessing} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>

@@ -13,4 +13,8 @@ export const adminService = {
         const response = await API.get('/Admin/roles');
         return response.data;
     },
+    resetPassword: async (data) => {
+        const response = await API.post(`/Admin/reset-user-password/`, data);
+        return response.data;
+    },
 }

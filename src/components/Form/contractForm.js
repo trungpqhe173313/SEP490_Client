@@ -131,7 +131,8 @@ export function ContractForm({
         const response = await supplierService.getAllSuppliers(body);
         const supplierData = response.data.items.map((supplier) => ({
           id: supplier.supplierId,
-          name: supplier.supplierName
+          name: supplier.supplierName,
+          phone: supplier.phone
         }));
         setOptions(supplierData);
       } catch (error) {
@@ -148,7 +149,8 @@ export function ContractForm({
         const response = await customerService.getAllCustomers(body);
         const customerData = response.data.items.map((customer) => ({
           id: customer.userId,
-          name: customer.fullName
+          name: customer.fullName,
+          phone: customer.phone
         }));
         setOptions(customerData);
       } catch (error) {

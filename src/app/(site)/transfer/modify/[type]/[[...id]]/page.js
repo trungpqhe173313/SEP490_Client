@@ -26,7 +26,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { removeLeadingZero } from "@/lib/formattingLib";
+import { removeLeadingZero, removeVietnameseTones } from "@/lib/formattingLib";
 
 
 export default function ModifyTransfer({ params }) {
@@ -173,9 +173,10 @@ export default function ModifyTransfer({ params }) {
     };
 
     const searchWarehouses = (name) => {
+        const search = removeVietnameseTones(name);
         try {
             setWarehouseLoading(true);
-            setWarehousesForSearch(warehouses.filter((w) => w.warehouseName.toLowerCase().includes(name.toLowerCase())));
+            setWarehousesForSearch(warehouses.filter((w) => removeVietnameseTones(w.warehouseName).includes(search)));
         } catch (error) {
             console.log(error);
         } finally {
@@ -184,9 +185,10 @@ export default function ModifyTransfer({ params }) {
     }
 
     const searchWarehouseIns = (name) => {
+        const search = removeVietnameseTones(name);
         try {
             setWarehouseInLoading(true);
-            setWarehousesInForSearch(warehouses.filter((w) => w.warehouseName.toLowerCase().includes(name.toLowerCase())));
+            setWarehousesInForSearch(warehouses.filter((w) => removeVietnameseTones(w.warehouseName).includes(search)));
         } catch (error) {
             console.log(error);
         } finally {
@@ -195,11 +197,12 @@ export default function ModifyTransfer({ params }) {
     }
 
     const searchProducts = (name) => {
+        const search = removeVietnameseTones(name);
         try {
             setProductLoading(true);
             setProductsForSearch(products.filter((p) =>
                 p.productCode.toLowerCase().includes(name.toLowerCase()) ||
-                p.productName.toLowerCase().includes(name.toLowerCase())
+                removeVietnameseTones(p.productName).includes(search)
             ).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
         } catch (error) {
             console.log(error);
@@ -353,7 +356,7 @@ export default function ModifyTransfer({ params }) {
 
     useEffect(() => {
         validate();
-    }, [cart, selectedWarehouse, selectedWarehouseIn]);
+    }, [cart, selectedWarehouse, selectedWarehouseIn, selectedEmployee]);
 
     useEffect(() => {
         if (!selectedWarehouse) return;
@@ -371,7 +374,6 @@ export default function ModifyTransfer({ params }) {
     }, [selectedWarehouse]);
 
     useEffect(() => {
-        if (type === "create") return;
         if (!products || !transferData || !transferData.list || !selectedWarehouse) return;
         fetchCart();
     }, [transferData, products, selectedWarehouse, type]);

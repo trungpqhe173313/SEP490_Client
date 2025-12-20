@@ -28,7 +28,7 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import Loader from "@/components/Loader/loader";
-import { formatImageURL, formatLargeNumber, removeLeadingZero } from '@/lib/formattingLib';
+import { formatImageURL, formatLargeNumber, removeLeadingZero, removeVietnameseTones } from '@/lib/formattingLib';
 import Image from "next/image";
 
 export default function UpdateExport({ params }) {
@@ -142,11 +142,12 @@ export default function UpdateExport({ params }) {
     }
 
     const searchProducts = async (name) => {
+        const search = removeVietnameseTones(name);
         try {
             setProductLoading(true);
             setProductsForSearch(products.filter((p) =>
                 p.productCode.toLowerCase().includes(name.toLowerCase()) ||
-                p.productName.toLowerCase().includes(name.toLowerCase())
+                removeVietnameseTones(p.productName.toLowerCase()).includes(search)
             ).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
         } catch (error) {
             console.log(error);
