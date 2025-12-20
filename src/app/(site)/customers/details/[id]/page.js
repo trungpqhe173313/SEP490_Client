@@ -10,6 +10,8 @@ import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import Image from 'next/image';
 import { formatImageURL } from '@/lib/formattingLib';
+import { adminService } from "@/services/admin.service";
+import { PasswordManagementForm } from "@/components/Form/passwordManagementForm";
 
 export default function CustomerDetail({ params }) {
     const { id } = React.use(params);
@@ -18,6 +20,7 @@ export default function CustomerDetail({ params }) {
     const { isLogin, user, refreshUserInfo } = useLogin();
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [modalResetPasswordOpen, setModalResetPasswordOpen] = useState(false);
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
@@ -83,6 +86,20 @@ export default function CustomerDetail({ params }) {
             setLoading(false);
         }
     };
+    
+    const handleResetPassword = async (data) => {
+        setLoading(true);
+        try {
+            await adminService.resetPassword(data);
+            setModalSuccessMessage("Đặt lại mật khẩu thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     if (!pageReady) return <Loader />;
 
@@ -90,7 +107,10 @@ export default function CustomerDetail({ params }) {
         <div className='flex flex-col gap-4 w-full py-8 px-4'>
             <div className='w-full bg-white p-4 rounded-xl flex items-center justify-between'>
                 <h1 className='text-2xl font-semibold'>Chi tiết khách hàng</h1>
-                {user?.roles?.includes("Admin") && <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalOpen(true)}>Chỉnh sửa khách hàng</button>}
+                <div>
+                    {user?.roles?.includes("Admin") && <button className='bg-cyan-500 text-white px-4 py-2 rounded-md mr-2' onClick={() => setModalResetPasswordOpen(true)}>Đặt lại mật khẩu</button>}
+                    {user?.roles?.includes("Admin") && <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalOpen(true)}>Chỉnh sửa khách hàng</button>}
+                </div>
             </div>
 
             <div className="w-full bg-white p-4 rounded-xl grid grid-cols-3 gap-4">
@@ -153,6 +173,12 @@ export default function CustomerDetail({ params }) {
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
                 onConfirm={handleConfirm}
+                initialData={customer}
+            />
+            <PasswordManagementForm
+                isOpen={modalResetPasswordOpen}
+                onClose={() => setModalResetPasswordOpen(false)}
+                onConfirm={handleResetPassword}
                 initialData={customer}
             />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />

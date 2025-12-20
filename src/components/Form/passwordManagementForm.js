@@ -6,30 +6,33 @@ export function PasswordManagementForm({
     isOpen,
     onClose,
     onConfirm,
+    initialData
 }) {
-    const [form, setForm] = useState({
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: ""
-    });
+    const [form, setForm] = useState({});
     const [error, setError] = useState("");
-    const [showOldPassword, setShowOldPassword] = useState(false);
-    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     //Validation
-    const [validNewPassword, setValidNewPassword] = useState(true);
+    const [validPassword, setValidPassword] = useState(true);
     const [validConfirmPassword, setValidConfirmPassword] = useState(true);
 
-    const [errorNewPassword, setErrorNewPassword] = useState("");
+    const [errorPassword, setErrorPassword] = useState("");
     const [errorConfirmPassword, setErrorConfirmPassword] = useState("");
 
     const clearErrors = () => {
         setError("");
-        setErrorNewPassword("");
+        setErrorPassword("");
         setErrorConfirmPassword("");
-        setValidNewPassword(true);
+        setValidPassword(true);
         setValidConfirmPassword(true);
+        setForm(
+            { 
+                userId: initialData?.userId,
+                password: "",
+                confirmPassword: ""
+            }
+        );
     }
 
     useEffect(() => {
@@ -39,17 +42,17 @@ export function PasswordManagementForm({
     const handleChange = (name, value) => {
         let newValue = value;
         switch (name) {
-            case "newPassword":
+            case "password":
                 const checkingPassword = value.trim();
                 const regex = /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\.-])[A-Za-z\d@$!%*?&_\.-]{8,}$/;
                 if (!regex.test(checkingPassword)) {
-                    setValidNewPassword(false);
-                    setErrorNewPassword("Mật khẩu phải có ít nhất 8 ký tự, chữ hoa, chữ thường, số và 1 trong các ký tự sau: @ $ ! % * ? & _ . -");
+                    setValidPassword(false);
+                    setErrorPassword("Mật khẩu phải có ít nhất 8 ký tự, chữ hoa, chữ thường, số và 1 trong các ký tự sau: @ $ ! % * ? & _ . -");
                 } else {
-                    setValidNewPassword(true);
-                    setErrorNewPassword("");
+                    setValidPassword(true);
+                    setErrorPassword("");
                 }
-                if (checkingPassword!== form.confirmPassword) {
+                if (checkingPassword !== form.confirmPassword) {
                     setValidConfirmPassword(false);
                     setErrorConfirmPassword("Mật khẩu không trùng khớp");
                 } else {
@@ -59,7 +62,7 @@ export function PasswordManagementForm({
                 break;
             case "confirmPassword":
                 const checkingConfirmPassword = value.trim();
-                if (form.newPassword !== checkingConfirmPassword) {
+                if (form.password !== checkingConfirmPassword) {
                     setValidConfirmPassword(false);
                     setErrorConfirmPassword("Mật khẩu không trùng khớp");
                 } else {
@@ -78,11 +81,11 @@ export function PasswordManagementForm({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (form.oldPassword === "" || form.newPassword === "" || form.confirmPassword === "") {
+        if (form.password === "" || form.confirmPassword === "") {
             setError("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             return;
         }
-        const invalidForms = !validNewPassword || !validConfirmPassword;
+        const invalidForms = !validPassword || !validConfirmPassword;
         if (invalidForms) {
             setError("Có nhập liệu không hợp lệ, vui lòng thử lại.");
             return;
@@ -95,10 +98,10 @@ export function PasswordManagementForm({
     return (
         <Modal open={isOpen} onClose={onClose}>
             <div className="fixed inset-0 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-lg w-full max-w-1/2 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
+                <div className="bg-white rounded-lg shadow-lg w-full max-w-1/4 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
                     <div className="w-full background-primary text-white p-4 flex-row flex justify-between sticky top-0">
                         <h2 className="text-2xl font-bold my-auto">
-                            Đổi mật khẩu
+                            Đặt lại mật khẩu
                         </h2>
                         <button className="text-white cursor-pointer bg-red-600 hover:bg-red-700 p-1" onClick={onClose}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -108,42 +111,24 @@ export function PasswordManagementForm({
                     </div>
                     <form onSubmit={handleSubmit} className="space-y-4 p-8">
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 relative">
-                            <label className="block text-md font-bold">Mật khẩu hiện tại</label>
-                            <input
-                                type={showOldPassword ? "text" : "password"}
-                                name="oldPassword"
-                                value={form.oldPassword}
-                                onChange={(e) => handleChange("oldPassword", e.target.value)}
-                                className={`w-full bg-white border rounded px-3 py-2`}
-                                required
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowOldPassword(!showOldPassword)}
-                                className="absolute right-7 top-2/3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                            >
-                                {showOldPassword ? <EyeOff size={25} /> : <Eye size={25} />}
-                            </button>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 relative">
                             <label className="block text-md font-bold">Mật khẩu mới</label>
                             <input
-                                type={showNewPassword ? "text" : "password"}
-                                name="newPassword"
-                                value={form.newPassword}
-                                onChange={(e) => handleChange("newPassword", e.target.value)}
-                                className={`w-full bg-white border rounded px-3 py-2 ${!validNewPassword ? "border-red-500" : "border-green-500"}`}
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                value={form.password}
+                                onChange={(e) => handleChange("password", e.target.value)}
+                                className={`w-full bg-white border rounded px-3 py-2 ${!validPassword ? "border-red-500" : "border-green-500"}`}
                                 required
                             />
                             <button
                                 type="button"
-                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-7 top-2/3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                             >
-                                {showNewPassword ? <EyeOff size={25} /> : <Eye size={25} />}
+                                {showPassword ? <EyeOff size={25} /> : <Eye size={25} />}
                             </button>
                         </div>
-                        {errorNewPassword && <p className="text-red-500 text-sm italic">{errorNewPassword}</p>}
+                        {errorPassword && <p className="text-red-500 text-sm italic">{errorPassword}</p>}
                         <div className="grid grid-cols-1 gap-2 bg-gray-50 rounded p-4 border border-gray-300 relative">
                             <label className="block text-md font-bold">Xác nhận mật khẩu mới</label>
                             <input

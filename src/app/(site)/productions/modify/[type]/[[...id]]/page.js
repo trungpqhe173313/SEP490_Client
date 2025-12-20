@@ -448,7 +448,7 @@ export default function ModifyProduction({ params }) {
                   <TableRow key={index}>
                     <TableCell>{item.productName}</TableCell>
                     <TableCell align="center">{item.totalBags}</TableCell>
-                    <TableCell align="center">{item.totalWeight} kg</TableCell>
+                    <TableCell align="center">{Math.round(item.totalWeight * 1000) / 1000} kg</TableCell>
                   </TableRow>
                 )) : (
                   <TableRow>
@@ -565,7 +565,7 @@ export default function ModifyProduction({ params }) {
                       </TableCell>
                       }
                       {type === "update" && <TableCell align="center">{product.produceQuantity * product.weightPerUnit} kg</TableCell>}
-                      {type === "update" && <TableCell align="center">{product.actualWeight ? product.actualWeight + " kg" : "Chưa cân"}</TableCell>}
+                      {type === "update" && <TableCell align="center">{Math.round(product.actualWeight * 1000) / 1000} kg</TableCell>}
                       <TableCell align="center">
                         <IconButton
                           size="small"

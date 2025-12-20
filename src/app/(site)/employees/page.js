@@ -5,11 +5,14 @@ import { useLoading } from "@/context/LoadingContext";
 import { useRef } from "react";
 import TableCommon from "@/components/Table/table";
 import { EmployeeForm } from "@/components/Form/employeeForm";
+import { PasswordManagementForm } from "@/components/Form/passwordManagementForm";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader/loader";
+import { adminService } from "@/services/admin.service";
+import SyncLockIcon from '@mui/icons-material/SyncLock';
 
 export default function Employees() {
     // Data state
@@ -22,6 +25,8 @@ export default function Employees() {
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
+
+    const [modalResetPasswordOpen, setModalResetPasswordOpen] = useState(false);
 
     // Filter state
     const [filterFullName, setFilterFullName] = useState("");
@@ -71,12 +76,17 @@ export default function Employees() {
             label: "Ngày tạo",
             customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div>
         },
+        user?.roles?.includes("Admin") && {
+            key: "resetPassword",
+            label: "Đặt lại mật khẩu",
+            customValue: (item) => <button className="background-primary text-white px-4 py-2 rounded-xl" onClick={() => handleOpenResetPasswordModal(item)}><SyncLockIcon /></button>
+        },
         user?.roles?.includes("Manager") && {
             key: "action",
             label: "Hành động",
             customValue: (item) => <button className="bg-cyan-500 text-white px-4 py-2 rounded-xl" onClick={() => router.push(`/employees/details/${item.userId}`)}>Chi tiết</button>
         }
-    ];
+    ].filter(Boolean);
 
     // Pagination handlers
     const handleChangePage = (event, newPage) => setPageIndex(newPage);
@@ -128,7 +138,7 @@ export default function Employees() {
         } else {
             router.push("/");
         }
-        
+
     }, [isLogin, user, loading]);
 
     useEffect(() => {
@@ -193,6 +203,25 @@ export default function Employees() {
             setLoading(false);
         }
     };
+
+    const handleOpenResetPasswordModal = (employee) => {
+        setEditingEmployee(employee);
+        setModalResetPasswordOpen(true);
+    };
+
+    const handleResetPassword = async (data) => {
+        setLoading(true);
+        try {
+            await adminService.resetPassword(data);
+            setModalSuccessMessage("Đặt lại mật khẩu thành công");
+            setModalSuccessOpen(true);
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const handleClearFilter = () => {
         setFilterFullName("");
@@ -299,6 +328,12 @@ export default function Employees() {
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
                 onConfirm={handleConfirm}
+                initialData={editingEmployee}
+            />
+            <PasswordManagementForm
+                isOpen={modalResetPasswordOpen}
+                onClose={() => setModalResetPasswordOpen(false)}
+                onConfirm={handleResetPassword}
                 initialData={editingEmployee}
             />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
