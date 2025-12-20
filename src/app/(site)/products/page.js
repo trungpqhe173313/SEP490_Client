@@ -291,8 +291,7 @@ export default function Products() {
             setModalSuccessMessage("Xoá sản phẩm thành công");
             setModalSuccessOpen(true);
         } catch (error) {
-            console.error("Error deleting product:", error);
-            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
