@@ -80,7 +80,7 @@ export default function Products() {
         { key: "sellingPrice", label: "Giá bán", customValue: (item) => item.sellingPrice && <div>{formatLargeNumber(item.sellingPrice)}đ</div> },
         { key: "supplierName", label: "Nhà cung cấp", customValue: (item) => item.supplierName && <div>{item.supplierName}</div> },
         { key: "categoryName", label: "Danh mục", customValue: (item) => item.categoryName && <div>{item.categoryName}</div> },
-        { key: "isAvailable", label: "Trạng thái", customValue: (item) => item.isAvailable === true ? <div className="text-green-600">Còn hàng</div> : <div className="text-red-600">Hết hàng</div> },
+        { key: "isAvailable", label: "Trạng thái", customValue: (item) => item.isAvailable === true ? <div className="text-green-600">Đang hoạt động</div> : <div className="text-red-600">Dừng hoạt động</div> },
         { key: "createdAt", label: "Ngày tạo", customValue: (item) => item.createdAt && <div>{new Date(item.createdAt).toLocaleString('vi-VN')}</div> }
     ];
 
@@ -291,8 +291,7 @@ export default function Products() {
             setModalSuccessMessage("Xoá sản phẩm thành công");
             setModalSuccessOpen(true);
         } catch (error) {
-            console.error("Error deleting product:", error);
-            setModalFailedMessage("Có lỗi xảy ra, vui lòng thử lại sau");
+            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
