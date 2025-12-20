@@ -21,12 +21,18 @@ export const productionService = {
         const response = await API.put(`/production/ChangeToFinished/${id}`, data);
         return response.data;
     },
-    updateProductionToProcessing: async (id) => {
-        const response = await API.put(`/production/ChangeToProcessing/${id}`);
+    updateProductionToProcessing: async (id, data) => {
+        const response = await API.put(`/production/ChangeToProcessing/${id}`, data);
         return response.data;
     },
     updateProductionToCancel: async (id) => {
         const response = await API.put(`/production/ChangeToCancel/${id}`);
         return response.data;
     },
+    getAllDevices: async () => {
+        return await API.get('/iot-devices');
+    },
+    getProductionWeight: async (id) => {
+        return await API.get(`/production-weight-logs/summary/${id}`);
+    }
 };
