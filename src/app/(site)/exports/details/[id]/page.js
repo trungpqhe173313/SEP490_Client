@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react'
 import { exportService } from '@/services/export.service';
 import { paymentService } from '@/services/payment.service';
 import { transactionService } from '@/services/transaction.service';
-import { returnService } from '@/services/return.service';
 import { numberToVietnamese } from '@/lib/numberToVietnamese';
 import { convertKgToTon, formatLargeNumber } from '@/lib/formattingLib';
 import { useLoading } from '@/context/LoadingContext';
@@ -194,14 +193,7 @@ export default function ExportDetail({ params }) {
         setLoading(true);
         try {
             if (transaction.status === 2) {
-                const body = {
-                    listProductOrder: products.map((p) => ({ productId: p.productId, quantity: p.quantity, unitPrice: p.unitPrice })),
-                    totalCost: transaction.totalCost,
-                    priceListId: transaction.priceListId ? transaction.priceListId : null,
-                    reason: `Hủy phiếu xuất kho mã ${transaction.transactionId}`,
-                    note: '',
-                }
-                await returnService.createExportReturn(transaction.transactionId, body);
+                await exportService.cancelExportOrder(id);
             } else {
                 await exportService.cancelExport(id);
             }
