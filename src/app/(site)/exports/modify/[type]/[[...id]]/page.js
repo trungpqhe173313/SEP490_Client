@@ -188,7 +188,7 @@ export default function UpdateExport({ params }) {
                 priceListName: name,
                 isActive: true
             }
-            const response = await priceListService.getAllPriceLists(body);
+            const response = await priceListService.getDataForExport(body);
             setPriceLists(response.data.items);
         } catch (error) {
             console.log(error);

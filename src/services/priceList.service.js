@@ -5,6 +5,10 @@ export const priceListService = {
         const response = await API.post("/pricelist/GetData", data);
         return response.data;
     },
+    getDataForExport: async (data) => {
+        const response = await API.post("/pricelist/GetDataForExport", data);
+        return response.data;
+    },
     getPriceListByID: async (id) => {
         const response = await API.get(`/pricelist/GetDetail/${id}`);
         return response.data;
