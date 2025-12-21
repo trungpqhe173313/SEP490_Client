@@ -156,7 +156,7 @@ export default function Dashboard() {
     };
 
     function getProfitChangePercent(currentProfit, lastProfit) {
-        if (lastProfit === 0) return null; // Avoid division by zero
+        if (lastProfit === 0) return null;
         const diff = currentProfit - lastProfit;
         const percent = (diff / Math.abs(lastProfit)) * 100;
         return percent;
@@ -203,7 +203,7 @@ export default function Dashboard() {
                             <p>Lợi nhuận tháng này</p>
                             <p className="text-2xl font-bold">{formatLargeNumber(incomeThisMonth - expenseThisMonth)} đ</p>
                         </div>
-                        <ProfitArrow percent={profitChangePercent} />
+                        {incomeThisMonth - expenseThisMonth > 0 && <ProfitArrow percent={profitChangePercent} />}
                     </div>
                 </div>
                 <div className="flex flex-col items-center justify-start gap-4">
@@ -220,7 +220,8 @@ export default function Dashboard() {
                                     <YAxis
                                         type="category"
                                         dataKey="productName"
-                                        width={150}
+                                        width={200}
+                                        interval={0}
                                     />
                                     <Tooltip />
                                     <Bar dataKey="totalRevenue" name="Tổng doanh thu" fill="#00a544" />
@@ -228,7 +229,7 @@ export default function Dashboard() {
                             </ResponsiveContainer>
                         </div>
                         <div className="w-1/2 h-80 p-4">
-                            <h2 className="text-xl font-semibold mb-3 text-center">Top sản phẩm bán chạy nhất (theo số lượng, số phiếu)</h2>
+                            <h2 className="text-xl font-semibold mb-3 text-center">Top sản phẩm bán chạy nhất (theo số lượng)</h2>
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
                                     data={topSellingProducts}
@@ -241,7 +242,8 @@ export default function Dashboard() {
                                     <YAxis
                                         type="category"
                                         dataKey="productName"
-                                        width={150}
+                                        width={200}
+                                        interval={0}
                                     />
                                     <Tooltip />
                                     <Bar dataKey="totalQuantitySold" name="Tổng số lượng bán ra" fill="#00a544" />
@@ -298,18 +300,19 @@ export default function Dashboard() {
 
     const fetchWeights = async () => {
         try {
-            const results = [];
-            for (let i = 0; i < thisYear.length - 1; i++) {
-                const fromDate = thisYear[i].date;
+            const promises = thisYear.slice(0, -1).map((monthObj, i) => {
+                const fromDate = monthObj.date;
                 const toDate = thisYear[i + 1].date;
-                const importResponse = await transactionService.getImportWeight(fromDate, toDate);
-                const exportResponse = await transactionService.getExportWeight(fromDate, toDate);
-                results.push({
-                    month: translateMonth(thisYear[i].key),
+                return Promise.all([
+                    transactionService.getImportWeight(fromDate, toDate),
+                    transactionService.getExportWeight(fromDate, toDate)
+                ]).then(([importResponse, exportResponse]) => ({
+                    month: translateMonth(monthObj.key),
                     importWeight: importResponse.data.totalWeight ?? 0,
                     exportWeight: exportResponse.data.totalWeight ?? 0
-                });
-            }
+                }));
+            });
+            const results = await Promise.all(promises);
             setWeightData(results);
             console.log(results);
         } catch (error) {
