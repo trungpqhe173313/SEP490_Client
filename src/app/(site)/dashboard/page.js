@@ -457,8 +457,10 @@ export default function Dashboard() {
                 setLoading(false);
             }
         };
-        fetchAll();
-    }, []);
+        if (pageReady) {
+            fetchAll();
+        }
+    }, [pageReady]);
 
     const getQuantityRankingPerJob = (data) => {
         if (!data || data.length === 0) return [];
@@ -530,7 +532,7 @@ export default function Dashboard() {
         );
     };
 
-    if (!pageReady) return <Loader />
+    if (!pageReady || loading) return <Loader />
 
     return (
         <div className="p-2 w-auto rounded-xl">
