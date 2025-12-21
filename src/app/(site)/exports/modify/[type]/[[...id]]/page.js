@@ -106,7 +106,7 @@ export default function UpdateExport({ params }) {
             setTotalCost(response.data.totalCost);
             setSelectedCustomer(response.data.customer);
             if (response.data.priceListId) fetchExactPriceList(response.data.priceListId);
-            if (response.data.status !== 1 && response.data.status !== 2) {
+            if ((response.data.status !== 1 && response.data.status !== 2) && type === "update") {
                 setModalStatusFailedOpen(true);
             }
         } catch (error) {
