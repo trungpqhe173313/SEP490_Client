@@ -136,7 +136,7 @@ export default function UpdateExport({ params }) {
             if (exportProduct) {
                 return {
                     ...product,
-                    quantity: exportData.status === 1 ? product.quantity : exportProduct.quantity + product.quantity,
+                    quantity: (exportData.status === 2 && type === "update") ? product.quantity : exportProduct.quantity + product.quantity,
                     orderQuantity: exportProduct.quantity,
                     unitPrice: exportProduct.unitPrice
                 };
