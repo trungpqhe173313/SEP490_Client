@@ -59,6 +59,7 @@ export default function UpdateExport({ params }) {
 
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
+    const [modalStatusFailedOpen, setModalStatusFailedOpen] = useState(false);
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
     const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
@@ -105,6 +106,9 @@ export default function UpdateExport({ params }) {
             setTotalCost(response.data.totalCost);
             setSelectedCustomer(response.data.customer);
             if (response.data.priceListId) fetchExactPriceList(response.data.priceListId);
+            if (response.data.status !== 1 && response.data.status !== 2) {
+                setModalStatusFailedOpen(true);
+            }
         } catch (error) {
             setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
             setModalFailedOpen(true);
@@ -132,6 +136,7 @@ export default function UpdateExport({ params }) {
             if (exportProduct) {
                 return {
                     ...product,
+                    quantity: exportData.status === 1 ? product.quantity : exportProduct.quantity + product.quantity,
                     orderQuantity: exportProduct.quantity,
                     unitPrice: exportProduct.unitPrice
                 };
@@ -645,6 +650,7 @@ export default function UpdateExport({ params }) {
             </div>
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), handleExit() }} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
+            <FailedModal isOpen={modalStatusFailedOpen} message={"Chỉ được phép chỉnh sửa trong trạng thái nháp hoặc lên phiếu"} onClose={() => router.back()} />
         </div>
     );
 }

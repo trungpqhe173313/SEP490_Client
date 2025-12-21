@@ -41,4 +41,8 @@ export const exportService = {
         const response = await API.put(`/stockoutput/UpdateToCancelStatus/${id}`);
         return response.data;
     },
+    cancelExportOrder: async (id) => {
+        const response = await API.put(`/stockoutput/CancelOrderAndReturnStock/${id}`);
+        return response.data;
+    },
 };
