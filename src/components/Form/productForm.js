@@ -189,15 +189,9 @@ export function ProductForm({
                 }
                 break;
             case "productName":
-                const checkingProductName = value.trim().replace(/\s\s+/g, ' ');
                 if (value.length > 60 || value.length < 6) {
                     setValidProductName(false);
                     setErrorProductName("Tên sản phẩm phải trong khoảng 6 đến 60 ký tự");
-                }
-                const isExistingProductName = products.find(product => product.productName.toLowerCase() === checkingProductName.toLowerCase() && product.productName !== initialData?.productName);
-                if (isExistingProductName) {
-                    setValidProductName(false);
-                    setErrorProductName(`Sản phẩm "${checkingProductName}" đã tồn tại, vui lòng nhập tên khác`);
                 } else {
                     setValidProductName(true);
                     setErrorProductName("");
