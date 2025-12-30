@@ -380,7 +380,7 @@ export default function ExportDetail({ params }) {
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>
                         {user.roles.includes("Manager") && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateOrder}>Lên phiếu</button>}
-                        {user.roles.includes("Employee") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDelivering}>Xác nhận xuất kho</button>}
+                        {user.roles.includes("Employee") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDelivering}>Xác nhận giao hàng</button>}
                         {user.roles.includes("Employee") && transaction?.status === 3 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleUpdateDone}>Hoàn thành giao hàng</button>}
                         {user.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
                         {user.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}

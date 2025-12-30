@@ -114,16 +114,6 @@ export default function ImportDetail({ params }) {
             customValue: (item) => item.productName && <div>{item.productName}</div>
         },
         {
-            key: "expireDate",
-            label: "Ngày hết hạn",
-            customValue: (item) => item.expireDate ? <div>{new Date(item.expireDate).toLocaleDateString('vi-VN')}</div> : <div>Chưa có</div>
-        },
-        {
-            key: "note",
-            label: "Ghi chú",
-            customValue: (item) => item.note ? <div>{item.note}</div> : <div>Chưa có</div>
-        },
-        {
             key: "weightPerUnit",
             label: "Khối lượng (Kg)",
             customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit}</div>
@@ -154,8 +144,6 @@ export default function ImportDetail({ params }) {
         return (
             <TableRow>
                 <TableCell colSpan={1} align="center">Tổng</TableCell>
-                <TableCell />
-                <TableCell />
                 <TableCell />
                 <TableCell />
                 <TableCell />
@@ -324,6 +312,7 @@ export default function ImportDetail({ params }) {
                         <p>Nhân viên phụ trách: {transaction.responsibleName ? transaction.responsibleName + " - " + transaction.employeePhone : "Chưa có"}</p>
                         {user.roles.includes("Manager") && transaction?.status === 1 && <button className='cursor-pointer px-4 text-white bg-yellow-500 rounded-xl' onClick={handleReassign}>Sửa</button>}
                     </div>
+                    <p className='my-2'>Ghi chú: {transaction.note || "Không có"}</p>
                 </div>
                 <div className='col-span-1 rounded-xl bg-white p-4'>
                     <h1 className='text-xl font-bold'>Nhà cung cấp</h1>
