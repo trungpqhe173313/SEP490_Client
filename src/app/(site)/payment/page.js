@@ -81,33 +81,48 @@ export default function FinancialTransactions() {
     },
     {
       key: "type",
-      label: "Loại",
-      customValue: (item) => getFinancialTransactionType(item.typeInt)
+      label: "Loại giao dịch",
+      customValue: (item) => item.typeName ? <div>{item.typeName}</div> : getFinancialTransactionType(item.typeInt)
     },
     {
-      key: "description",
-      label: "Mô tả",
-      customValue: (item) => item.description ? <div>{item.description}</div> : <div>Chưa có</div>
+      key: "relatedTransactionCode",
+      label: "Mã liên quan",
+      customValue: (item) => item.relatedTransactionCode ? <div className="font-medium">{item.relatedTransactionCode}</div> : <div className="text-gray-400">-</div>
+    },
+    {
+      key: "relatedParty",
+      label: "Đối tượng",
+      customValue: (item) => {
+        if (item.customerName) return <div>{item.customerName}</div>;
+        if (item.supplierName) return <div>{item.supplierName}</div>;
+        if (item.employeeName) return <div>{item.employeeName}</div>;
+        return <div className="text-gray-400">-</div>;
+      }
     },
     {
       key: "amount",
       label: "Số tiền",
-      customValue: (item) => item.amount && <div className={item.amount > 0 ? "text-green-500" : "text-red-500"}>{formatLargeNumber(item.amount)}₫</div>
+      customValue: (item) => item.amount && <div className={item.amount > 0 ? "text-green-500 font-semibold" : "text-red-500 font-semibold"}>{formatLargeNumber(item.amount)}₫</div>
     },
     {
       key: "paymentMethod",
-      label: "Phương thức thanh toán",
+      label: "Phương thức",
       customValue: (item) => getPaymentMethod(item.paymentMethod)
     },
     {
-      key: "createdByName",
-      label: "Tạo bởi",
-      customValue: (item) => item.createdByName ? <div>{item.createdByName}</div> : <div>Không rõ</div>
+      key: "description",
+      label: "Mô tả",
+      customValue: (item) => item.description ? <div>{item.description}</div> : <div className="text-gray-400">-</div>
     },
     {
       key: "transactionDate",
       label: "Ngày giao dịch",
       customValue: (item) => item.transactionDate && <div>{new Date(item.transactionDate).toLocaleString('vi-VN')}</div>
+    },
+    {
+      key: "createdByName",
+      label: "Tạo bởi",
+      customValue: (item) => item.createdByName ? <div>{item.createdByName}</div> : <div className="text-gray-400">Không rõ</div>
     },
   ];
 
