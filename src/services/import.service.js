@@ -50,4 +50,16 @@ export const importService = {
         const response = await API.put(`/stockinput/UpdateToCheckedStatus/${id}`, data);
         return response.data;
     },
+    submitForApproval: async (id, data) => {
+        const response = await API.put(`/stockinput/SubmitForApproval/${id}`, data);
+        return response.data;
+    },
+    approveImport: async (id, data) => {
+        const response = await API.put(`/stockinput/ApproveImport/${id}`, data);
+        return response.data;
+    },
+    rejectImport: async (id, data) => {
+        const response = await API.put(`/stockinput/RejectImport/${id}`, data);
+        return response.data;
+    },
 }

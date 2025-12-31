@@ -53,7 +53,7 @@ export function ExpireDateForm({
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-1/4 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
                     <div className="w-full background-primary text-white p-4 flex-row flex justify-between sticky top-0">
                         <h2 className="text-2xl font-bold my-auto" id="product-modal-title">
-                            Xác nhận nhập kho
+                            Phê duyệt nhập kho - Nhập ngày hết hạn
                         </h2>
                         <button className="text-white cursor-pointer bg-red-600 hover:bg-red-700 p-1" onClick={onClose}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">

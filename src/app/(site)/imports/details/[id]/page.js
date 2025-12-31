@@ -16,7 +16,9 @@ import { paymentService } from '@/services/payment.service';
 import { PaymentForm } from '@/components/Form/paymentForm';
 import { transactionService } from '@/services/transaction.service';
 import { AssignForm } from '@/components/Form/assignForm';
+import { ActualQuantityForm } from '@/components/Form/actualQuantityForm';
 import { ExpireDateForm } from '@/components/Form/expireDateForm';
+import { RejectForm } from '@/components/Form/rejectForm';
 
 
 export default function ImportDetail({ params }) {
@@ -27,7 +29,9 @@ export default function ImportDetail({ params }) {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [modalReassignOpen, setModalReassignOpen] = useState(false);
+    const [modalActualQuantityOpen, setModalActualQuantityOpen] = useState(false);
     const [modalExpireDateOpen, setModalExpireDateOpen] = useState(false);
+    const [modalRejectOpen, setModalRejectOpen] = useState(false);
     const [mode, setMode] = useState("createPayment");
     const [paidAmount, setPaidAmount] = useState(0);
 
@@ -191,11 +195,11 @@ export default function ImportDetail({ params }) {
         router.push(`/imports/modify/create/${id}`);
     }
 
-    const handleOpenExpireDate = () => {
-        setModalExpireDateOpen(true);
+    const handleOpenActualQuantity = () => {
+        setModalActualQuantityOpen(true);
     }
 
-    const handleConfirm = async (data) => {
+    const handleSubmitForApproval = async (data) => {
         if (transaction.responsibleId !== user.id) {
             setModalFailedMessage(`Bạn không phụ trách phiếu nhập kho này`);
             setModalFailedOpen(true);
@@ -203,12 +207,66 @@ export default function ImportDetail({ params }) {
         }
         setLoading(true);
         try {
+            // API sẽ cập nhật số lượng trong đơn thành số lượng thực tế
+            // và chuyển trạng thái sang "Chờ phê duyệt kho"
             const body = {
                 responsibleId: user.id,
+                note: data.note || "",
+                products: data.products.map(p => ({
+                    productId: p.productId,
+                    actualQuantity: p.actualQuantity
+                }))
+            }
+            await importService.submitForApproval(id, body);
+            setModalSuccessMessage("Gửi phê duyệt thành công. Số lượng trong đơn đã được cập nhật theo số lượng thực tế. Đơn đang chờ kho phê duyệt.");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleOpenApproveWithExpireDate = () => {
+        setModalExpireDateOpen(true);
+    }
+
+    const handleApproveWithExpireDate = async (data) => {
+        setLoading(true);
+        try {
+            const body = {
+                approverId: user.id,
                 expireDate: data.expireDate
             }
-            await importService.updateToChecked(id, body);
-            setModalSuccessMessage("Xác nhận kiểm phiếu nhập kho thành công");
+            await importService.approveImport(id, body);
+            setModalSuccessMessage("Phê duyệt phiếu nhập kho thành công");
+            setModalSuccessOpen(true);
+            fetchTransaction();
+        } catch (error) {
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message}`);
+            setModalFailedSubMessages(error?.response?.data?.error?.messages);
+            setModalFailedOpen(true);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleOpenReject = () => {
+        setModalRejectOpen(true);
+    }
+
+    const handleReject = async (data) => {
+        setLoading(true);
+        try {
+            const body = {
+                approverId: user.id,
+                reason: data.reason
+            }
+            await importService.rejectImport(id, body);
+            setModalSuccessMessage("Từ chối phiếu nhập kho thành công. Đơn đã được chuyển về trạng thái 'Đang kiểm'.");
             setModalSuccessOpen(true);
             fetchTransaction();
         } catch (error) {
@@ -339,12 +397,20 @@ export default function ImportDetail({ params }) {
                 />
                 <div className='flex flex-row justify-between items-center p-4'>
                     <div className='flex flex-row items-center gap-2'>
-                        {user?.roles.includes("Employee") && transaction && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleOpenExpireDate}>Xác nhận nhập kho</button>}
+                        {/* Employee: Submit for approval when status = 1 (Đang kiểm) */}
+                        {user?.roles.includes("Employee") && transaction && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleOpenActualQuantity}>Nhập số lượng thực tế</button>}
+                        
+                        {/* Manager: Approve/Reject when status = 4 (Chờ phê duyệt kho) */}
+                        {user?.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleOpenApproveWithExpireDate}>Phê duyệt</button>}
+                        {user?.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleOpenReject}>Từ chối</button>}
+                        
+                        {/* Payment buttons */}
                         {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
+                        
+                        {/* Other actions */}
                         {user?.roles.includes("Manager") && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>}
-                        {/* {transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleReturn}>Trả hàng</button>} */}
                         {user?.roles.includes("Manager") && transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleEdit}>Chỉnh sửa</button>}
                     </div>
@@ -386,7 +452,22 @@ export default function ImportDetail({ params }) {
                 initialData={transaction}
                 mode={mode}
             />
-            <ExpireDateForm isOpen={modalExpireDateOpen} onClose={() => setModalExpireDateOpen(false)} onConfirm={handleConfirm} />
+            <ActualQuantityForm 
+                isOpen={modalActualQuantityOpen} 
+                onClose={() => setModalActualQuantityOpen(false)} 
+                onConfirm={handleSubmitForApproval}
+                products={products}
+            />
+            <ExpireDateForm 
+                isOpen={modalExpireDateOpen} 
+                onClose={() => setModalExpireDateOpen(false)} 
+                onConfirm={handleApproveWithExpireDate}
+            />
+            <RejectForm 
+                isOpen={modalRejectOpen} 
+                onClose={() => setModalRejectOpen(false)} 
+                onConfirm={handleReject}
+            />
             <AssignForm isOpen={modalReassignOpen} onClose={() => setModalReassignOpen(false)} onConfirm={handleConfirmReassign} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />

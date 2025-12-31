@@ -57,6 +57,8 @@ export const getImportStatus = (status) => {
             return <p className="text-green-600">Đã nhận hàng</p>
         case 3:
             return <p className="text-red-600">Trả hàng</p>
+        case 4:
+            return <p className="text-blue-600">Chờ phê duyệt kho</p>
         case 11:
             return <p className="text-green-600">Đã thanh toán đủ</p>
         case 12:
@@ -77,6 +79,8 @@ export const getImportStatusText = (status) => {
             return "Đã nhận hàng"
         case 3:
             return "Trả hàng"
+        case 4:
+            return "Chờ phê duyệt kho"
         case 11:
             return "Đã thanh toán đủ"
         case 12:
