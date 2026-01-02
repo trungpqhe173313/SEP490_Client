@@ -19,6 +19,14 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import FactoryIcon from "@mui/icons-material/Factory";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import WarningIcon from "@mui/icons-material/Warning";
+import InfoIcon from "@mui/icons-material/Info";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import ScaleIcon from "@mui/icons-material/Scale";
+import { Tooltip, Chip, Alert, Box, LinearProgress } from "@mui/material";
 import SuccessModal from "@/components/Modal/successModal";
 import FailedModal from "@/components/Modal/failedModal";
 import { useLogin } from "@/context/LoginContext";
@@ -327,14 +335,128 @@ export default function ModifyProduction({ params }) {
     router.push("/productions");
   }
 
+  // Calculate summary data
+  const getSummaryData = () => {
+    const totalMaterialWeight = selectedMaterial ? selectedMaterial.produceQuantity * selectedMaterial.weightPerUnit : 0;
+    const totalExpectedWeight = cart.reduce((sum, p) => sum + (p.produceQuantity * p.weightPerUnit), 0);
+    const totalActualWeight = cart.reduce((sum, p) => sum + (p.actualWeight || 0), 0);
+    const totalProducts = cart.filter(p => p.produceQuantity > 0).length;
+    const conversionRate = totalMaterialWeight > 0 ? ((totalExpectedWeight / totalMaterialWeight) * 100).toFixed(1) : 0;
+    const stockUsageRate = selectedMaterial?.quantity > 0 ? ((selectedMaterial.produceQuantity / selectedMaterial.quantity) * 100).toFixed(1) : 0;
+    
+    return {
+      totalMaterialWeight,
+      totalExpectedWeight,
+      totalActualWeight,
+      totalProducts,
+      conversionRate,
+      stockUsageRate,
+      materialRemaining: selectedMaterial ? selectedMaterial.quantity - selectedMaterial.produceQuantity : 0
+    };
+  }
+
+  const handleQuickSetQuantity = (multiplier) => {
+    if (!selectedMaterial) return;
+    const newQuantity = Math.min(multiplier, selectedMaterial.quantity);
+    handleChangeMaterial(selectedMaterial, newQuantity);
+  }
+
   if (!pageReady) return <Loader />;
 
+  const summary = getSummaryData();
+
   return (
-    <div className="flex gap-4 p-4">
+    <div className="p-4 space-y-4">
+      {/* ===== Summary Dashboard Cards - Temporarily Commented =====
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-xl shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm opacity-90">Nguyên liệu tiêu thụ</p>
+              <p className="text-2xl font-bold">{summary.totalMaterialWeight} kg</p>
+              {selectedMaterial && (
+                <p className="text-xs opacity-80 mt-1">Còn lại: {summary.materialRemaining} bao</p>
+              )}
+            </div>
+            <InventoryIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+          </div>
+          {selectedMaterial && (
+            <div className="mt-2">
+              <LinearProgress 
+                variant="determinate" 
+                value={Math.min(parseFloat(summary.stockUsageRate), 100)} 
+                sx={{ 
+                  height: 6, 
+                  borderRadius: 3,
+                  backgroundColor: 'rgba(255,255,255,0.3)',
+                  '& .MuiLinearProgress-bar': { backgroundColor: 'white' }
+                }}
+              />
+              <p className="text-xs mt-1 opacity-80">Sử dụng {summary.stockUsageRate}% tồn kho</p>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-xl shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm opacity-90">Thành phẩm dự kiến</p>
+              <p className="text-2xl font-bold">{summary.totalExpectedWeight} kg</p>
+              <p className="text-xs opacity-80 mt-1">{summary.totalProducts} sản phẩm</p>
+            </div>
+            <FactoryIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+          </div>
+        </div>
+
+        {type === "update" && (
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-xl shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90">Sản lượng thực tế</p>
+                <p className="text-2xl font-bold">{Math.round(summary.totalActualWeight * 1000) / 1000} kg</p>
+                <p className="text-xs opacity-80 mt-1">
+                  {summary.totalExpectedWeight > 0 
+                    ? `${((summary.totalActualWeight / summary.totalExpectedWeight) * 100).toFixed(1)}% so với dự kiến`
+                    : 'Chưa có dữ liệu'
+                  }
+                </p>
+              </div>
+              <ScaleIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+            </div>
+          </div>
+        )}
+
+        <div className={`bg-gradient-to-br ${summary.conversionRate >= 95 ? 'from-emerald-500 to-emerald-600' : 'from-orange-500 to-orange-600'} text-white p-4 rounded-xl shadow-lg`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm opacity-90">Tỷ lệ chuyển đổi</p>
+              <p className="text-2xl font-bold">{summary.conversionRate}%</p>
+              <p className="text-xs opacity-80 mt-1">
+                {summary.conversionRate >= 95 ? 'Hiệu suất tốt' : 'Có thể cải thiện'}
+              </p>
+            </div>
+            <TrendingUpIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+          </div>
+        </div>
+      </div>
+      ===== End Summary Dashboard Cards ===== */}
+
+      {/* Validation Alert */}
+      {errors && (
+        <Alert severity="error" icon={<WarningIcon />} className="shadow-md">
+          <strong>Lỗi:</strong> {errors}
+        </Alert>
+      )}
+
+      {/* Main Content */}
+      <div className="flex gap-4">
 
       <div className="w-1/2 flex flex-col gap-4">
-        <div className="p-4 bg-white rounded-xl">
-          <p className="text-xl font-bold">Tìm kiếm nguyên liệu</p>
+        <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+          <div className="flex items-center gap-2 mb-4">
+            <InventoryIcon className="text-blue-600" />
+            <p className="text-xl font-bold text-gray-800">Nguyên liệu sản xuất</p>
+          </div>
           {!id ? (
             <AutocompleteCommon
               name="productId"
@@ -349,91 +471,152 @@ export default function ModifyProduction({ params }) {
           ) : (
             <input
               type="text"
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"
               disabled
               value={selectedMaterial?.productName || ""}
             />
           )}
         </div>
-        <TableContainer component={Paper}>
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+          {selectedMaterial && !id && (
+            <div className="p-4 bg-gray-50 border-b border-gray-200">
+              <p className="text-sm font-semibold text-gray-700 mb-2">Chọn nhanh số lượng:</p>
+              <div className="flex gap-2">
+                {[10, 50, 100, 200].map(num => (
+                  <button
+                    key={num}
+                    onClick={() => handleQuickSetQuantity(num)}
+                    disabled={num > selectedMaterial.quantity}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      num > selectedMaterial.quantity 
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    }`}
+                  >
+                    {num} bao
+                  </button>
+                ))}
+                <button
+                  onClick={() => handleQuickSetQuantity(selectedMaterial.quantity)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-all"
+                >
+                  Tất cả ({selectedMaterial.quantity})
+                </button>
+              </div>
+            </div>
+          )}
+          <TableContainer>
           <Table size="small">
             <TableHead>
               <TableRow className="background-primary">
-                <TableCell sx={{ color: "white" }}>Mã nguyên liệu</TableCell>
-                <TableCell sx={{ color: "white" }}>Tên nguyên liệu</TableCell>
-                <TableCell sx={{ color: "white" }} align="center">Tồn kho</TableCell>
-                <TableCell sx={{ color: "white" }} align="center">Khối lượng</TableCell>
-                <TableCell sx={{ color: "white" }} align="center">Số lượng tiêu thụ</TableCell>
-                <TableCell sx={{ color: "white" }} align="center">Tổng khối lượng tiêu thụ</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: 600 }}>Mã NL</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: 600 }}>Tên nguyên liệu</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Tồn kho</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL/đơn vị</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL tiêu thụ</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Tổng KL</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {!selectedMaterial ? (
                 <TableRow>
                   <TableCell colSpan={6} align="center">
-                    <p className="text-lg">
-                      Chưa có nguyên liệu
-                    </p>
+                    <div className="py-8">
+                      <InventoryIcon sx={{ fontSize: 48, color: '#9CA3AF', mb: 2 }} />
+                      <p className="text-lg text-gray-500">
+                        Vui lòng chọn nguyên liệu
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                <TableRow key={selectedMaterial.productId} hover>
-                  <TableCell>{selectedMaterial.productCode}</TableCell>
+                <TableRow key={selectedMaterial.productId} hover sx={{ backgroundColor: '#F9FAFB' }}>
+                  <TableCell><strong>{selectedMaterial.productCode}</strong></TableCell>
                   <TableCell>{selectedMaterial.productName}</TableCell>
-                  <TableCell align="center">{selectedMaterial.quantity}</TableCell>
-                  <TableCell align="center">{selectedMaterial.weightPerUnit} kg</TableCell>
-                  <TableCell align="center" sx={{ width: 200 }}>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity - 1)}
-                      sx={{ border: "1px solid #ccc", height: "28px" }}
-                    // disabled={type === 'update'}
-                    >
-                      <RemoveIcon fontSize="small" />
-                    </IconButton>
-                    <TextField
-                      type="number"
-                      size="small"
-                      inputProps={{
-                        min: 0,
-                        style: {
-                          width: 50,
-                          textAlign: "center",
-                          height: 10,
-                          color: selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity ? 'red' : 'inherit'
-                        },
-                      }}
-                      value={removeLeadingZero(selectedMaterial.produceQuantity)}
-                      onChange={(e) => handleChangeMaterial(selectedMaterial, e.target.value)}
+                  <TableCell align="center">
+                    <Chip 
+                      label={selectedMaterial.quantity} 
+                      size="small" 
+                      color={selectedMaterial.quantity > 100 ? "success" : selectedMaterial.quantity > 50 ? "warning" : "error"}
                       variant="outlined"
-                      error={selectedMaterial.produceQuantity < 0}
-                      //disabled={type === 'update'}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '& fieldset': {
-                            borderColor: selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity ? 'red' : 'inherit',
-                          },
-                        },
-                        marginX: "5px",
-                      }}
                     />
-                    <IconButton
-                      size="small"
-                      onClick={() => handleChangeMaterial(selectedMaterial, parseInt(selectedMaterial.produceQuantity) + 1)}
-                      sx={{ border: "1px solid #ccc", height: "28px" }}
-                    //disabled={type === 'update'}
-                    >
-                      <AddIcon fontSize="small" />
-                    </IconButton>
                   </TableCell>
-                  <TableCell align="center">{selectedMaterial.produceQuantity * selectedMaterial.weightPerUnit} kg</TableCell>
+                  <TableCell align="center">
+                    <Chip label={`${selectedMaterial.weightPerUnit} kg`} size="small" variant="outlined" />
+                  </TableCell>
+                  <TableCell align="center" sx={{ width: 220 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                      <Tooltip title="Giảm 1">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity - 1)}
+                          sx={{ 
+                            border: "1px solid #E5E7EB", 
+                            height: "32px", 
+                            width: "32px",
+                            '&:hover': { backgroundColor: '#F3F4F6' }
+                          }}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <TextField
+                        type="number"
+                        size="small"
+                        inputProps={{
+                          min: 0,
+                          style: {
+                            width: 60,
+                            textAlign: "center",
+                            height: 10,
+                            fontWeight: 600,
+                            color: selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity ? '#EF4444' : '#1F2937'
+                          },
+                        }}
+                        value={removeLeadingZero(selectedMaterial.produceQuantity)}
+                        onChange={(e) => handleChangeMaterial(selectedMaterial, e.target.value)}
+                        variant="outlined"
+                        error={selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity ? '#EF4444' : '#D1D5DB',
+                              borderWidth: 2
+                            },
+                          },
+                          marginX: "8px",
+                        }}
+                      />
+                      <Tooltip title="Tăng 1">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleChangeMaterial(selectedMaterial, parseInt(selectedMaterial.produceQuantity) + 1)}
+                          sx={{ 
+                            border: "1px solid #E5E7EB", 
+                            height: "32px", 
+                            width: "32px",
+                            '&:hover': { backgroundColor: '#F3F4F6' }
+                          }}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </TableCell>
+                  <TableCell align="center">
+                    <strong className="text-blue-700">{selectedMaterial.produceQuantity * selectedMaterial.weightPerUnit} kg</strong>
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-        {productionWeightLog && <div className="p-4 bg-white rounded-xl">
-          <p className="text-xl font-bold mb-4">Chi tiết phiếu cân</p>
+        </div>
+        {productionWeightLog && <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+          <div className="flex items-center gap-2 mb-4">
+            <ScaleIcon className="text-purple-600" />
+            <p className="text-xl font-bold text-gray-800">Chi tiết phiếu cân</p>
+          </div>
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
@@ -463,25 +646,49 @@ export default function ModifyProduction({ params }) {
             </Table>
           </TableContainer>
         </div>}
-        <div className="p-4 bg-white rounded-xl">
-          <h1 className="text-xl font-bold">Ghi chú</h1>
+        <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+          <div className="flex items-center gap-2 mb-4">
+            <InfoIcon className="text-gray-600" />
+            <h1 className="text-xl font-bold text-gray-800">Ghi chú</h1>
+          </div>
           <textarea
-            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+            className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            rows={4}
+            placeholder="Nhập ghi chú cho phiếu sản xuất..."
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
-          {errors && <p className="text-red-500 mb-4">{errors}</p>}
-          <button className="background-primary background-hovered px-4 py-2 text-white rounded-xl"
+          <button 
+            className={`w-full px-6 py-3 text-white font-semibold rounded-xl transition-all transform ${
+              errors 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'background-primary background-hovered hover:scale-[1.02] active:scale-[0.98] shadow-lg'
+            }`}
             onClick={handleSubmit}
+            disabled={!!errors}
           >
-            Hoàn thành
+            <div className="flex items-center justify-center gap-2">
+              <CheckCircleIcon />
+              <span>Hoàn thành sản xuất</span>
+            </div>
           </button>
         </div>
       </div>
 
       <div className="w-1/2 flex flex-col gap-4">
-        <div className="p-4 bg-white rounded-xl">
-          <p className="text-xl font-bold">Tìm kiếm sản phẩm</p>
+        <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+          <div className="flex items-center gap-2 mb-4">
+            <FactoryIcon className="text-green-600" />
+            <p className="text-xl font-bold text-gray-800">Thành phẩm sản xuất</p>
+            {cart.length > 0 && (
+              <Chip 
+                label={`${cart.length} sản phẩm`} 
+                size="small" 
+                color="success" 
+                className="ml-auto"
+              />
+            )}
+          </div>
           <AutocompleteCommon
             name="productId"
             value={selectedProduct}
@@ -493,87 +700,137 @@ export default function ModifyProduction({ params }) {
             getOptionKey={(option) => option.productId}
           />
         </div>
-        <div className="max-h-[80vh] overflow-y-scroll scrollbar-hidden">
-          <TableContainer component={Paper}>
+        <div className="max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <TableContainer component={Paper} className="shadow-md border border-gray-100">
             <Table size="small">
               <TableHead>
                 <TableRow className="background-primary">
-                  <TableCell sx={{ color: "white" }}>Mã thành phẩm</TableCell>
-                  <TableCell sx={{ color: "white" }}>Tên thành phẩm</TableCell>
-                  <TableCell sx={{ color: "white" }} align="center">Khối lượng</TableCell>
-                  {type === "update" && <TableCell sx={{ color: "white" }} align="center">Số lượng sản xuất</TableCell>}
-                  {type === "update" && <TableCell sx={{ color: "white" }} align="center">Sản lượng dự kiến</TableCell>}
-                  {type === "update" && <TableCell sx={{ color: "white" }} align="center">Sản lượng thực tế</TableCell>}
-                  <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: 600 }}>Mã TP</TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: 600 }}>Tên thành phẩm</TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL/đơn vị</TableCell>
+                  {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL sản xuất</TableCell>}
+                  {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL dự kiến</TableCell>}
+                  {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL thực tế</TableCell>}
+                  <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Thao tác</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {cart.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} align="center">
-                      <p className="my-10 text-xl">
-                        Chưa có sản phẩm
-                      </p>
+                      <div className="py-12">
+                        <FactoryIcon sx={{ fontSize: 64, color: '#9CA3AF', mb: 2 }} />
+                        <p className="text-xl text-gray-500 mb-2">
+                          Chưa có thành phẩm
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          Sử dụng ô tìm kiếm phía trên để thêm sản phẩm
+                        </p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  cart.map((product) => (
-                    <TableRow key={product.productId} hover>
-                      <TableCell>{product.productCode}</TableCell>
+                  cart.map((product, index) => (
+                    <TableRow 
+                      key={product.productId} 
+                      hover 
+                      sx={{ 
+                        backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9FAFB',
+                        '&:hover': { backgroundColor: '#F3F4F6' }
+                      }}
+                    >
+                      <TableCell><strong>{product.productCode}</strong></TableCell>
                       <TableCell>{product.productName}</TableCell>
-                      <TableCell align="center">{product.weightPerUnit} kg</TableCell>
-                      {type === "update" && <TableCell align="center" sx={{ width: 200 }}>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
-                          sx={{ border: "1px solid #ccc", height: "28px" }}
-                        >
-                          <RemoveIcon fontSize="small" />
-                        </IconButton>
-                        <TextField
-                          type="number"
-                          size="small"
-                          inputProps={{
-                            min: 0,
-                            style: {
-                              width: 50,
-                              textAlign: "center",
-                              height: 10,
-                              color: product.produceQuantity < 0 ? 'red' : 'inherit'
-                            },
-                          }}
-                          value={removeLeadingZero(product.produceQuantity)}
-                          onChange={(e) => handleChangeCart(product.productId, "produceQuantity", e.target.value)}
-                          variant="outlined"
-                          error={product.produceQuantity < 0}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: product.produceQuantity < 0 ? 'red' : 'inherit',
+                      <TableCell align="center">
+                        <Chip label={`${product.weightPerUnit} kg`} size="small" variant="outlined" color="primary" />
+                      </TableCell>
+                      {type === "update" && <TableCell align="center" sx={{ width: 220 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                          <Tooltip title="Giảm 1">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
+                              sx={{ 
+                                border: "1px solid #E5E7EB", 
+                                height: "32px", 
+                                width: "32px",
+                                '&:hover': { backgroundColor: '#FEE2E2' }
+                              }}
+                            >
+                              <RemoveIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <TextField
+                            type="number"
+                            size="small"
+                            inputProps={{
+                              min: 0,
+                              style: {
+                                width: 60,
+                                textAlign: "center",
+                                height: 10,
+                                fontWeight: 600,
+                                color: product.produceQuantity < 0 ? '#EF4444' : '#1F2937'
                               },
-                            },
-                            marginX: "5px",
-                          }}
-                        />
-                        <IconButton
-                          size="small"
-                          onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity + 1)}
-                          sx={{ border: "1px solid #ccc", height: "28px" }}
-                        >
-                          <AddIcon fontSize="small" />
-                        </IconButton>
+                            }}
+                            value={removeLeadingZero(product.produceQuantity)}
+                            onChange={(e) => handleChangeCart(product.productId, "produceQuantity", e.target.value)}
+                            variant="outlined"
+                            error={product.produceQuantity < 0}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                '& fieldset': {
+                                  borderColor: product.produceQuantity < 0 ? '#EF4444' : '#D1D5DB',
+                                  borderWidth: 2
+                                },
+                              },
+                              marginX: "8px",
+                            }}
+                          />
+                          <Tooltip title="Tăng 1">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity + 1)}
+                              sx={{ 
+                                border: "1px solid #E5E7EB", 
+                                height: "32px", 
+                                width: "32px",
+                                '&:hover': { backgroundColor: '#D1FAE5' }
+                              }}
+                            >
+                              <AddIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
                       </TableCell>
                       }
-                      {type === "update" && <TableCell align="center">{product.produceQuantity * product.weightPerUnit} kg</TableCell>}
-                      {type === "update" && <TableCell align="center">{Math.round(product.actualWeight * 1000) / 1000} kg</TableCell>}
+                      {type === "update" && <TableCell align="center">
+                        <strong className="text-green-700">{product.produceQuantity * product.weightPerUnit} kg</strong>
+                      </TableCell>}
+                      {type === "update" && <TableCell align="center">
+                        <Chip 
+                          label={`${Math.round(product.actualWeight * 1000) / 1000} kg`} 
+                          size="small" 
+                          color="secondary"
+                          variant="filled"
+                        />
+                      </TableCell>}
                       <TableCell align="center">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleRemoveCart(product.productId)}
-                          sx={{ backgroundColor: "red", height: "28px", color: "white" }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
+                        <Tooltip title="Xóa sản phẩm">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleRemoveCart(product.productId)}
+                            sx={{ 
+                              backgroundColor: "#FEE2E2", 
+                              height: "32px", 
+                              width: "32px",
+                              color: "#EF4444",
+                              '&:hover': { backgroundColor: '#FCA5A5' }
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   )))}
@@ -581,6 +838,7 @@ export default function ModifyProduction({ params }) {
             </Table>
           </TableContainer>
         </div>
+      </div>
       </div>
       <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), handleExit() }} />
       <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
