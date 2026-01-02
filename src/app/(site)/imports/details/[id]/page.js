@@ -124,13 +124,40 @@ export default function ImportDetail({ params }) {
         },
         {
             key: "quantity",
-            label: "Số lượng (Bao)",
+            label: "SL Đơn (Bao)",
             customValue: (item) => item.quantity && <div>{item.quantity}</div>
         },
+        ...(transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11 ? [{
+            key: "actualQuantity",
+            label: "SL Thực tế (Bao)",
+            customValue: (item) => item.actualQuantity !== null && item.actualQuantity !== undefined ? 
+                <div className="font-semibold">{item.actualQuantity}</div> : 
+                <div className="text-gray-400">-</div>
+        },
+        {
+            key: "difference",
+            label: "Chênh lệch",
+            customValue: (item) => {
+                if (item.actualQuantity !== null && item.actualQuantity !== undefined) {
+                    const diff = item.actualQuantity - item.quantity;
+                    return (
+                        <div className={`font-semibold ${diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                            {diff > 0 && '+'}{diff}
+                        </div>
+                    );
+                }
+                return <div className="text-gray-400">-</div>;
+            }
+        }] : []),
         {
             key: "totalWeight",
-            label: "Tổng khối lượng (Khối lượng x Số lượng)",
-            customValue: (item) => item.weightPerUnit && item.quantity && <div>{formatLargeNumber(item.weightPerUnit * item.quantity)}</div>
+            label: "Tổng KL (Kg)",
+            customValue: (item) => {
+                const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
+                    ? item.actualQuantity 
+                    : item.quantity;
+                return item.weightPerUnit && <div>{formatLargeNumber(item.weightPerUnit * qty)}</div>
+            }
         },
         {
             key: "unitPrice",
@@ -140,20 +167,44 @@ export default function ImportDetail({ params }) {
         {
             key: "totalPrice",
             label: "Thành tiền (VND)",
-            customValue: (item) => item.quantity && item.unitPrice && <div>{formatLargeNumber(item.quantity * item.unitPrice)}₫</div>
+            customValue: (item) => {
+                const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
+                    ? item.actualQuantity 
+                    : item.quantity;
+                return item.unitPrice && <div>{formatLargeNumber(qty * item.unitPrice)}₫</div>
+            }
         },
     ]
 
     const extraRow = () => {
+        // Calculate totals based on actual quantity if available, otherwise use quantity
+        const showActualQuantity = transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11;
+        
+        const totalWeight = products.reduce((total, item) => {
+            const qty = showActualQuantity && item.actualQuantity !== null && item.actualQuantity !== undefined
+                ? item.actualQuantity 
+                : item.quantity;
+            return total + (item.weightPerUnit * qty);
+        }, 0);
+
+        const totalCost = products.reduce((total, item) => {
+            const qty = showActualQuantity && item.actualQuantity !== null && item.actualQuantity !== undefined
+                ? item.actualQuantity 
+                : item.quantity;
+            return total + (qty * item.unitPrice);
+        }, 0);
+
         return (
             <TableRow>
                 <TableCell colSpan={1} align="center">Tổng</TableCell>
                 <TableCell />
                 <TableCell />
+                {showActualQuantity && <TableCell />}
+                {showActualQuantity && <TableCell />}
+                {showActualQuantity && <TableCell />}
+                <TableCell align="center">{formatLargeNumber(totalWeight)} Kg</TableCell>
                 <TableCell />
-                <TableCell align="center">{(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))} Kg</TableCell>
-                <TableCell />
-                <TableCell align="center">{!transaction.totalCost ? formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)} ₫</TableCell>
+                <TableCell align="center">{formatLargeNumber(totalCost)}₫</TableCell>
             </TableRow>
         )
     }
@@ -207,8 +258,8 @@ export default function ImportDetail({ params }) {
         }
         setLoading(true);
         try {
-            // API sẽ cập nhật số lượng trong đơn thành số lượng thực tế
-            // và chuyển trạng thái sang "Chờ phê duyệt kho"
+            // API sẽ cập nhật ActualQuantity, giữ nguyên Quantity (số lượng đơn)
+            // Tính lại totalCost dựa trên ActualQuantity
             const body = {
                 responsibleId: user.id,
                 note: data.note || "",
@@ -218,7 +269,7 @@ export default function ImportDetail({ params }) {
                 }))
             }
             await importService.submitForApproval(id, body);
-            setModalSuccessMessage("Gửi phê duyệt thành công. Số lượng trong đơn đã được cập nhật theo số lượng thực tế. Đơn đang chờ kho phê duyệt.");
+            setModalSuccessMessage("Gửi phê duyệt thành công. Số lượng thực tế đã được lưu. Đơn đang chờ kho phê duyệt.");
             setModalSuccessOpen(true);
             fetchTransaction();
         } catch (error) {

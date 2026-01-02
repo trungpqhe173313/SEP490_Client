@@ -84,8 +84,8 @@ export function ActualQuantityForm({
                     </div>
                     <div className="p-6">
                         <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                            <p className="text-sm text-yellow-800">
-                                <strong>Lưu ý:</strong> Số lượng trong đơn sẽ được cập nhật theo số lượng thực tế bạn nhập. Sau khi gửi phê duyệt, đơn sẽ chuyển sang trạng thái "Chờ phê duyệt kho". Ngày hết hạn sẽ được nhập bởi quản kho khi phê duyệt.
+<p className="text-sm text-yellow-800">
+                                <strong>Lưu ý:</strong> Số lượng đơn ban đầu sẽ được giữ nguyên. Bạn chỉ nhập số lượng thực tế nhận được vào cột "Số lượng thực tế". Hệ thống sẽ tự động tính chênh lệch và cập nhật tổng tiền dựa trên số lượng thực tế.
                             </p>
                         </div>
                         <form onSubmit={handleSubmit}>
