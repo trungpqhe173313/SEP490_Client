@@ -29,6 +29,14 @@ export default function VerifyOtpPage({ params }) {
 			return;
 		}
 
+		// Validate email format
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email.trim())) {
+			setModalMessage("Email không đúng định dạng");
+			setShowFailedModal(true);
+			return;
+		}
+
 		setIsLoading(true);
 		try {
 			const verifyRes = await AuthService.verifyOtp({
@@ -86,6 +94,14 @@ export default function VerifyOtpPage({ params }) {
 	const handleResendOtp = async () => {
 		if (!email.trim()) {
 			setModalMessage("Vui lòng nhập email");
+			setShowFailedModal(true);
+			return;
+		}
+
+		// Validate email format
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email.trim())) {
+			setModalMessage("Email không đúng định dạng");
 			setShowFailedModal(true);
 			return;
 		}

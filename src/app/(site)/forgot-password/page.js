@@ -21,6 +21,15 @@ export default function ForgotPasswordPage() {
 			setShowFailedModal(true);
 			return;
 		}
+		
+		// Validate email format
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email.trim())) {
+			setModalMessage("Email không đúng định dạng");
+			setShowFailedModal(true);
+			return;
+		}
+		
 		setIsLoading(true);
 		try {
 			const res = await AuthService.requestPasswordReset(email.trim());
