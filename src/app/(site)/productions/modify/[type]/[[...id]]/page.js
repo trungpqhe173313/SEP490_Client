@@ -46,6 +46,7 @@ export default function ModifyProduction({ params }) {
 
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [materials, setMaterials] = useState([]);
+  const [materialsOriginal, setMaterialsOriginal] = useState([]);
   const [materialLoading, setMaterialLoading] = useState(false);
 
   const [productionData, setProductionData] = useState(null);
@@ -122,18 +123,29 @@ export default function ModifyProduction({ params }) {
   }
 
   const fetchProducts = async () => {
-    const body = { pageIndex: 1, pageSize: 1000, productName: "", categoryId: 9 };
-    await productService.getProductAvailable(body)
-      .then((response) => {
-        setProducts(response.data.items);
-        setProductsForSearch(response.data.items.sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
-        setMaterials(response.data.items
-          .sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
-        );
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    try {
+      // Fetch nguyên liệu từ kho ID 2
+      const materialsResponse = await productService.getProductsByWarehouse(2);
+      const materialsData = materialsResponse.data || [];
+      const sortedMaterials = materialsData.map(item => ({
+        ...item,
+        productCode: item.code // Map code to productCode
+      })).sort((a, b) => (a.lastUpdated || a.createdAt)?.localeCompare(b.lastUpdated || b.createdAt) || 0);
+      setMaterials(sortedMaterials);
+      setMaterialsOriginal(sortedMaterials);
+
+      // Fetch thành phẩm từ nhà cung cấp ID 5 (Kho sản xuất nội bộ)
+      const productsResponse = await productService.getProductBySupplier([5]);
+      const productsData = productsResponse.data || [];
+      const sortedProducts = productsData.map(item => ({
+        ...item,
+        productCode: item.code // Map code to productCode
+      })).sort((a, b) => a.createdAt?.localeCompare(b.createdAt) || 0);
+      setProducts(sortedProducts);
+      setProductsForSearch(sortedProducts);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const searchProducts = async (name) => {
@@ -141,9 +153,9 @@ export default function ModifyProduction({ params }) {
     try {
       setProductLoading(true);
       setProductsForSearch(products.filter((p) =>
-        p.productCode.toLowerCase().includes(name.toLowerCase()) ||
-        removeVietnameseTones(p.productName).includes(search)
-      ).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
+        (p.productCode || p.code || '').toLowerCase().includes(name.toLowerCase()) ||
+        removeVietnameseTones(p.productName || '').includes(search)
+      ).sort((a, b) => (a.createdAt || '')?.localeCompare(b.createdAt || '') || 0));
     } catch (error) {
       console.log(error);
     } finally {
@@ -155,10 +167,10 @@ export default function ModifyProduction({ params }) {
     const search = removeVietnameseTones(name);
     try {
       setMaterialLoading(true);
-      setMaterials(products.filter((p) =>
-        p.productCode.toLowerCase().includes(name.toLowerCase()) ||
-        removeVietnameseTones(p.productName).includes(search)
-      ).sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
+      setMaterials(materialsOriginal.filter((p) =>
+        (p.productCode || p.code || '').toLowerCase().includes(name.toLowerCase()) ||
+        removeVietnameseTones(p.productName || '').includes(search)
+      ).sort((a, b) => (a.lastUpdated || a.createdAt || '')?.localeCompare(b.lastUpdated || b.createdAt || '') || 0));
     } catch (error) {
       console.log(error);
     } finally {
@@ -184,7 +196,7 @@ export default function ModifyProduction({ params }) {
 
   const handleChangeMaterial = async (item, produceQuantity) => {
     const newMaterial = {
-      productCode: item.productCode,
+      productCode: item.productCode || item.code,
       productName: item.productName,
       productId: item.productId,
       produceQuantity: parseInt(produceQuantity),
@@ -206,7 +218,7 @@ export default function ModifyProduction({ params }) {
     setLoading(true);
     const newProduct = {
       productId: product.productId,
-      productCode: product.productCode,
+      productCode: product.productCode || product.code,
       productName: product.productName,
       produceQuantity: 0,
       quantity: product.quantity,
@@ -465,7 +477,7 @@ export default function ModifyProduction({ params }) {
               options={materials}
               onSelect={(item) => handleChangeDropdown(item, "material")}
               onSearch={searchMaterial}
-              getOptionLabel={(option) => `${option.productCode} - ${option.productName}`}
+              getOptionLabel={(option) => `${option.productCode || option.code} - ${option.productName}`}
               getOptionKey={(option) => option.productId}
             />
           ) : (
@@ -689,16 +701,27 @@ export default function ModifyProduction({ params }) {
               />
             )}
           </div>
-          <AutocompleteCommon
-            name="productId"
-            value={selectedProduct}
-            loading={productLoading}
-            options={productsForSearch}
-            onSelect={(item) => handleChangeDropdown(item, "cart")}
-            onSearch={searchProducts}
-            getOptionLabel={(option) => `${option.productCode} - ${option.productName}`}
-            getOptionKey={(option) => option.productId}
-          />
+          {type === "update" ? (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <InfoIcon className="text-blue-600" fontSize="small" />
+                <p className="text-sm text-blue-800">
+                  Không thể thêm/xóa thành phẩm khi đang hoàn thành sản xuất
+                </p>
+              </div>
+            </div>
+          ) : (
+            <AutocompleteCommon
+              name="productId"
+              value={selectedProduct}
+              loading={productLoading}
+              options={productsForSearch}
+              onSelect={(item) => handleChangeDropdown(item, "cart")}
+              onSearch={searchProducts}
+              getOptionLabel={(option) => `${option.productCode || option.code} - ${option.productName}`}
+              getOptionKey={(option) => option.productId}
+            />
+          )}
         </div>
         <div className="max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           <TableContainer component={Paper} className="shadow-md border border-gray-100">
@@ -816,21 +839,41 @@ export default function ModifyProduction({ params }) {
                         />
                       </TableCell>}
                       <TableCell align="center">
-                        <Tooltip title="Xóa sản phẩm">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleRemoveCart(product.productId)}
-                            sx={{ 
-                              backgroundColor: "#FEE2E2", 
-                              height: "32px", 
-                              width: "32px",
-                              color: "#EF4444",
-                              '&:hover': { backgroundColor: '#FCA5A5' }
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                        {type === "update" ? (
+                          <Tooltip title="Không thể xóa thành phẩm khi đang hoàn thành sản xuất">
+                            <span>
+                              <IconButton
+                                size="small"
+                                disabled
+                                sx={{ 
+                                  backgroundColor: "#F3F4F6", 
+                                  height: "32px", 
+                                  width: "32px",
+                                  color: "#9CA3AF",
+                                  cursor: "not-allowed"
+                                }}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                        ) : (
+                          <Tooltip title="Xóa sản phẩm">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveCart(product.productId)}
+                              sx={{ 
+                                backgroundColor: "#FEE2E2", 
+                                height: "32px", 
+                                width: "32px",
+                                color: "#EF4444",
+                                '&:hover': { backgroundColor: '#FCA5A5' }
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </TableCell>
                     </TableRow>
                   )))}
