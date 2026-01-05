@@ -29,6 +29,10 @@ export const productionService = {
         const response = await API.put(`/production/ChangeToCancel/${id}`);
         return response.data;
     },
+    submitProductionForApproval: async (id) => {
+        const response = await API.put(`/production/SubmitForApproval/${id}`);
+        return response.data;
+    },
     getAllDevices: async () => {
         return await API.get('/iot-devices');
     },

@@ -178,6 +178,12 @@ const Navbar = () => {
           role: ["Manager"],
           icon: <FactoryIcon />
         },
+        {
+          name: "Phiếu sản xuất",
+          link: "/productions/my-productions",
+          role: ["Employee"],
+          icon: <AssignmentAddIcon />
+        },
       ],
     },
     {
