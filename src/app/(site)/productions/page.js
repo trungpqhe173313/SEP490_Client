@@ -337,6 +337,7 @@ export default function Productions() {
                         <h1 className='text-xl font-bold'>Thông tin chi tiết</h1>
                         <p className='my-2'>Mã phiếu sản xuất: {production.id}</p>
                         <p className='my-2'>Ngày tạo phiếu sản xuất: {new Date(production.createdAt).toLocaleString('vi-VN')}</p>
+                        <p className='my-2'>Nhân viên phụ trách: {production.responsibleEmployeeFullName || 'Chưa phân công'}</p>
                         <p className='my-2'>Ghi chú: {production.note}</p>
                         <div className='my-2 flex flex-row gap-2'>
                             <p>Trạng thái: </p>
