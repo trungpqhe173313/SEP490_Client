@@ -154,7 +154,6 @@ export default function Productions() {
                     productId: item.productId,
                     quantity: weightLog.data.products.find((p) => p.productId === item.productId)?.totalBags || item.quantity,
                     actualWeight: weightLog.data.products.find((p) => p.productId === item.productId)?.totalWeight || 0,
-                    expectedWeight: item.weightPerUnit * item.quantity,
                     weightPerUnit: item.weightPerUnit
                 }));
                 detailsArr.push({
@@ -319,14 +318,15 @@ export default function Productions() {
                 customValue: (item) => production.status === 2 && item.quantity > 0 ? <div>{item.quantity}</div> : <div>Chưa có</div>
             },
             {
-                key: "expectedWeight",
-                label: "Sản lượng dự kiến",
-                customValue: (item) => production.status === 2 && item.expectedWeight ? <div>{item.expectedWeight} kg</div> : <div>Chưa có</div>
-            },
-            {
-                key: "actualWeight",
-                label: "Sản lượng thực tế",
-                customValue: (item) => production.status === 2 && item.actualWeight ? <div>{item.actualWeight} kg</div> : <div>Chưa có</div>
+                key: "totalWeight",
+                label: "Khối lượng thành phẩm",
+                customValue: (item) => {
+                    if (production.status === 2) {
+                        const weight = item.actualWeight || (item.quantity * item.weightPerUnit);
+                        return <div>{Math.round(weight * 1000) / 1000} kg</div>;
+                    }
+                    return <div>Chưa có</div>;
+                }
             },
         ];
 

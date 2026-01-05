@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { productService } from "@/services/product.service";
 import { productionService } from "@/services/production.service";
+import { employeeService } from "@/services/employee.service";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
 import { AutocompleteCommon } from "@/components/Autocomplete/Autocomplete";
@@ -48,6 +49,11 @@ export default function ModifyProduction({ params }) {
   const [materials, setMaterials] = useState([]);
   const [materialsOriginal, setMaterialsOriginal] = useState([]);
   const [materialLoading, setMaterialLoading] = useState(false);
+
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [employeesOriginal, setEmployeesOriginal] = useState([]);
+  const [employeeLoading, setEmployeeLoading] = useState(false);
 
   const [productionData, setProductionData] = useState(null);
   const [productionWeightLog, setProductionWeightLog] = useState(null);
@@ -178,6 +184,52 @@ export default function ModifyProduction({ params }) {
     }
   }
 
+  const fetchEmployees = async () => {
+    try {
+      const body = {
+                pageIndex: 1,
+                pageSize: 1000,
+                isActive: true
+            };
+      const response = await employeeService.getAllEmployees(body);
+      const employeesData = response.data.items || [];
+      console.log('employeesData', employeesData);
+      const sortedEmployees = employeesData
+        .filter((emp) => emp.isActive)
+        .sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+      setEmployees(sortedEmployees);
+      setEmployeesOriginal(sortedEmployees);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const searchEmployee = async (name) => {
+    try {
+      setEmployeeLoading(true);
+
+      const keyword = removeVietnameseTones(name || "").toLowerCase();
+
+      const filtered = employeesOriginal.filter(emp => {
+        const fullName = removeVietnameseTones(emp.fullName || "").toLowerCase();
+        return fullName.includes(keyword);
+      });
+
+      filtered.sort((a, b) =>
+        (a.fullName || "").localeCompare(b.fullName || "")
+      );
+
+      setEmployees(filtered);
+    }
+    catch (error) {
+      console.log(error);
+    }
+    finally {
+      setEmployeeLoading(false);
+    }
+  };
+
+
   const handleChangeDropdown = (item, field) => {
     if (field === "cart") {
       if (item) {
@@ -190,6 +242,11 @@ export default function ModifyProduction({ params }) {
     if (field === "material") {
       if (item) {
         handleChangeMaterial(item, 0);
+      }
+    }
+    if (field === "employee") {
+      if (item) {
+        setSelectedEmployee(item);
       }
     }
   };
@@ -255,49 +312,66 @@ export default function ModifyProduction({ params }) {
 
   const handleSubmit = async () => {
     if (!validation()) return;
+
     setLoading(true);
-    if (type === "create") {
-      const body = {
-        materialProductId: selectedMaterial.productId,
-        materialQuantity: selectedMaterial.produceQuantity,
-        note: note,
-        listFinishProduct: cart.map((item) => ({
-          productId: item.productId,
-          quantity: 1,
-        })),
+
+    try {
+      if (type === "create") {
+        const body = {
+          materialProductId: selectedMaterial.productId,
+          materialQuantity: selectedMaterial.produceQuantity,
+          responsibleId: selectedEmployee?.userId,
+          note,
+          listFinishProduct: cart.map((item) => ({
+            productId: item.productId,
+            quantity: item.produceQuantity || 0,
+          })),
+        };
+
+        await productionService.createProduction(body);
+
+        setModalSuccessMessage("Tạo phiếu sản xuất thành công");
+        setModalSuccessOpen(true);
       }
-      await productionService.createProduction(body)
-        .then((response) => {
-          setModalSuccessMessage(`Tạo phiếu sản xuất thành công`);
-          setModalSuccessOpen(true);
-        })
-        .catch((error) => {
-          setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
-          setModalFailedOpen(true);
-        });
-    } else if (type === "update") {
-      const body = {
-        finishProductQuantities: cart.filter((p) => p.produceQuantity > 0).map((item) => ({
-          productId: item.productId,
-          quantity: item.produceQuantity
-        }))
+
+      else if (type === "update") {
+        const body = {
+          finishProductQuantities: cart
+            .filter(p => p.produceQuantity > 0)
+            .map(item => ({
+              productId: item.productId,
+              quantity: item.produceQuantity,
+            })),
+        };
+
+        await productionService.updateProductionToFinish(id, body);
+
+        setModalSuccessMessage("Cập nhật phiếu sản xuất thành công");
+        setModalSuccessOpen(true);
       }
-      await productionService.updateProductionToFinish(id, body)
-        .then((response) => {
-          setModalSuccessMessage(`Cập nhật phiếu sản xuất thành công`);
-          setModalSuccessOpen(true);
-        })
-        .catch((error) => {
-          setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
-          setModalFailedOpen(true);
-        });
+
+    } catch (error) {
+      console.log(error);
+
+      const message =
+        error?.response?.data?.error?.message ||
+        "Có lỗi xảy ra khi xử lý";
+
+      setModalFailedMessage(`Lỗi: ${message}`);
+      setModalFailedOpen(true);
     }
-    setLoading(false);
-  }
+    finally {
+      setLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!pageReady) return;
     fetchProducts();
+    if (type === "create") {
+      fetchEmployees();
+    }
   }, [pageReady]);
 
   useEffect(() => {
@@ -307,7 +381,7 @@ export default function ModifyProduction({ params }) {
 
   useEffect(() => {
     validation()
-  }, [cart, selectedMaterial]);
+  }, [cart, selectedMaterial, selectedEmployee]);
 
   const validation = () => {
     if (!pageReady) return;
@@ -337,6 +411,10 @@ export default function ModifyProduction({ params }) {
     }
     if (cart.find((p) => Number.isInteger(p.produceQuantity) === false)) {
       setErrors("Số lượng thành phẩm phải là số nguyên");
+      return false;
+    }
+    if (type === "create" && !selectedEmployee) {
+      setErrors("Vui lòng chọn nhân viên phụ trách sản xuất");
       return false;
     }
     setErrors("")
@@ -464,6 +542,24 @@ export default function ModifyProduction({ params }) {
       <div className="flex gap-4">
 
       <div className="w-1/2 flex flex-col gap-4">
+        {type === "create" && (
+          <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+            <div className="flex items-center gap-2 mb-4">
+              <InfoIcon className="text-purple-600" />
+              <p className="text-xl font-bold text-gray-800">Nhân viên phụ trách</p>
+            </div>
+            <AutocompleteCommon
+              name="employeeId"
+              value={selectedEmployee}
+              loading={employeeLoading}
+              options={employees}
+              onSelect={(item) => handleChangeDropdown(item, "employee")}
+              onSearch={searchEmployee}
+              getOptionLabel={(option) => `${option.fullName}`}
+              getOptionKey={(option) => option.userId}
+            />
+          </div>
+        )}
         <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
           <div className="flex items-center gap-2 mb-4">
             <InventoryIcon className="text-blue-600" />
@@ -732,8 +828,7 @@ export default function ModifyProduction({ params }) {
                   <TableCell sx={{ color: "white", fontWeight: 600 }}>Tên thành phẩm</TableCell>
                   <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL/đơn vị</TableCell>
                   {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL sản xuất</TableCell>}
-                  {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL dự kiến</TableCell>}
-                  {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL thực tế</TableCell>}
+                  {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL từ phiếu cân</TableCell>}
                   <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Thao tác</TableCell>
                 </TableRow>
               </TableHead>
@@ -827,9 +922,6 @@ export default function ModifyProduction({ params }) {
                         </Box>
                       </TableCell>
                       }
-                      {type === "update" && <TableCell align="center">
-                        <strong className="text-green-700">{product.produceQuantity * product.weightPerUnit} kg</strong>
-                      </TableCell>}
                       {type === "update" && <TableCell align="center">
                         <Chip 
                           label={`${Math.round(product.actualWeight * 1000) / 1000} kg`} 
