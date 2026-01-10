@@ -327,6 +327,12 @@ export default function MyProductions() {
                         <p className='my-2'><span className="font-semibold">Mã phiếu:</span> {production.id}</p>
                         <p className='my-2'><span className="font-semibold">Ngày tạo:</span> {new Date(production.createdAt).toLocaleString('vi-VN')}</p>
                         <p className='my-2'><span className="font-semibold">Ghi chú:</span> {production.note || <span className="text-gray-400">Không có</span>}</p>
+                        {production?.status === 5 && production.note && (
+                            <div className='my-2 p-3 bg-red-50 border border-red-200 rounded-lg'>
+                                <p className='font-semibold text-red-800'>❌ Lý do từ chối:</p>
+                                <p className='text-red-700 mt-1'>{production.note}</p>
+                            </div>
+                        )}
                         <div className='my-2 flex flex-row gap-2 items-center'>
                             <span className="font-semibold">Trạng thái:</span>
                             {getProductionStatus(production.status)}
@@ -358,6 +364,14 @@ export default function MyProductions() {
                                     ✅ Hoàn thành & gửi phê duyệt
                                 </button>
                             )}
+                            {production?.status === 5 && (
+                                <button 
+                                    className='rounded-xl px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 transition-all' 
+                                    onClick={() => handleCompleteProduction(production.id)}
+                                >
+                                    🔄 Sửa và gửi lại phê duyệt
+                                </button>
+                            )}
                             {production?.status === 4 && (
                                 <div className="text-center p-4 bg-purple-50 rounded-xl border border-purple-200">
                                     <p className="text-purple-800">⏳ Đang chờ Manager phê duyệt</p>
@@ -371,11 +385,6 @@ export default function MyProductions() {
                             {production?.status === 3 && (
                                 <div className="text-center p-4 bg-red-50 rounded-xl border border-red-200">
                                     <p className="text-red-800">❌ Đã hủy</p>
-                                </div>
-                            )}
-                            {production?.status === 5 && (
-                                <div className="text-center p-4 bg-red-50 rounded-xl border border-red-200">
-                                    <p className="text-red-800">❌ Đã bị từ chối</p>
                                 </div>
                             )}
                         </div>

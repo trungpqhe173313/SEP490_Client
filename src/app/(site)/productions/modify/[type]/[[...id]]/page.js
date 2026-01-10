@@ -796,10 +796,9 @@ export default function ModifyProduction({ params }) {
           <textarea
             className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={4}
-            placeholder={type === "update" && user?.roles?.includes("Manager") ? "Nhập ghi chú (bắt buộc nếu từ chối)..." : "Nhập ghi chú cho phiếu sản xuất..."}
+            placeholder={type === "update" && user?.roles?.includes("Manager") ? "Nhập lý do từ chối (nếu từ chối)..." : "Nhập ghi chú cho phiếu sản xuất..."}
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            disabled={type === "update" && user?.roles?.includes("Manager")}
           />
           {type === "update" && user?.roles?.includes("Manager") ? (
             <div className="flex gap-3">
@@ -931,12 +930,12 @@ export default function ModifyProduction({ params }) {
                               <IconButton
                                 size="small"
                                 onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
-                                disabled={user?.roles?.includes("Manager")}
+                                disabled={user?.roles?.includes("Manager") && productionData?.status !== 5}
                                 sx={{ 
                                   border: "1px solid #E5E7EB", 
                                   height: "32px", 
                                   width: "32px",
-                                  '&:hover': { backgroundColor: user?.roles?.includes("Manager") ? 'transparent' : '#FEE2E2' }
+                                  '&:hover': { backgroundColor: user?.roles?.includes("Manager") && productionData?.status !== 5 ? 'transparent' : '#FEE2E2' }
                                 }}
                               >
                                 <RemoveIcon fontSize="small" />
@@ -946,7 +945,7 @@ export default function ModifyProduction({ params }) {
                           <TextField
                             type="number"
                             size="small"
-                            disabled={user?.roles?.includes("Manager")}
+                            disabled={user?.roles?.includes("Manager") && productionData?.status !== 5}
                             inputProps={{
                               min: 0,
                               style: {
@@ -976,12 +975,12 @@ export default function ModifyProduction({ params }) {
                               <IconButton
                                 size="small"
                                 onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity + 1)}
-                                disabled={user?.roles?.includes("Manager")}
+                                disabled={user?.roles?.includes("Manager") && productionData?.status !== 5}
                                 sx={{ 
                                   border: "1px solid #E5E7EB", 
                                   height: "32px", 
                                   width: "32px",
-                                  '&:hover': { backgroundColor: user?.roles?.includes("Manager") ? 'transparent' : '#D1FAE5' }
+                                  '&:hover': { backgroundColor: user?.roles?.includes("Manager") && productionData?.status !== 5 ? 'transparent' : '#D1FAE5' }
                                 }}
                               >
                                 <AddIcon fontSize="small" />
