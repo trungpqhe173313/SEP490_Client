@@ -457,6 +457,9 @@ export default function ModifyProduction({ params }) {
   const handleExit = () => {
     router.push("/productions");
   }
+    const handleExitForEmployee = () => {
+    router.push("/productions/my-productions");
+  }
 
   // Calculate summary data
   const getSummaryData = () => {
@@ -688,23 +691,27 @@ export default function ModifyProduction({ params }) {
                   </TableCell>
                   <TableCell align="center" sx={{ width: 220 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-                      <Tooltip title="Giảm 1">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity - 1)}
-                          sx={{ 
-                            border: "1px solid #E5E7EB", 
-                            height: "32px", 
-                            width: "32px",
-                            '&:hover': { backgroundColor: '#F3F4F6' }
-                          }}
-                        >
-                          <RemoveIcon fontSize="small" />
-                        </IconButton>
+                      <Tooltip title={type === "update" && productionData?.status !== 0 ? "Nguyên liệu chỉ sửa được khi chưa bắt đầu sản xuất" : "Giảm 1"}>
+                        <span>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity - 1)}
+                            disabled={type === "update" && productionData?.status !== 0}
+                            sx={{ 
+                              border: "1px solid #E5E7EB", 
+                              height: "32px", 
+                              width: "32px",
+                              '&:hover': { backgroundColor: type === "update" && productionData?.status !== 0 ? 'transparent' : '#F3F4F6' }
+                            }}
+                          >
+                            <RemoveIcon fontSize="small" />
+                          </IconButton>
+                        </span>
                       </Tooltip>
                       <TextField
                         type="number"
                         size="small"
+                        disabled={type === "update" && productionData?.status !== 0}
                         inputProps={{
                           min: 0,
                           style: {
@@ -729,19 +736,22 @@ export default function ModifyProduction({ params }) {
                           marginX: "8px",
                         }}
                       />
-                      <Tooltip title="Tăng 1">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleChangeMaterial(selectedMaterial, parseInt(selectedMaterial.produceQuantity) + 1)}
-                          sx={{ 
-                            border: "1px solid #E5E7EB", 
-                            height: "32px", 
-                            width: "32px",
-                            '&:hover': { backgroundColor: '#F3F4F6' }
-                          }}
-                        >
-                          <AddIcon fontSize="small" />
-                        </IconButton>
+                      <Tooltip title={type === "update" && productionData?.status !== 0 ? "Nguyên liệu chỉ sửa được khi chưa bắt đầu sản xuất" : "Tăng 1"}>
+                        <span>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleChangeMaterial(selectedMaterial, parseInt(selectedMaterial.produceQuantity) + 1)}
+                            disabled={type === "update" && productionData?.status !== 0}
+                            sx={{ 
+                              border: "1px solid #E5E7EB", 
+                              height: "32px", 
+                              width: "32px",
+                              '&:hover': { backgroundColor: type === "update" && productionData?.status !== 0 ? 'transparent' : '#F3F4F6' }
+                            }}
+                          >
+                            <AddIcon fontSize="small" />
+                          </IconButton>
+                        </span>
                       </Tooltip>
                     </Box>
                   </TableCell>
@@ -1043,7 +1053,14 @@ export default function ModifyProduction({ params }) {
         </div>
       </div>
       </div>
-      <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => { setModalSuccessOpen(false), handleExit() }} />
+      <SuccessModal 
+        isOpen={modalSuccessOpen} 
+        message={modalSuccessMessage} 
+        onClose={() => { 
+          setModalSuccessOpen(false);
+          user?.roles?.includes("Manager") ? handleExit() : handleExitForEmployee();
+        }} 
+      />
       <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
     </div >
   )
