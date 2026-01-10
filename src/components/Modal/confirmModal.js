@@ -4,7 +4,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 function ConfirmModal({ isOpen, onClose, onConfirm, onCancel, message }) {
   const handleClose = () => onClose();
   const handleConfirmClick = () => onConfirm();
-  const handleCancelClick = () => onCancel();
+  const handleCancelClick = () => onCancel ? onCancel() : onClose();
 
   return (
     <Modal open={isOpen} onClose={handleClose}>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { productService } from "@/services/product.service";
 import { productionService } from "@/services/production.service";
+import { productionEmployeeService } from "@/services/productionEmployee.service";
 import { employeeService } from "@/services/employee.service";
 import { useRouter } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
@@ -69,7 +70,8 @@ export default function ModifyProduction({ params }) {
 
   const [errors, setErrors] = useState("");
   const [pageReady, setPageReady] = useState(false);
-  const pageRole = ["Manager"];
+  const [dataLoading, setDataLoading] = useState(true);
+  const pageRole = ["Manager", "Employee"];
 
   useEffect(() => {
     refreshUserInfo();
@@ -82,7 +84,7 @@ export default function ModifyProduction({ params }) {
       router.push("/login");
       return;
     }
-
+    console.log(user.roles, typeof user.roles[0]);
     if (user?.roles && user.roles.some((r) => pageRole.includes(r))) {
       setPageReady(true);
     } else {
@@ -92,9 +94,12 @@ export default function ModifyProduction({ params }) {
   }, [isLogin, user, loading]);
 
   const fetchProduction = async () => {
-    setLoading(true);
+    setDataLoading(true);
     try {
-      if (!id || type === "create") return;
+      if (!id || type === "create") {
+        setDataLoading(false);
+        return;
+      }
       const response = await productionService.getProductionDetail(id);
       const weightLog = await productionService.getProductionWeight(id);
       setProductionData(response.data);
@@ -124,7 +129,7 @@ export default function ModifyProduction({ params }) {
       setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
       setModalFailedOpen(true);
     } finally {
-      setLoading(false);
+      setDataLoading(false);
     }
   }
 
@@ -335,18 +340,24 @@ export default function ModifyProduction({ params }) {
       }
 
       else if (type === "update") {
-        const body = {
-          finishProductQuantities: cart
-            .filter(p => p.produceQuantity > 0)
-            .map(item => ({
-              productId: item.productId,
-              quantity: item.produceQuantity,
-            })),
-        };
-
-        await productionService.updateProductionToFinish(id, body);
-
-        setModalSuccessMessage("Cập nhật phiếu sản xuất thành công");
+        // Employee submits data + for approval, Manager only approves status
+        if (user?.roles?.includes("Employee")) {
+          // Employee: Update quantities + submit for approval (status 1 -> 4)
+          const body = {
+            finishProductQuantities: cart
+              .filter(p => p.produceQuantity > 0)
+              .map(item => ({
+                productId: item.productId,
+                quantity: item.produceQuantity,
+              })),
+          };
+          await productionEmployeeService.submitForApproval(id, body);
+          setModalSuccessMessage("Đã gửi phiếu sản xuất để chờ phê duyệt");
+        } else {
+          // Manager: Only approve status (status 4 -> 2), data already filled by employee
+          await productionService.updateProductionToFinish(id);
+          setModalSuccessMessage("Phê duyệt và hoàn thành phiếu sản xuất thành công");
+        }
         setModalSuccessOpen(true);
       }
 
@@ -361,6 +372,28 @@ export default function ModifyProduction({ params }) {
       setModalFailedOpen(true);
     }
     finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!note || note.trim() === "") {
+      setModalFailedMessage("Vui lòng nhập lý do từ chối vào phần ghi chú");
+      setModalFailedOpen(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const body = { note };
+      await productionService.updateProductionToReject(id, body);
+      setModalSuccessMessage("Từ chối phiếu sản xuất thành công");
+      setModalSuccessOpen(true);
+    } catch (error) {
+      const message = error?.response?.data?.error?.message || "Không thể từ chối phiếu";
+      setModalFailedMessage(`Lỗi: ${message}`);
+      setModalFailedOpen(true);
+    } finally {
       setLoading(false);
     }
   };
@@ -452,6 +485,7 @@ export default function ModifyProduction({ params }) {
   }
 
   if (!pageReady) return <Loader />;
+  if (dataLoading && type === "update") return <Loader />;
 
   const summary = getSummaryData();
 
@@ -757,29 +791,57 @@ export default function ModifyProduction({ params }) {
         <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
           <div className="flex items-center gap-2 mb-4">
             <InfoIcon className="text-gray-600" />
-            <h1 className="text-xl font-bold text-gray-800">Ghi chú</h1>
+            <h1 className="text-xl font-bold text-gray-800">Ghi chú{type === "update" && user?.roles?.includes("Manager") && <span className="text-red-600 ml-1">(*Bắt buộc nếu từ chối)</span>}</h1>
           </div>
           <textarea
             className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={4}
-            placeholder="Nhập ghi chú cho phiếu sản xuất..."
+            placeholder={type === "update" && user?.roles?.includes("Manager") ? "Nhập ghi chú (bắt buộc nếu từ chối)..." : "Nhập ghi chú cho phiếu sản xuất..."}
             value={note}
             onChange={(e) => setNote(e.target.value)}
+            disabled={type === "update" && user?.roles?.includes("Manager")}
           />
-          <button 
-            className={`w-full px-6 py-3 text-white font-semibold rounded-xl transition-all transform ${
-              errors 
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'background-primary background-hovered hover:scale-[1.02] active:scale-[0.98] shadow-lg'
-            }`}
-            onClick={handleSubmit}
-            disabled={!!errors}
-          >
-            <div className="flex items-center justify-center gap-2">
-              <CheckCircleIcon />
-              <span>Hoàn thành sản xuất</span>
+          {type === "update" && user?.roles?.includes("Manager") ? (
+            <div className="flex gap-3">
+              <button 
+                className="flex-1 px-6 py-3 bg-green-500 text-white font-semibold rounded-xl transition-all transform hover:bg-green-600 hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                onClick={handleSubmit}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircleIcon />
+                  <span>✅ Phê duyệt và hoàn thành</span>
+                </div>
+              </button>
+              <button 
+                className="flex-1 px-6 py-3 bg-red-500 text-white font-semibold rounded-xl transition-all transform hover:bg-red-600 hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                onClick={handleReject}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <span>❌ Từ chối</span>
+                </div>
+              </button>
             </div>
-          </button>
+          ) : (
+            <button 
+              className={`w-full px-6 py-3 text-white font-semibold rounded-xl transition-all transform ${
+                errors 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'background-primary background-hovered hover:scale-[1.02] active:scale-[0.98] shadow-lg'
+              }`}
+              onClick={handleSubmit}
+              disabled={!!errors}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <CheckCircleIcon />
+                <span>
+                  {type === "update" 
+                    ? "📝 Gửi phê duyệt" 
+                    : "Tạo phiếu sản xuất"
+                  }
+                </span>
+              </div>
+            </button>
+          )}
         </div>
       </div>
 
@@ -864,23 +926,27 @@ export default function ModifyProduction({ params }) {
                       </TableCell>
                       {type === "update" && <TableCell align="center" sx={{ width: 220 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-                          <Tooltip title="Giảm 1">
-                            <IconButton
-                              size="small"
-                              onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
-                              sx={{ 
-                                border: "1px solid #E5E7EB", 
-                                height: "32px", 
-                                width: "32px",
-                                '&:hover': { backgroundColor: '#FEE2E2' }
-                              }}
-                            >
-                              <RemoveIcon fontSize="small" />
-                            </IconButton>
+                          <Tooltip title={user?.roles?.includes("Manager") ? "Chỉ Employee mới được sửa số lượng" : "Giảm 1"}>
+                            <span>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
+                                disabled={user?.roles?.includes("Manager")}
+                                sx={{ 
+                                  border: "1px solid #E5E7EB", 
+                                  height: "32px", 
+                                  width: "32px",
+                                  '&:hover': { backgroundColor: user?.roles?.includes("Manager") ? 'transparent' : '#FEE2E2' }
+                                }}
+                              >
+                                <RemoveIcon fontSize="small" />
+                              </IconButton>
+                            </span>
                           </Tooltip>
                           <TextField
                             type="number"
                             size="small"
+                            disabled={user?.roles?.includes("Manager")}
                             inputProps={{
                               min: 0,
                               style: {
@@ -905,19 +971,22 @@ export default function ModifyProduction({ params }) {
                               marginX: "8px",
                             }}
                           />
-                          <Tooltip title="Tăng 1">
-                            <IconButton
-                              size="small"
-                              onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity + 1)}
-                              sx={{ 
-                                border: "1px solid #E5E7EB", 
-                                height: "32px", 
-                                width: "32px",
-                                '&:hover': { backgroundColor: '#D1FAE5' }
-                              }}
-                            >
-                              <AddIcon fontSize="small" />
-                            </IconButton>
+                          <Tooltip title={user?.roles?.includes("Manager") ? "Chỉ Employee mới được sửa số lượng" : "Tăng 1"}>
+                            <span>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity + 1)}
+                                disabled={user?.roles?.includes("Manager")}
+                                sx={{ 
+                                  border: "1px solid #E5E7EB", 
+                                  height: "32px", 
+                                  width: "32px",
+                                  '&:hover': { backgroundColor: user?.roles?.includes("Manager") ? 'transparent' : '#D1FAE5' }
+                                }}
+                              >
+                                <AddIcon fontSize="small" />
+                              </IconButton>
+                            </span>
                           </Tooltip>
                         </Box>
                       </TableCell>

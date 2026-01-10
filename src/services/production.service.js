@@ -17,8 +17,12 @@ export const productionService = {
         const response = await API.post('/production/CreateProductionOrder', data);
         return response.data;
     },
-    updateProductionToFinish: async (id, data) => {
-        const response = await API.put(`/production/ChangeToFinished/${id}`, data);
+    updateProductionToFinish: async (id) => {
+        const response = await API.put(`/production/ChangeToFinished/${id}`);
+        return response.data;
+    },
+    updateProductionToReject: async (id, data) => {
+        const response = await API.put(`/production/ChangeToRejected/${id}`, data);
         return response.data;
     },
     updateProductionToProcessing: async (id, data) => {
@@ -27,10 +31,6 @@ export const productionService = {
     },
     updateProductionToCancel: async (id) => {
         const response = await API.put(`/production/ChangeToCancel/${id}`);
-        return response.data;
-    },
-    submitProductionForApproval: async (id) => {
-        const response = await API.put(`/production/SubmitForApproval/${id}`);
         return response.data;
     },
     getAllDevices: async () => {

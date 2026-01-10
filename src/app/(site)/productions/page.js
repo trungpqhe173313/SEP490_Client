@@ -8,7 +8,6 @@ import { useRef } from "react";
 import { useLogin } from "@/context/LoginContext";
 
 import TableCommon from "@/components/Table/table";
-import { DeviceForm } from "@/components/Form/deviceForm";
 import { getProductionStatus, getProductionStatusText } from '@/lib/getStatus';
 import { formatDateToInput } from '@/lib/formattingLib';
 
@@ -27,8 +26,6 @@ export default function Productions() {
     //Data state
     const [productions, setProductions] = useState([]);
     const [productionDetails, setProductionDetails] = useState([]);
-    const [producingId, setProducingId] = useState(null);
-    const [selectedProductionId, setSelectedProductionId] = useState(null);
 
     //Modal state
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
@@ -37,8 +34,6 @@ export default function Productions() {
     const [modalFailedOpen, setModalFailedOpen] = useState(false);
     const [modalFailedMessage, setModalFailedMessage] = useState("");
     const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
-
-    const [modalDeviceOpen, setModalDeviceOpen] = useState(false);
 
     //Filter state
     const [filterStatus, setFilterStatus] = useState(null);
@@ -127,13 +122,8 @@ export default function Productions() {
             const response = await productionService.getAllProductions(body);
             setProductions(response.data.items);
             setTotalCount(response.data.totalCount);
-            if (response.data.items.find(item => item.status === 1)) {
-                setProducingId(response.data.items.find(item => item.status === 1).id);
-            } else {
-                setProducingId(null);
-            }
         } catch (error) {
-            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
+            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message || 'Không thể tải dữ liệu'}`);
             setModalFailedOpen(true);
         } finally {
             setLoading(false);
@@ -228,32 +218,6 @@ export default function Productions() {
         setErrorStartDateTo("");
         setPageIndex(0);
     };
-
-    const handleUpdateToProcessing = async (id) => {
-        if (producingId) {
-            setModalFailedMessage(`Đang sản xuất phiếu với mã ${producingId}. Vui lòng hoàn thành phiếu đó trước`);
-            setModalFailedOpen(true);
-            return;
-        }
-        setSelectedProductionId(id);
-        setModalDeviceOpen(true);
-    }
-
-    const handleConfirmUpdateToProcessing = async (data) => {
-        if (!selectedProductionId) return;
-        try {
-            setLoading(true);
-            await productionService.updateProductionToProcessing(selectedProductionId, data);
-            setModalSuccessMessage(`Sản phẩm đang được sản xuất`);
-            setModalSuccessOpen(true);
-            fetchProductions();
-        } catch (error) {
-            setModalFailedMessage(`Lỗi: ${error.response.data.error.message}`);
-            setModalFailedOpen(true);
-        } finally {
-            setLoading(false);
-        }
-    }
 
     const handleUpdateToFinish = async (id) => {
         window.open(`/productions/modify/update/${id}`, "_blank");
@@ -351,11 +315,51 @@ export default function Productions() {
                         <p className='my-2'>Nhà kho: {material.warehouseName}</p>
                         <p className='my-2'>Số lượng: {material.quantity}</p>
                     </div>
-                    <div className='bg-white px-4 py-2 w-[120%]'>
-                        <div className='flex flex-row items-center gap-2'>
-                            {production?.status === 0 && <button className='rounded-xl px-4 py-2 bg-blue-500 text-white' onClick={() => handleUpdateToProcessing(production.id)}>Bắt đầu sản xuất</button>}
-                            {production?.status === 1 && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={() => handleUpdateToFinish(production.id)}>Hoàn thành sản xuất</button>}
-                            {production?.status === 0 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={() => handleUpdateToCancel(production.id)}>Hủy phiếu</button>}
+                    <div className="bg-white px-4 py-2 w-[120%]">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                            {production?.status === 0 && (
+                                <>
+                                    <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-800">
+                                        ⏳ Chờ nhân viên bắt đầu sản xuất
+                                    </div>
+
+                                    <button
+                                        className="h-10 px-4 flex items-center justify-center rounded-xl bg-red-500 text-white hover:bg-red-600 transition hover:scale-[1.02]"
+                                        onClick={() => handleUpdateToCancel(production.id)}
+                                    >
+                                        ❌ Hủy phiếu
+                                    </button>
+                                </>
+                            )}
+                            {production?.status === 1 && (
+                                <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-yellow-50 border border-yellow-200 text-yellow-800">
+                                    🔄 Nhân viên đang sản xuất
+                                </div>
+                            )}
+                            {production?.status === 4 && (
+                                <button
+                                    className="h-10 px-4 flex items-center justify-center rounded-xl bg-purple-500 text-white hover:bg-purple-600 transition hover:scale-[1.02]"
+                                    onClick={() => handleUpdateToFinish(production.id)}
+                                >
+                                    👀 Xem và phê duyệt
+                                </button>
+                            )}
+                            {production?.status === 2 && (
+                                <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-green-50 border border-green-200 text-green-800">
+                                    ✅ Đã hoàn thành
+                                </div>
+                            )}
+                            {production?.status === 3 && (
+                                <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-red-50 border border-red-200 text-red-800">
+                                    ❌ Đã hủy
+                                </div>
+                            )}
+                            {production?.status === 5 && (
+                                <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-red-50 border border-red-200 text-red-800">
+                                    ❌ Đã từ chối
+                                </div>
+                            )}
+
                         </div>
                     </div>
                 </div>
@@ -478,6 +482,8 @@ export default function Productions() {
                             <option value={1}>{getProductionStatusText(1)}</option>
                             <option value={2}>{getProductionStatusText(2)}</option>
                             <option value={3}>{getProductionStatusText(3)}</option>
+                            <option value={4}>{getProductionStatusText(4)}</option>
+                            <option value={5}>{getProductionStatusText(5)}</option>
                         </select>
                     </div>
                 </div>
@@ -518,7 +524,6 @@ export default function Productions() {
                 useDetail={true}
                 tableDetail={tableDetail}
             />
-            <DeviceForm isOpen={modalDeviceOpen} onClose={() => setModalDeviceOpen(false)} onConfirm={handleConfirmUpdateToProcessing} />
             <SuccessModal isOpen={modalSuccessOpen} message={modalSuccessMessage} onClose={() => setModalSuccessOpen(false)} />
             <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
         </div>

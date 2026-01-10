@@ -267,28 +267,6 @@ export default function MyProductions() {
         window.open(`/productions/modify/update/${id}`, "_blank");
     }
 
-    const handleSubmitForApproval = (id) => {
-        setModalConfirmMessage("Bạn có chắc chắn muốn gửi phiếu này để phê duyệt?");
-        setModalConfirmAction(() => () => confirmSubmitForApproval(id));
-        setModalConfirmOpen(true);
-    }
-
-    const confirmSubmitForApproval = async (id) => {
-        try {
-            setLoading(true);
-            await productionEmployeeService.submitForApproval(id);
-            setModalSuccessMessage(`Đã gửi phiếu sản xuất để chờ phê duyệt`);
-            setModalSuccessOpen(true);
-            fetchMyProductions();
-        } catch (error) {
-            setModalFailedMessage(`Lỗi: ${error?.response?.data?.error?.message || 'Không thể gửi phê duyệt'}`);
-            setModalFailedOpen(true);
-        } finally {
-            setLoading(false);
-            setModalConfirmOpen(false);
-        }
-    }
-
     const tableDetail = (id) => {
         const production = productionDetails.find((production) => production.id === id);
 
@@ -373,29 +351,31 @@ export default function MyProductions() {
                                 </button>
                             )}
                             {production?.status === 1 && (
-                                <>
-                                    <button 
-                                        className='rounded-xl px-4 py-2 bg-green-500 text-white hover:bg-green-600 transition-all' 
-                                        onClick={() => handleCompleteProduction(production.id)}
-                                    >
-                                        ✅ Hoàn thành sản xuất
-                                    </button>
-                                    <button 
-                                        className='rounded-xl px-4 py-2 bg-purple-500 text-white hover:bg-purple-600 transition-all' 
-                                        onClick={() => handleSubmitForApproval(production.id)}
-                                    >
-                                        📝 Gửi phê duyệt
-                                    </button>
-                                </>
+                                <button 
+                                    className='rounded-xl px-4 py-2 bg-green-500 text-white hover:bg-green-600 transition-all' 
+                                    onClick={() => handleCompleteProduction(production.id)}
+                                >
+                                    ✅ Hoàn thành & gửi phê duyệt
+                                </button>
                             )}
-                            {production?.status === 3 && (
-                                <div className="text-center p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                                    <p className="text-yellow-800">⏳ Đang chờ Manager phê duyệt</p>
+                            {production?.status === 4 && (
+                                <div className="text-center p-4 bg-purple-50 rounded-xl border border-purple-200">
+                                    <p className="text-purple-800">⏳ Đang chờ Manager phê duyệt</p>
                                 </div>
                             )}
                             {production?.status === 2 && (
                                 <div className="text-center p-4 bg-green-50 rounded-xl border border-green-200">
                                     <p className="text-green-800">✅ Đã hoàn thành</p>
+                                </div>
+                            )}
+                            {production?.status === 3 && (
+                                <div className="text-center p-4 bg-red-50 rounded-xl border border-red-200">
+                                    <p className="text-red-800">❌ Đã hủy</p>
+                                </div>
+                            )}
+                            {production?.status === 5 && (
+                                <div className="text-center p-4 bg-red-50 rounded-xl border border-red-200">
+                                    <p className="text-red-800">❌ Đã bị từ chối</p>
                                 </div>
                             )}
                         </div>
@@ -503,6 +483,8 @@ export default function MyProductions() {
                             <option value={1}>{getProductionStatusText(1)}</option>
                             <option value={2}>{getProductionStatusText(2)}</option>
                             <option value={3}>{getProductionStatusText(3)}</option>
+                            <option value={4}>{getProductionStatusText(4)}</option>
+                            <option value={5}>{getProductionStatusText(5)}</option>
                         </select>
                     </div>
                 </div>

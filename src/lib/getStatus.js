@@ -129,6 +129,10 @@ export const getProductionStatus = (status) => {
             return <p className="text-green-600">Hoàn thành</p>
         case 3:
             return <p className="text-red-600">Hủy</p>
+        case 4:
+            return <p className="text-purple-600">Chờ duyệt</p>
+        case 5:
+            return <p className="text-red-600">Từ chối</p>
         default:
             return <p className="text-black">{status}: Không rõ</p>
     }
@@ -145,6 +149,10 @@ export const getProductionStatusText = (status) => {
             return "Hoàn thành"
         case 3:
             return "Hủy"
+        case 4:
+            return "Chờ duyệt"
+        case 5:
+            return "Từ chối"
         default:
             return `${status}: Không rõ`
     }
