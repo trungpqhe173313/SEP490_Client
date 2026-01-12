@@ -72,7 +72,7 @@ export default function MyProductions() {
 
     useEffect(() => {
         if (loading) return;
-        
+
         if (isLogin && user?.roles && user.roles.some((r) => pageRole.includes(r))) {
             setPageReady(true);
         } else if (!isLogin) {
@@ -134,10 +134,10 @@ export default function MyProductions() {
                 endDateTo: filterEndDateTo || null
             }
             const response = await productionEmployeeService.getMyProductionOrders(body);
-            
+
             setProductions(response.data.items);
             setTotalCount(response.data.totalCount);
-            
+
             // Check if there's already a production in processing
             const processing = response.data.items.find(item => item.status === 1);
             setProcessingId(processing?.id || null);
@@ -329,7 +329,7 @@ export default function MyProductions() {
                         <p className='my-2'><span className="font-semibold">Ghi chú:</span> {production.note || <span className="text-gray-400">Không có</span>}</p>
                         {production?.status === 5 && production.note && (
                             <div className='my-2 p-3 bg-red-50 border border-red-200 rounded-lg'>
-                                <p className='font-semibold text-red-800'>❌ Lý do từ chối:</p>
+                                <p className='font-semibold text-red-800'>Lý do từ chối:</p>
                                 <p className='text-red-700 mt-1'>{production.note}</p>
                             </div>
                         )}
@@ -349,42 +349,42 @@ export default function MyProductions() {
                         <h1 className='text-xl font-bold mb-3 text-gray-800'>Hành động</h1>
                         <div className='flex flex-col gap-2'>
                             {production?.status === 0 && (
-                                <button 
-                                    className='rounded-xl px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-all' 
+                                <button
+                                    className='rounded-xl px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-all'
                                     onClick={() => handleStartProduction(production.id)}
                                 >
-                                    🚀 Bắt đầu sản xuất
+                                    Bắt đầu sản xuất
                                 </button>
                             )}
                             {production?.status === 1 && (
-                                <button 
-                                    className='rounded-xl px-4 py-2 bg-green-500 text-white hover:bg-green-600 transition-all' 
+                                <button
+                                    className='rounded-xl px-4 py-2 bg-green-500 text-white hover:bg-green-600 transition-all'
                                     onClick={() => handleCompleteProduction(production.id)}
                                 >
-                                    ✅ Hoàn thành & gửi phê duyệt
+                                    Hoàn thành & gửi phê duyệt
                                 </button>
                             )}
                             {production?.status === 5 && (
-                                <button 
-                                    className='rounded-xl px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 transition-all' 
+                                <button
+                                    className='rounded-xl px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 transition-all'
                                     onClick={() => handleCompleteProduction(production.id)}
                                 >
-                                    🔄 Sửa và gửi lại phê duyệt
+                                    Sửa và gửi lại phê duyệt
                                 </button>
                             )}
                             {production?.status === 4 && (
-                                <div className="text-center p-4 bg-purple-50 rounded-xl border border-purple-200">
-                                    <p className="text-purple-800">⏳ Đang chờ Manager phê duyệt</p>
+                                <div className="text-center p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                                    <p className="text-yellow-800">Đang chờ Manager phê duyệt</p>
                                 </div>
                             )}
                             {production?.status === 2 && (
                                 <div className="text-center p-4 bg-green-50 rounded-xl border border-green-200">
-                                    <p className="text-green-800">✅ Đã hoàn thành</p>
+                                    <p className="text-green-800">Đã hoàn thành</p>
                                 </div>
                             )}
                             {production?.status === 3 && (
                                 <div className="text-center p-4 bg-red-50 rounded-xl border border-red-200">
-                                    <p className="text-red-800">❌ Đã hủy</p>
+                                    <p className="text-red-800">Đã hủy</p>
                                 </div>
                             )}
                         </div>
@@ -415,7 +415,7 @@ export default function MyProductions() {
                 {processingId && (
                     <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2">
                         <p className="text-blue-800 text-sm">
-                            🔄 Đang sản xuất phiếu: <strong>#{processingId}</strong>
+                            Đang sản xuất phiếu: <strong>#{processingId}</strong>
                         </p>
                     </div>
                 )}
@@ -506,13 +506,13 @@ export default function MyProductions() {
                             onClick={() => handleApplyFilter()}
                             ref={buttonRef}
                         >
-                            🔍 Lọc
+                            Lọc
                         </button>
                         <button
                             className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer hover:bg-red-700 transition-all"
                             onClick={() => handleClearFilter()}
                         >
-                            🗑️ Xóa bộ lọc
+                            Xóa bộ lọc
                         </button>
                     </div>
                 </div>
@@ -535,27 +535,27 @@ export default function MyProductions() {
                 tableDetail={tableDetail}
             />
 
-            <DeviceForm 
-                isOpen={modalDeviceOpen} 
-                onClose={() => setModalDeviceOpen(false)} 
-                onConfirm={handleConfirmStartProduction} 
+            <DeviceForm
+                isOpen={modalDeviceOpen}
+                onClose={() => setModalDeviceOpen(false)}
+                onConfirm={handleConfirmStartProduction}
             />
-            <ConfirmModal 
-                isOpen={modalConfirmOpen} 
-                message={modalConfirmMessage} 
-                onClose={() => setModalConfirmOpen(false)} 
-                onConfirm={modalConfirmAction} 
+            <ConfirmModal
+                isOpen={modalConfirmOpen}
+                message={modalConfirmMessage}
+                onClose={() => setModalConfirmOpen(false)}
+                onConfirm={modalConfirmAction}
             />
-            <SuccessModal 
-                isOpen={modalSuccessOpen} 
-                message={modalSuccessMessage} 
-                onClose={() => setModalSuccessOpen(false)} 
+            <SuccessModal
+                isOpen={modalSuccessOpen}
+                message={modalSuccessMessage}
+                onClose={() => setModalSuccessOpen(false)}
             />
-            <FailedModal 
-                isOpen={modalFailedOpen} 
-                message={modalFailedMessage} 
-                subMessages={modalFailedSubMessages} 
-                onClose={() => setModalFailedOpen(false)} 
+            <FailedModal
+                isOpen={modalFailedOpen}
+                message={modalFailedMessage}
+                subMessages={modalFailedSubMessages}
+                onClose={() => setModalFailedOpen(false)}
             />
         </div>
     )

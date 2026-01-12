@@ -204,6 +204,7 @@ export default function ImportDetail({ params }) {
                 {showActualQuantity && <TableCell />}
                 <TableCell align="center">{formatLargeNumber(totalWeight)} Kg</TableCell>
                 <TableCell />
+                {!showActualQuantity && <TableCell />}
                 <TableCell align="center">{formatLargeNumber(totalCost)}₫</TableCell>
             </TableRow>
         )

@@ -320,43 +320,43 @@ export default function Productions() {
                             {production?.status === 0 && (
                                 <>
                                     <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-800">
-                                        ⏳ Chờ nhân viên bắt đầu sản xuất
+                                        Chờ nhân viên bắt đầu sản xuất
                                     </div>
 
                                     <button
                                         className="h-10 px-4 flex items-center justify-center rounded-xl bg-red-500 text-white hover:bg-red-600 transition hover:scale-[1.02]"
                                         onClick={() => handleUpdateToCancel(production.id)}
                                     >
-                                        ❌ Hủy phiếu
+                                        Hủy phiếu
                                     </button>
                                 </>
                             )}
                             {production?.status === 1 && (
                                 <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-yellow-50 border border-yellow-200 text-yellow-800">
-                                    🔄 Nhân viên đang sản xuất
+                                    Nhân viên đang sản xuất
                                 </div>
                             )}
                             {production?.status === 4 && (
                                 <button
-                                    className="h-10 px-4 flex items-center justify-center rounded-xl bg-purple-500 text-white hover:bg-purple-600 transition hover:scale-[1.02]"
+                                    className="h-10 px-4 flex items-center justify-center rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition hover:scale-[1.02]"
                                     onClick={() => handleUpdateToFinish(production.id)}
                                 >
-                                    👀 Xem và phê duyệt
+                                    Xem và phê duyệt
                                 </button>
                             )}
                             {production?.status === 2 && (
                                 <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-green-50 border border-green-200 text-green-800">
-                                    ✅ Đã hoàn thành
+                                    Đã hoàn thành
                                 </div>
                             )}
                             {production?.status === 3 && (
                                 <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-red-50 border border-red-200 text-red-800">
-                                    ❌ Đã hủy
+                                    Đã hủy
                                 </div>
                             )}
                             {production?.status === 5 && (
                                 <div className="h-10 px-4 flex items-center justify-center rounded-xl bg-red-50 border border-red-200 text-red-800">
-                                    ❌ Đã từ chối
+                                    Đã từ chối
                                 </div>
                             )}
 

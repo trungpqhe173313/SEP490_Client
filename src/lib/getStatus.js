@@ -130,7 +130,7 @@ export const getProductionStatus = (status) => {
         case 3:
             return <p className="text-red-600">Hủy</p>
         case 4:
-            return <p className="text-purple-600">Chờ duyệt</p>
+            return <p className="text-yellow-600">Chờ duyệt</p>
         case 5:
             return <p className="text-red-600">Từ chối</p>
         default:
