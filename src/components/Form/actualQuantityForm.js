@@ -21,7 +21,7 @@ export function ActualQuantityForm({
             productId: product.productId,
             productName: product.productName,
             orderedQuantity: product.quantity,
-            actualQuantity: product.quantity, // Default to ordered quantity
+            actualQuantity: product.actualQuantity ? product.actualQuantity : 0, 
             weightPerUnit: product.weightPerUnit,
             unitPrice: product.unitPrice
         }));

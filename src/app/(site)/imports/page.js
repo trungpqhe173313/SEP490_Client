@@ -48,6 +48,7 @@ export default function Imports() {
     const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
     const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
     const [filterResponsibleId, setFilterResponsibleId] = useState(null);
+    const [filterTransactionCode, setFilterTransactionCode] = useState("");
 
     const [errorToTransactionDate, setErrorToTransactionDate] = useState("");
 
@@ -75,8 +76,11 @@ export default function Imports() {
 
 
     const headerData = [
-        {
-            key: "transactionId",
+        {            key: "transactionCode",
+            label: "Mã phiếu nhập",
+            customValue: (item) => item.transactionCode && <div>{item.transactionCode}</div>
+        },
+        {            key: "transactionId",
             label: "Mã giao dịch",
             customValue: (item) => item.transactionId && <div>{item.transactionId}</div>
         },
@@ -216,7 +220,8 @@ export default function Imports() {
                 type: 'Import',
                 transactionFromDate: filterTransactionFromDate || null,
                 transactionToDate: filterTransactionToDate || null,
-                responsibleId: user.roles.includes("Manager") ? filterResponsibleId || null : user.id
+                responsibleId: user.roles.includes("Manager") ? filterResponsibleId || null : user.id,
+                transactionCode: filterTransactionCode || null
             };
             const response = await importService.getAllImports(body);
             setImports(response.data.items);
@@ -317,6 +322,7 @@ export default function Imports() {
         setFilterStatus(null);
         setFilterTransactionFromDate("");
         setFilterTransactionToDate("");
+        setFilterTransactionCode("");
         setErrorToTransactionDate("");
         setPageIndex(0);
     };
@@ -444,6 +450,17 @@ export default function Imports() {
             <div className="p-4 rounded-2xl bg-white h-auto w-full mb-4">
                 <h2 className="text-xl font-bold">Lọc phiếu nhập</h2>
                 <div className="flex items-center my-4 gap-4">
+                    <div className="mt-2 w-[24.25%]">
+                        <label className="mr-2">Mã phiếu nhập:</label>
+                        <input
+                            type="text"
+                            className="w-full p-2 border border-gray-300 rounded"
+                            placeholder="Nhập mã phiếu nhập..."
+                            value={filterTransactionCode}
+                            onChange={(e) => setFilterTransactionCode(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                    </div>
                     <div className="mt-2 w-[24.25%]">
                         <label className="mr-2">Nhà cung cấp:</label>
                         <AutocompleteCommon
