@@ -241,7 +241,7 @@ export default function ExportDetail({ params }) {
                 responsibleId: user.id
             }
             await exportService.updateToDelivering(id, body);
-            setModalSuccessMessage("Xác nhận xuất kho thành công");
+            setModalSuccessMessage("Xác nhận giao hàng");
             setModalSuccessOpen(true);
             fetchTransaction();
         } catch (error) {
