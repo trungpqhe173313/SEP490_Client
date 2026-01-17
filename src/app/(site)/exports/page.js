@@ -44,6 +44,7 @@ export default function Exports() {
   const [filterTransactionFromDate, setFilterTransactionFromDate] = useState("");
   const [filterTransactionToDate, setFilterTransactionToDate] = useState("");
   const [filterResponsibleId, setFilterResponsibleId] = useState(null);
+  const [filterTransactionCode, setFilterTransactionCode] = useState("");
 
   const [errorToTransactionDate, setErrorToTransactionDate] = useState("");
 
@@ -82,6 +83,11 @@ export default function Exports() {
       key: "transactionId",
       label: "Mã giao dịch",
       customValue: (item) => item.transactionId && <div>{item.transactionId}</div>
+    },
+    {
+      key: "transactionCode",
+      label: "Mã code giao dịch",
+      customValue: (item) => item.transactionCode && <div>{item.transactionCode}</div>
     },
     {
       key: "type",
@@ -186,7 +192,8 @@ export default function Exports() {
         type: 'Export',
         transactionFromDate: filterTransactionFromDate || null,
         transactionToDate: filterTransactionToDate || null,
-        responsibleId: user.roles.includes("Manager") ? filterResponsibleId || null : user.id
+        responsibleId: user.roles.includes("Manager") ? filterResponsibleId || null : user.id,
+        transactionCode: filterTransactionCode || null
       };
       const response = await exportService.getAllExports(body);
       setExports(response.data.items);
@@ -259,6 +266,7 @@ export default function Exports() {
     setFilterStatus(null);
     setFilterTransactionFromDate("");
     setFilterTransactionToDate("");
+    setFilterTransactionCode("");
     setErrorToTransactionDate("");
     setPageIndex(0);
   };
@@ -282,6 +290,17 @@ export default function Exports() {
       <div className="p-4 rounded-2xl bg-white h-auto w-full mb-4">
         <h2 className="text-xl font-bold">Lọc phiếu xuất</h2>
         <div className="flex items-center my-4 gap-4">
+          <div className="mt-2 w-[24.25%]">
+            <label className="mr-2">Mã code giao dịch:</label>
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              placeholder="Nhập mã code..."
+              value={filterTransactionCode}
+              onChange={(e) => setFilterTransactionCode(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
           <div className="mt-2 w-[24.25%]">
             <label className="mr-2">Khách hàng:</label>
             <AutocompleteCommon
