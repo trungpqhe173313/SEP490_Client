@@ -494,9 +494,11 @@ export default function Imports() {
                             onKeyDown={handleKeyDown}
                         >
                             <option value="">Tất cả</option>
+                            <option value={0}>{getImportStatusText(0)}</option>
                             <option value={1}>{getImportStatusText(1)}</option>
                             <option value={2}>{getImportStatusText(2)}</option>
                             <option value={3}>{getImportStatusText(3)}</option>
+                            <option value={4}>{getImportStatusText(4)}</option>
                             <option value={11}>{getImportStatusText(11)}</option>
                             <option value={12}>{getImportStatusText(12)}</option>
                         </select>

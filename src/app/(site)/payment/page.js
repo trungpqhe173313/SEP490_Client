@@ -124,6 +124,11 @@ export default function FinancialTransactions() {
       label: "Tạo bởi",
       customValue: (item) => item.createdByName ? <div>{item.createdByName}</div> : <div className="text-gray-400">Không rõ</div>
     },
+    {
+      key: "action",
+      label: "Hành động",
+      customValue: (item) => item.financialTransactionId ? <button className="text-white bg-cyan-500 px-4 py-2 rounded-xl" onClick={() => navigate(`/payment/details/${item.financialTransactionId}`)}>Chi tiết</button> : <div>Không có</div>
+    },
   ];
 
   //Pagination handlers
@@ -358,11 +363,11 @@ export default function FinancialTransactions() {
         handleChangePage={handleChangePage}
         handleChangeRowPerPage={handleChangeRowPerPage}
         usePagination={true}
-        useAction={true}
-        handleDelete={handleDelete}
-        handleEdit={handleEdit}
-        messagePopupDelete={'Bạn có muốn xóa giao dịch này không?'}
-        navigateDetail={(item) => router.push(`/payment/details/${item.financialTransactionId}`)}
+        // useAction={true}
+        // handleDelete={handleDelete}
+        // handleEdit={handleEdit}
+        // messagePopupDelete={'Bạn có muốn xóa giao dịch này không?'}
+        // navigateDetail={(item) => router.push(`/payment/details/${item.financialTransactionId}`)}
       />
       <PaymentForm
         isOpen={modalOpen}

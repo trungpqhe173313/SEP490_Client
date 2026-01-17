@@ -615,7 +615,7 @@ export default function UpdateImport({ params }) {
                     <textarea
                         type="text"
                         name="note"
-                        value={note}
+                        value={note || ""}
                         onChange={(e) => setNote(e.target.value)}
                         placeholder="Nhập ghi chú"
                         className="w-full p-2 border border-gray-300 rounded-md"

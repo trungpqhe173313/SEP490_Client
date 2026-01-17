@@ -818,7 +818,7 @@ export default function ModifyProduction({ params }) {
               >
                 <div className="flex items-center justify-center gap-2">
                   <CheckCircleIcon />
-                  <span>✅ Phê duyệt và hoàn thành</span>
+                  <span>Phê duyệt và hoàn thành</span>
                 </div>
               </button>
               <button 
@@ -826,7 +826,7 @@ export default function ModifyProduction({ params }) {
                 onClick={handleReject}
               >
                 <div className="flex items-center justify-center gap-2">
-                  <span>❌ Từ chối</span>
+                  <span>Từ chối</span>
                 </div>
               </button>
             </div>
@@ -844,7 +844,7 @@ export default function ModifyProduction({ params }) {
                 <CheckCircleIcon />
                 <span>
                   {type === "update" 
-                    ? "📝 Gửi phê duyệt" 
+                    ? "Gửi phê duyệt" 
                     : "Tạo phiếu sản xuất"
                   }
                 </span>
