@@ -21,6 +21,7 @@ export default function Returns({ params }) {
     };
     //Data state
     const [returns, setReturns] = useState([]);
+    const [searchTransactionCode, setSearchTransactionCode] = useState("");
 
     const [modalSuccessOpen, setModalSuccessOpen] = useState(false);
     const [modalSuccessMessage, setModalSuccessMessage] = useState("");
@@ -50,6 +51,11 @@ export default function Returns({ params }) {
             key: "transactionId",
             label: "Mã giao dịch",
             customValue: (item) => item.transactionId && <div>{item.transactionId}</div>
+        },
+        {
+            key: "transactionCode",
+            label: "Mã code giao dịch",
+            customValue: (item) => item.transactionCode && <div>{item.transactionCode}</div>
         },
         {
             key: "warehouseName",
@@ -101,7 +107,8 @@ export default function Returns({ params }) {
             const body = {
                 pageIndex: pageIndex + 1,
                 pageSize: rowPerPage,
-                type: type
+                type: type,
+                transactionCode: searchTransactionCode || undefined
             }
             const response = await returnService.getAllReturns(body);
             setReturns(response.data.items);
@@ -143,9 +150,33 @@ export default function Returns({ params }) {
 
     return (
         <div className="flex flex-col p-4">
-            <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4 justify-between">
+            <div className="flex flex-row mb-2 bg-white p-4 rounded-xl mb-4 justify-between items-center">
                 <div className="flex flex-col mr-4">
                     <h1 className="text-2xl font-bold">Danh sách phiếu trả hàng {type === "import" ? "nhập" : "xuất"}</h1>
+                </div>
+                <div className="flex flex-row items-center gap-2">
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm theo mã code..."
+                        value={searchTransactionCode}
+                        onChange={(e) => setSearchTransactionCode(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                setPageIndex(0);
+                                fetchReturns();
+                            }
+                        }}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 min-w-[250px]"
+                    />
+                    <button
+                        onClick={() => {
+                            setPageIndex(0);
+                            fetchReturns();
+                        }}
+                        className="px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-medium"
+                    >
+                        Tìm kiếm
+                    </button>
                 </div>
             </div>
 
