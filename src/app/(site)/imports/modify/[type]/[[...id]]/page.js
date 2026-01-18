@@ -164,7 +164,11 @@ export default function UpdateImport({ params }) {
         await supplierService
             .getAllSuppliers(body)
             .then((response) => {
-                setSuppliers(response.data.items);
+                // Filter out internal warehouse (supplierId: 5, supplierName: "Kho sản xuất nội bộ")
+                const filteredSuppliers = response.data.items.filter(
+                    (supplier) => supplier.supplierId !== 5 && supplier.supplierName !== "Kho sản xuất nội bộ"
+                );
+                setSuppliers(filteredSuppliers);
             })
             .catch((error) => {
                 console.log(error);

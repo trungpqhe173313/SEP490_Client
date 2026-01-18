@@ -148,10 +148,13 @@ export default function Imports() {
                 supplierName: value
             };
             const response = await supplierService.getAllSuppliers(body);
-            const supplierData = response.data.items.map((supplier) => ({
-                supplierId: supplier.supplierId,
-                supplierName: supplier.supplierName
-            }));
+            // Filter out internal warehouse (supplierId: 5, supplierName: "Kho sản xuất nội bộ")
+            const supplierData = response.data.items
+                .filter((supplier) => supplier.supplierId !== 5 && supplier.supplierName !== "Kho sản xuất nội bộ")
+                .map((supplier) => ({
+                    supplierId: supplier.supplierId,
+                    supplierName: supplier.supplierName
+                }));
             setSuppliers(supplierData);
         } catch (error) {
             console.error("Error fetching suppliers:", error);

@@ -32,11 +32,14 @@ export function ContractForm({
         isActive: true
       };
       const response = await supplierService.getAllSuppliers(body);
-      const supplierData = response.data.items.map((supplier) => ({
-        name: supplier.supplierName,
-        id: supplier.supplierId,
-        phone: supplier.phone
-      }));
+      // Filter out internal warehouse (supplierId: 5, supplierName: "Kho sản xuất nội bộ")
+      const supplierData = response.data.items
+        .filter((supplier) => supplier.supplierId !== 5 && supplier.supplierName !== "Kho sản xuất nội bộ")
+        .map((supplier) => ({
+          name: supplier.supplierName,
+          id: supplier.supplierId,
+          phone: supplier.phone
+        }));
       setSuppliers(supplierData);
     } catch (error) {
       console.log(error);
@@ -129,11 +132,14 @@ export function ContractForm({
           supplierName: searchTerm
         };
         const response = await supplierService.getAllSuppliers(body);
-        const supplierData = response.data.items.map((supplier) => ({
-          id: supplier.supplierId,
-          name: supplier.supplierName,
-          phone: supplier.phone
-        }));
+        // Filter out internal warehouse (supplierId: 5, supplierName: "Kho sản xuất nội bộ")
+        const supplierData = response.data.items
+          .filter((supplier) => supplier.supplierId !== 5 && supplier.supplierName !== "Kho sản xuất nội bộ")
+          .map((supplier) => ({
+            id: supplier.supplierId,
+            name: supplier.supplierName,
+            phone: supplier.phone
+          }));
         setOptions(supplierData);
       } catch (error) {
         console.error("Error fetching suppliers:", error);
