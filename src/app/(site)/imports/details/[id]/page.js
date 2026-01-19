@@ -454,7 +454,7 @@ export default function ImportDetail({ params }) {
                         
                         {/* Manager: Approve/Reject when status = 4 (Chờ phê duyệt kho) */}
                         {user?.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleOpenApproveWithExpireDate}>Phê duyệt</button>}
-                        {user?.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleOpenReject}>Từ chối</button>}
+                        {user?.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleOpenReject}>Kiểm lại</button>}
                         
                         {/* Payment buttons */}
                         {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}

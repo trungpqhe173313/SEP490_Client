@@ -108,8 +108,9 @@ export default function ModifyProduction({ params }) {
         productCode: item.productCode,
         productName: item.productName,
         productId: item.productId,
-        produceQuantity: weightLog.data.products.find((p) => p.productId === item.productId)?.totalBags || item.quantity,
-        actualWeight: weightLog.data.products.find((p) => p.productId === item.productId)?.totalWeight || 0,
+        produceQuantity: item.quantity, // Lấy từ GetDetail API
+        actualWeight: weightLog.data.products.find((p) => p.productId === item.productId)?.totalWeight || 0, // Cân IoT chỉ để tham khảo
+        iotQuantity: weightLog.data.products.find((p) => p.productId === item.productId)?.totalBags || 0, // Số lượng từ cân IoT để tham khảo
         weightPerUnit: item.weightPerUnit
       }));
       setCart(cart)
@@ -826,7 +827,7 @@ export default function ModifyProduction({ params }) {
                 onClick={handleReject}
               >
                 <div className="flex items-center justify-center gap-2">
-                  <span>Từ chối</span>
+                  <span>Yêu cầu làm lại</span>
                 </div>
               </button>
             </div>

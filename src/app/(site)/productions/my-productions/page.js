@@ -161,8 +161,9 @@ export default function MyProductions() {
                     productName: item.productName,
                     warehouseName: item.warehouseName,
                     productId: item.productId,
-                    quantity: weightLog.data.products.find((p) => p.productId === item.productId)?.totalBags || item.quantity,
+                    quantity: item.quantity, // Lấy từ GetDetail API
                     actualWeight: weightLog.data.products.find((p) => p.productId === item.productId)?.totalWeight || 0,
+                    iotQuantity: weightLog.data.products.find((p) => p.productId === item.productId)?.totalBags || 0, // Cân IoT chỉ để tham khảo
                     weightPerUnit: item.weightPerUnit
                 }));
                 detailsArr.push({
