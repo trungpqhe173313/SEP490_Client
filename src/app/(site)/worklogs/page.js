@@ -433,7 +433,7 @@ export default function Worklog() {
                                                         error={employee.quantity < 0}
                                                     />
                                                 </TableCell>
-                                                <TableCell align="center" >
+                                                <TableCell align="center" className="w-200">
                                                     <textarea
                                                         className="w-full p-2 border border-gray-300 rounded-md"
                                                         value={employee.note}
@@ -496,7 +496,7 @@ export default function Worklog() {
                         className="px-4 py-2 border border-gray-300 rounded-xl w-full"
                         onChange={(e) => handleSearch(e.target.value)}
                     />
-                    <div className="overflow-y-scroll max-h-80 scrollbar-hidden h-full">
+                    <div className="overflow-y-scroll max-h-50 h-full">
                         {filteredEmployees.length > 0 ? (
                             filteredEmployees.map((employee) => (
                                 <div

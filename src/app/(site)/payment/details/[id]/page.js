@@ -136,10 +136,6 @@ export default function ExportDetail({ params }) {
     return (
         <div className='flex flex-col gap-4 w-full p-4'>
             <div className='rounded-xl w-full bg-white p-4'>
-                <div className='flex items-center justify-between mb-4'>
-                    <h1 className='text-2xl font-semibold'>Chi tiết giao dịch</h1>
-                    <button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalOpen(true)}>Chỉnh sửa giao dịch</button>
-                </div>
                 <table className="w-full">
                     <tbody className="striped-table">
                         <tr>
@@ -175,8 +171,8 @@ export default function ExportDetail({ params }) {
                             <td className="p-4 w-8/10"><button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalPayrollOpen(true)}>Xem bảng lương</button></td>
                         </tr>}
                         {transaction && <tr>
-                            <td className="p-4">Giao dịch liên quan</td>
-                            <td className="p-4 w-8/10"><button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalTransactionOpen(true)}>Xem giao dịch</button></td>
+                            <td className="p-4">Phiếu liên quan</td>
+                            <td className="p-4 w-8/10"><button className='background-primary text-white px-4 py-2 rounded-md' onClick={() => setModalTransactionOpen(true)}>Xem phiếu</button></td>
                         </tr>}
                     </tbody>
                 </table>

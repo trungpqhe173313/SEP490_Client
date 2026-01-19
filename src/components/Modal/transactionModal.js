@@ -106,7 +106,7 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-4/5 relative max-h-95/100 h-auto overflow-y-scroll scrollbar-hidden">
                     <div className="w-full background-primary text-white p-4 flex-row flex justify-between sticky top-0 z-50">
                         <h2 className="text-2xl font-bold my-auto">
-                            Chi tiết giao dịch liên quan
+                            Chi tiết phiếu liên quan
                         </h2>
                         <button className="text-white cursor-pointer bg-red-600 hover:bg-red-700 p-1" onClick={handleClose}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -114,10 +114,10 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                             </svg>
                         </button>
                     </div>
-                    <div className='grid grid-cols-3 p-4 gap-4 w-full h-50'>
-                        <div className='col-span-1 rounded-xl bg-white p-4'>
-                            <h1 className='text-xl font-bold'>Chi tiết phiếu</h1>
-                            <p className='my-2'>Mã giao dịch: {transaction.transactionId}</p>
+                    <div className='grid grid-cols-3 p-4 gap-4 w-full'>
+                        <div className='col-span-1 rounded-xl bg-white p-4 border border-1'>
+                            <p className='my-2'>ID giao dịch: {transaction.transactionId}</p>
+                            <p className='my-2'>Code giao dịch: {transaction.transactionCode}</p>
                             <p className='my-2'>Ngày giao dịch: {new Date(transaction.transactionDate).toLocaleString('vi-VN')}</p>
                             <p className='my-2'>Nhà kho: {transaction.warehouseName}</p>
                             <div className='my-2 flex flex-row gap-2'>
@@ -130,7 +130,7 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                     </div>
 
                     <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2'>
-                        <h1 className='text-xl font-bold p-4'>Danh sách sản phẩm</h1>
+                        <h1 className='text-xl font-bold py-4'>Danh sách sản phẩm</h1>
                         <TableCommon
                             headers={headerData}
                             tableData={transaction.details}
@@ -143,6 +143,7 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
                             handleChangeRowPerPage={handleChangeRowPerPage}
                             usePagination={true}
                             fePagination={true}
+                            noTopPaginationBar={true}
                         />
                         <div className='flex flex-row justify-between items-center p-4' />
                     </div>
