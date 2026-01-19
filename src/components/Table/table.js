@@ -34,7 +34,8 @@ export default function TableCommon({
     fePagination,
     extraRow,
     useDetail,
-    tableDetail
+    tableDetail,
+    noTopPaginationBar=false
 }) {
     const [sortType, setSortType] = useState(defaultSortType || 'asc');
     const [sortColumn, setSortColumn] = useState(defaultSortColumn || headers[0].key);
@@ -132,7 +133,7 @@ export default function TableCommon({
                 onCancel={() => setIsOpenPopupConfirmDelete(false)}
                 message={messagePopupDelete}
             />
-            {usePagination && (
+            {usePagination && !noTopPaginationBar && (
                 <TablePagination
                     rowsPerPageOptions={rowPerPageOptions}
                     component="div"

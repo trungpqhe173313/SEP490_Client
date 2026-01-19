@@ -306,13 +306,12 @@ export default function Returns({ params }) {
                                 <TableCell sx={{ color: "white" }}>Tên hàng</TableCell>
                                 <TableCell sx={{ color: "white" }} align="center">Giá bán</TableCell>
                                 <TableCell sx={{ color: "white" }} align="center">Số lượng trả (Bao)</TableCell>
-                                <TableCell sx={{ color: "white" }} align="right">Thành tiền trả (VND)</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {paginatedRows.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center">
+                                    <TableCell colSpan={4} align="center">
                                         <p className="my-10 text-xl">
                                             Không tìm thấy sản phẩm
                                         </p>
@@ -359,9 +358,6 @@ export default function Returns({ params }) {
                                                 </div>
                                                 <span className="text-lg text-gray-500">/{r.quantity}</span>
                                             </div>
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {(r.returnQuantity * r.unitPrice).toLocaleString('vi-VN')}₫
                                         </TableCell>
                                     </TableRow>
                                 ))
