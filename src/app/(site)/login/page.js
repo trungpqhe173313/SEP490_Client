@@ -96,6 +96,9 @@ export default function LoginPage() {
       case 'Customer':
         router.push('/order-history');
         break;
+      case 'Employee':
+        router.push('/imports');
+        break;
       default:
         router.push('/');
         break;
