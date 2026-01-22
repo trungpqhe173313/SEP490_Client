@@ -31,29 +31,31 @@ export default function Dashboard() {
         }
     }, [isLogin, user, router]);
 
-    const thisMonth = {
-        from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-        to: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
-    };
-    const lastMonth = {
-        from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
-        to: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-    };
+    const [thisMonth, setThisMonth] = useState({
+        from: new Date(2025, 10, 1),
+        to: new Date(2025, 11, 1)
+    });
+    const [lastMonth, setLastMonth] = useState({
+        from: new Date(2025, 9, 1),
+        to: new Date(2025, 10, 1)
+    });
 
+    // Generate thisYear based on the currently selected month/year
+    const selectedYear = thisMonth.from.getFullYear();
     const thisYear = Object.entries({
-        jan: new Date(new Date().getFullYear(), 0, 1),
-        feb: new Date(new Date().getFullYear(), 1, 1),
-        mar: new Date(new Date().getFullYear(), 2, 1),
-        apr: new Date(new Date().getFullYear(), 3, 1),
-        may: new Date(new Date().getFullYear(), 4, 1),
-        jun: new Date(new Date().getFullYear(), 5, 1),
-        jul: new Date(new Date().getFullYear(), 6, 1),
-        aug: new Date(new Date().getFullYear(), 7, 1),
-        sep: new Date(new Date().getFullYear(), 8, 1),
-        oct: new Date(new Date().getFullYear(), 9, 1),
-        nov: new Date(new Date().getFullYear(), 10, 1),
-        dec: new Date(new Date().getFullYear(), 11, 1),
-        next: new Date(new Date().getFullYear() + 1, 0, 1)
+        jan: new Date(selectedYear, 0, 1),
+        feb: new Date(selectedYear, 1, 1),
+        mar: new Date(selectedYear, 2, 1),
+        apr: new Date(selectedYear, 3, 1),
+        may: new Date(selectedYear, 4, 1),
+        jun: new Date(selectedYear, 5, 1),
+        jul: new Date(selectedYear, 6, 1),
+        aug: new Date(selectedYear, 7, 1),
+        sep: new Date(selectedYear, 8, 1),
+        oct: new Date(selectedYear, 9, 1),
+        nov: new Date(selectedYear, 10, 1),
+        dec: new Date(selectedYear, 11, 1),
+        next: new Date(selectedYear + 1, 0, 1)
     }).map(([key, value]) => ({ key, date: value }));
 
     const translateMonth = (month) => {
@@ -267,7 +269,8 @@ export default function Dashboard() {
                                 <YAxis
                                     type="category"
                                     dataKey="fullName"
-                                    width={150}
+                                    width={200}
+                                    interval={0}
                                 />
                                 <Tooltip />
                                 <Bar dataKey="totalSpent" name="Tổng số tiền đã chi" fill="#00a544" />
@@ -340,8 +343,7 @@ export default function Dashboard() {
 
     const ProductTabContent = () => {
         let chartData = [];
-        const now = new Date();
-        const currentMonthIndex = now.getMonth();
+        const currentMonthIndex = thisMonth.from.getMonth();
         const currentQuarter = Math.floor(currentMonthIndex / 3);
 
         if (reportMode === "month") {
@@ -460,7 +462,7 @@ export default function Dashboard() {
         if (pageReady) {
             fetchAll();
         }
-    }, [pageReady]);
+    }, [pageReady, thisMonth]);
 
     const getQuantityRankingPerJob = (data) => {
         if (!data || data.length === 0) return [];
@@ -534,23 +536,66 @@ export default function Dashboard() {
 
     if (!pageReady || loading) return <Loader />
 
+    // Generate month options for the dropdown: current month, 4 before, 4 after (total 9 months)
+    const monthOptions = Array.from({ length: 9 }, (_, i) => {
+        // Offset from current month: -4 to +4
+        const offset = i - 4;
+        const date = new Date(thisMonth.from.getFullYear(), thisMonth.from.getMonth() + offset, 1);
+        return {
+            value: date.getMonth() + date.getFullYear() * 12, // unique value for month-year
+            label: `Tháng ${date.getMonth() + 1} - ${date.getFullYear()}`,
+            month: date.getMonth(),
+            year: date.getFullYear(),
+        };
+    });
+
+    // Handle month change from dropdown
+    const handleMonthDropdownChange = (e) => {
+        const selectedValue = parseInt(e.target.value, 10);
+        // Find the selected option
+        const selectedOption = monthOptions.find(opt => opt.value === selectedValue);
+        if (!selectedOption) return;
+        const { month, year } = selectedOption;
+        const from = new Date(year, month, 1);
+        const to = new Date(year, month + 1, 1);
+        setThisMonth({ from, to });
+        setLastMonth({
+            from: new Date(year, month - 1, 1),
+            to: new Date(year, month, 1)
+        });
+    };
+
     return (
-        <div className="p-2 w-auto rounded-xl">
-            <nav>
-                <ul className="tabs flex gap-1">
-                    {tabHeaders.map((tabHeader, index) => (
-                        <li key={index} className={`px-4 py-2 rounded-t-xl cursor-pointer border border-gray-300 ${tab === index ? "background-primary" : "bg-white"}`} onClick={(event) => handleTabChange(event, index)}>
-                            <a>
-                                {tabHeader}
-                            </a>
-                        </li>
+        <div>
+            <div className="flex flex-row items-center justify-start p-4 mx-2 my-4 bg-white rounded-xl gap-4">
+                <h1 className="text-2xl font-bold">Báo cáo của</h1>
+                <select
+                    className="px-3 py-2 border rounded-lg bg-white text-black"
+                    value={thisMonth.from.getMonth() + thisMonth.from.getFullYear() * 12}
+                    onChange={handleMonthDropdownChange}
+                >
+                    {monthOptions.map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
-                </ul>
-            </nav>
-            <div className="bg-white p-4 border-x-1 border-b-1 border-gray-300 ">
-                {tab === 0 && <PaymentTabContent />}
-                {tab === 1 && <ProductTabContent />}
-                {tab === 2 && <EmployeeTabContent />}
+                </select>
+            </div>
+            <div className="p-2 w-auto rounded-xl">
+                <nav>
+                    <ul className="tabs flex gap-1">
+                        {tabHeaders.map((tabHeader, index) => (
+                            <li key={index} className={`px-4 py-2 rounded-t-xl cursor-pointer border border-gray-300 ${tab === index ? "background-primary" : "bg-white"}`} onClick={(event) => handleTabChange(event, index)}>
+                                <a>
+                                    {tabHeader}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
+                <div className="bg-white p-4 border-x-1 border-b-1 border-gray-300 ">
+                    {tab === 0 && <PaymentTabContent />}
+                    {tab === 1 && <ProductTabContent />}
+                    {tab === 2 && <EmployeeTabContent />}
+                </div>
             </div>
         </div>
     );
