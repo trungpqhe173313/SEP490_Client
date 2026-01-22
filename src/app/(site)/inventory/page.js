@@ -136,7 +136,12 @@ export default function InventoryPage() {
     const fetchProducts = async (value) => {
         setProductLoading(true);
         try {
-            const body = { pageIndex: 1, pageSize: 1000, productName: value };
+            const body = { 
+                pageIndex: 1, 
+                pageSize: 1000, 
+                productName: value,
+                productCode: value // Thêm tìm kiếm theo mã sản phẩm
+            };
             const response = await productService.getProductAvailable(body);
             const products = response.data.items.sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((item) => ({ productId: item.productId, productName: item.productName, productCode: item.productCode }));
             setProducts(products);
@@ -252,7 +257,7 @@ export default function InventoryPage() {
                                 options={products}
                                 onSelect={(item) => handleChangeDropdown(item, "productId")}
                                 onSearch={fetchProducts}
-                                getOptionLabel={(option) => option.productName}
+                                getOptionLabel={(option) => `${option.productCode} - ${option.productName}`}
                                 getOptionKey={(option) => option.productId}
                             />
                         </div>

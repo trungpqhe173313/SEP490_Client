@@ -351,6 +351,7 @@ export default function ModifyProduction({ params }) {
                 productId: item.productId,
                 quantity: item.produceQuantity,
               })),
+            note: note,
           };
           await productionEmployeeService.submitForApproval(id, body);
           setModalSuccessMessage("Đã gửi phiếu sản xuất để chờ phê duyệt");
@@ -900,7 +901,6 @@ export default function ModifyProduction({ params }) {
                   <TableCell sx={{ color: "white", fontWeight: 600 }}>Tên thành phẩm</TableCell>
                   <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL/đơn vị</TableCell>
                   {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL sản xuất</TableCell>}
-                  {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL từ phiếu cân</TableCell>}
                   <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Thao tác</TableCell>
                 </TableRow>
               </TableHead>
@@ -1001,14 +1001,6 @@ export default function ModifyProduction({ params }) {
                         </Box>
                       </TableCell>
                       }
-                      {type === "update" && <TableCell align="center">
-                        <Chip 
-                          label={`${Math.round(product.actualWeight * 1000) / 1000} kg`} 
-                          size="small" 
-                          color="secondary"
-                          variant="filled"
-                        />
-                      </TableCell>}
                       <TableCell align="center">
                         {type === "update" ? (
                           <Tooltip title="Không thể xóa thành phẩm khi đang hoàn thành sản xuất">

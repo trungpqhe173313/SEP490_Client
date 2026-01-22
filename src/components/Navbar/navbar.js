@@ -203,7 +203,7 @@ const Navbar = () => {
           icon: <LaunchIcon />
         },
         {
-          name: "Trả hàng xuất kho",
+          name: "Phiếu trả hàng xuất",
           link: "/returns/export",
           role: ["Manager"],
           icon: <AssignmentReturnIcon />

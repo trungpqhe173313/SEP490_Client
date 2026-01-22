@@ -328,12 +328,6 @@ export default function MyProductions() {
                         <p className='my-2'><span className="font-semibold">Mã phiếu:</span> {production.id}</p>
                         <p className='my-2'><span className="font-semibold">Ngày tạo:</span> {new Date(production.createdAt).toLocaleString('vi-VN')}</p>
                         <p className='my-2'><span className="font-semibold">Ghi chú:</span> {production.note || <span className="text-gray-400">Không có</span>}</p>
-                        {production?.status === 5 && production.note && (
-                            <div className='my-2 p-3 bg-red-50 border border-red-200 rounded-lg'>
-                                <p className='font-semibold text-red-800'>Lý do từ chối:</p>
-                                <p className='text-red-700 mt-1'>{production.note}</p>
-                            </div>
-                        )}
                         <div className='my-2 flex flex-row gap-2 items-center'>
                             <span className="font-semibold">Trạng thái:</span>
                             {getProductionStatus(production.status)}

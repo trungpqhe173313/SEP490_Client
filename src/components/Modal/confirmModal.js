@@ -14,7 +14,7 @@ function ConfirmModal({ isOpen, onClose, onConfirm, onCancel, message }) {
           <h2 className="text-2xl font-semibold mb-2">Thông báo</h2>
           <SvgIcon component={ErrorIcon} sx={{ color: 'orange', fontSize: 80, border: '2px solid orange', borderRadius: '50%', marginTop: 1, marginBottom: 2 , padding: 1, marginX: 'auto' }} />
           <p className="mb-4">{message}</p>
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-center space-x-4">
             <button className="px-4 py-2 background-primary text-white rounded-md cursor-pointer" onClick={handleConfirmClick}>
               Xác nhận
             </button>
