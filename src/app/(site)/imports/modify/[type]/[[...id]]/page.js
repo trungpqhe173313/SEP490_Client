@@ -211,9 +211,9 @@ export default function UpdateImport({ params }) {
             });
     }
 
-    useEffect(() => {
-        validateFields();
-    }, [selectedSupplier, selectedWarehouse, selectedEmployee]);
+    // useEffect(() => {
+    //     validateFields();
+    // }, [selectedSupplier, selectedWarehouse, selectedEmployee]);
 
     const validateFields = () => {
         if (!selectedSupplier) {
@@ -236,13 +236,18 @@ export default function UpdateImport({ params }) {
     }
 
     const validateProducts = () => {
-        if (cart.filter((r) => r.importQuantity > 0 && r.unitPrice > 0).length === 0) {
-            setModalFailedMessage("Sản phẩm không được để trống");
+        if (cart.find((r) => r.importQuantity < 0)) {
+            setModalFailedMessage("Số lượng sản phẩm không thể là số âm");
             setModalFailedOpen(true);
             return false;
         }
-        if (cart.find((r) => r.importQuantity < 0)) {
-            setModalFailedMessage("Số lượng sản phẩm không thể là số âm");
+        if (cart.find((r) => r.unitPrice < 0)) {
+            setModalFailedMessage("Giá sản phẩm không thể là số âm");
+            setModalFailedOpen(true);
+            return false;
+        }
+        if (cart.filter((r) => r.importQuantity > 0 && r.unitPrice > 0).length === 0) {
+            setModalFailedMessage("Sản phẩm không được để trống");
             setModalFailedOpen(true);
             return false;
         }
@@ -253,11 +258,6 @@ export default function UpdateImport({ params }) {
         }
         if (cart.find((r) => Number.isInteger(r.unitPrice) === false)) {
             setModalFailedMessage("Giá sản phẩm phải là số nguyên");
-            setModalFailedOpen(true);
-            return false;
-        }
-        if (cart.find((r) => r.unitPrice < 0)) {
-            setModalFailedMessage("Giá sản phẩm không thể là số âm");
             setModalFailedOpen(true);
             return false;
         }
@@ -488,11 +488,11 @@ export default function UpdateImport({ params }) {
                                                 size="small"
                                                 inputProps={{
                                                     min: 0,
-                                                    style: { width: 50, textAlign: "center", height: 10 },
+                                                    style: { width: 50, textAlign: "center", height: 10, color: r.importQuantity < 0 || Number.isInteger(r.importQuantity) === false ? "red" : "inherit" },
                                                 }}
                                                 sx={{ marginX: "5px" }}
                                                 value={removeLeadingZero(r.importQuantity)}
-                                                error={r.importQuantity < 0}
+                                                error={r.importQuantity < 0 || Number.isInteger(r.importQuantity) === false}
                                                 onChange={(e) => handleChangeCart(r.productId, "importQuantity", e.target.value)}
                                                 variant="outlined"
                                             />
@@ -510,7 +510,7 @@ export default function UpdateImport({ params }) {
                                                 size="small"
                                                 inputProps={{
                                                     min: 0,
-                                                    style: { width: 70, textAlign: "center", height: "10px" },
+                                                    style: { width: 70, textAlign: "center", height: "10px", color: r.unitPrice < 0 ? "red" : "inherit"},
                                                 }}
                                                 error={r.unitPrice < 0}
                                                 value={removeLeadingZero(r.unitPrice)}

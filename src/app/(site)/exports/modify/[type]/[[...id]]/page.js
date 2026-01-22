@@ -65,6 +65,7 @@ export default function UpdateExport({ params }) {
     const [modalFailedSubMessages, setModalFailedSubMessages] = useState([]);
 
     const [errors, setErrors] = useState("");
+    const [customerTouched, setCustomerTouched] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 14;
@@ -242,12 +243,12 @@ export default function UpdateExport({ params }) {
                 p.productId === product.productId ? { ...p, orderQuantity: (p.orderQuantity || 0) + 1 } : p
             );
             setCart(updatedCart);
-            validateFields(updatedCart, selectedCustomer);
+            validateFields(updatedCart);
         } else {
             setCart((prev) => {
                 const newProduct = { ...product, orderQuantity: 1, unitPrice: getProductPrice(product) || 0 };
                 const updatedCart = [...prev, newProduct];
-                validateFields(updatedCart, selectedCustomer);
+                validateFields(updatedCart);
                 const newTotalCost = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
                 setTimeout(() => {
                     setTotalCost(newTotalCost);
@@ -264,7 +265,7 @@ export default function UpdateExport({ params }) {
             setTotalCost(newTotalCost);
         }, 0);
         setCart(updatedCart);
-        validateFields(updatedCart, selectedCustomer);
+        validateFields(updatedCart);
     };
 
     const handleChangeCart = (id, field, value) => {
@@ -274,7 +275,7 @@ export default function UpdateExport({ params }) {
                     ? { ...product, [field]: Number(value) || 0 }
                     : product
             );
-            validateFields(updatedCart, selectedCustomer);
+            validateFields(updatedCart);
             const newTotalCost = updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0);
             setTimeout(() => {
                 setTotalCost(newTotalCost);
@@ -286,7 +287,7 @@ export default function UpdateExport({ params }) {
     const handleChangeDropdown = (item, field) => {
         if (field === "customerId") {
             setSelectedCustomer(item);
-            validateFields(cart, item);
+            setCustomerTouched(true);
         }
         if (field === "productId") {
             if (item) {
@@ -300,6 +301,12 @@ export default function UpdateExport({ params }) {
             setSelectedPriceList(item);
         }
     };
+
+    useEffect(() => {
+        if (customerTouched) {
+            validateCustomer();
+        }
+    }, [selectedCustomer, customerTouched]);
 
     useEffect(() => {
         if (!selectedPriceList) return;
@@ -316,9 +323,13 @@ export default function UpdateExport({ params }) {
         setTotalCost(updatedCart.reduce((total, item) => total + (item.unitPrice * item.orderQuantity), 0));
     }, [selectedPriceListDetail]);
 
-    const validateFields = (cartArg = cart, selectedCustomerArg = selectedCustomer) => {
-        if (selectedCustomerArg === null) {
-            setErrors("Khách hàng không được để trống");
+    const validateFields = (cartArg = cart) => {
+        if (cartArg.find((p) => p.orderQuantity < 0)) {
+            setErrors("Số lượng sản phẩm không thể là số âm");
+            return false;
+        }
+        if (cartArg.find((p) => p.unitPrice < 0)) {
+            setErrors("Giá sản phẩm không thể là số âm");
             return false;
         }
         if (cartArg.filter((p) => p.orderQuantity > 0 && p.unitPrice > 0).length === 0) {
@@ -327,14 +338,6 @@ export default function UpdateExport({ params }) {
         }
         if (cartArg.find((p) => p.orderQuantity > p.quantity)) {
             setErrors("Sản phẩm đặt hàng đang lớn hơn sản phẩm trong kho");
-            return false;
-        }
-        if (cartArg.find((p) => p.orderQuantity < 0)) {
-            setErrors("Số lượng sản phẩm không thể là số âm");
-            return false;
-        }
-        if (cartArg.find((p) => p.unitPrice < 0)) {
-            setErrors("Giá sản phẩm không thể là số âm");
             return false;
         }
         if (cartArg.find((p) => Number.isInteger(p.orderQuantity) === false)) {
@@ -349,8 +352,20 @@ export default function UpdateExport({ params }) {
         return true;
     }
 
+    const validateCustomer = () => {
+        if (!selectedCustomer) {
+            if (customerTouched) {
+                setErrors("Khách hàng không được để trống");
+            }
+            return false;
+        }
+        setErrors("");
+        return true;
+    }
+
     const handleSubmit = async () => {
-        if (!validateFields()) return;
+        setCustomerTouched(true);
+        if (!validateCustomer() || !validateFields(cart)) return;
         setLoading(true); const body = {
             note,
             totalCost: totalCost,
@@ -431,7 +446,7 @@ export default function UpdateExport({ params }) {
                                         <TableCell sx={{ color: "white" }} align="center">Tồn kho</TableCell>
                                         <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
                                         <TableCell sx={{ color: "white" }} align="center">Đơn giá (VND)</TableCell>
-                                        <TableCell sx={{ color: "white" }} align="right">Thành tiền (VND)</TableCell>
+                                        <TableCell sx={{ color: "white" }} align="right" className="w-50">Thành tiền (VND)</TableCell>
                                         <TableCell sx={{ color: "white" }} align="center">Hành động</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -468,13 +483,13 @@ export default function UpdateExport({ params }) {
                                                                 width: 50,
                                                                 textAlign: "center",
                                                                 height: 10,
-                                                                color: product.orderQuantity > product.quantity ? 'red' : 'inherit'
+                                                                color: product.orderQuantity > product.quantity || product.orderQuantity < 0 || Number.isInteger(product.orderQuantity) === false ? 'red' : 'inherit'
                                                             },
                                                         }}
                                                         value={removeLeadingZero(product.orderQuantity)}
                                                         onChange={(e) => handleChangeCart(product.productId, "orderQuantity", e.target.value)}
                                                         variant="outlined"
-                                                        error={product.orderQuantity > product.quantity || product.orderQuantity < 0}
+                                                        error={product.orderQuantity > product.quantity || product.orderQuantity < 0 || Number.isInteger(product.orderQuantity) === false}
                                                         sx={{
                                                             '& .MuiOutlinedInput-root': {
                                                                 '& fieldset': {
@@ -498,7 +513,7 @@ export default function UpdateExport({ params }) {
                                                         size="small"
                                                         inputProps={{
                                                             min: 0,
-                                                            style: { width: 70, textAlign: "center", height: "10px" },
+                                                            style: { width: 70, textAlign: "center", height: "10px", color: product.unitPrice < 0 ? 'red' : 'inherit' }
                                                         }}
                                                         error={product.unitPrice < 0}
                                                         value={removeLeadingZero(product.unitPrice)}
@@ -542,7 +557,7 @@ export default function UpdateExport({ params }) {
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl min-h-[90vh] col-span-4 mt-4 w-full flex flex-col items-center justify-between">
+            <div className="bg-white rounded-xl min-h-[91vh] col-span-4 mt-4 w-full flex flex-col items-center justify-between">
                 <div className="w-full p-4">
                     <div className="w-full flex flex-row items-center gap-4">
                         <div className="w-full mt-4">
@@ -578,7 +593,7 @@ export default function UpdateExport({ params }) {
                             />
                         </div>
                     </div>
-                    <div className="w-full grid grid-cols-2 py-4 gap-2 overflow-y-scroll scrollbar-hidden">
+                    <div className="w-full grid grid-cols-2 py-3 gap-2 overflow-y-scroll scrollbar-hidden">
                         {currentProducts.map((product) => (
                             <div
                                 key={product.productId}
@@ -619,8 +634,8 @@ export default function UpdateExport({ params }) {
                         }
                     </div>
                 </div>
-                <div className="w-full flex flex-col items-center p-4 justify-between gap-4">
-                    {errors && <p className="text-red-600">{errors}</p>}
+                <div className="w-full flex flex-col items-center px-4 py-2 justify-between gap-4">
+                    <p className="text-red-600">{errors}</p>
                     <div className="w-full flex flex-row items-center justify-between">
                         <div className="flex justify-center gap-2 items-center">
                             <IconButton

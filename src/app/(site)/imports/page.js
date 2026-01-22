@@ -505,24 +505,6 @@ export default function Imports() {
                             />
                         </div>
                     }
-                    <div className="mt-2 w-[24.25%]">
-                        <label className="mr-2">Trạng thái:</label>
-                        <select
-                            className="w-full p-2 border border-gray-300 rounded"
-                            value={filterStatus || ""}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                        >
-                            <option value="">Tất cả</option>
-                            <option value={0}>{getImportStatusText(0)}</option>
-                            <option value={1}>{getImportStatusText(1)}</option>
-                            <option value={2}>{getImportStatusText(2)}</option>
-                            <option value={3}>{getImportStatusText(3)}</option>
-                            <option value={4}>{getImportStatusText(4)}</option>
-                            <option value={11}>{getImportStatusText(11)}</option>
-                            <option value={12}>{getImportStatusText(12)}</option>
-                        </select>
-                    </div>
                 </div>
                 <div className="flex items-center my-4 gap-4">
                     <div className="mt-2 w-[24.25%]">
@@ -552,6 +534,24 @@ export default function Imports() {
                             }}
                             onKeyDown={handleKeyDown}
                         />
+                    </div>
+                    <div className="mt-2 w-[24.25%]">
+                        <label className="mr-2">Trạng thái:</label>
+                        <select
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={filterStatus || ""}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        >
+                            <option value="">Tất cả</option>
+                            <option value={0}>{getImportStatusText(0)}</option>
+                            <option value={1}>{getImportStatusText(1)}</option>
+                            <option value={2}>{getImportStatusText(2)}</option>
+                            <option value={3}>{getImportStatusText(3)}</option>
+                            <option value={4}>{getImportStatusText(4)}</option>
+                            <option value={11}>{getImportStatusText(11)}</option>
+                            <option value={12}>{getImportStatusText(12)}</option>
+                        </select>
                     </div>
                 </div>
                 <div className="flex flex-col justify-center">

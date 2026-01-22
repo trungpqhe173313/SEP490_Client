@@ -193,10 +193,10 @@ export default function ModifyProduction({ params }) {
   const fetchEmployees = async () => {
     try {
       const body = {
-                pageIndex: 1,
-                pageSize: 1000,
-                isActive: true
-            };
+        pageIndex: 1,
+        pageSize: 1000,
+        isActive: true
+      };
       const response = await employeeService.getAllEmployees(body);
       const employeesData = response.data.items || [];
       console.log('employeesData', employeesData);
@@ -317,7 +317,7 @@ export default function ModifyProduction({ params }) {
   };
 
   const handleSubmit = async () => {
-    if (!validation()) return;
+    if (!validationEmployee() || !validationMaterial() || !validationCart()) return;
 
     setLoading(true);
 
@@ -415,10 +415,42 @@ export default function ModifyProduction({ params }) {
   }, [products]);
 
   useEffect(() => {
-    validation()
-  }, [cart, selectedMaterial, selectedEmployee]);
+    validationCart();
+  }, [cart]);
 
-  const validation = () => {
+  useEffect(() => {
+    validationMaterial();
+  }, [selectedMaterial]);
+
+  useEffect(() => {
+    validationEmployee();
+  }, [selectedEmployee]);
+
+  const validationEmployee = () => {
+    if (!pageReady) return;
+    if (type === "create" && !selectedEmployee) {
+      setErrors("Vui lòng chọn nhân viên phụ trách sản xuất");
+      return false;
+    }
+    setErrors("");
+    return true;
+  }
+
+  const validationMaterial = () => {
+    if (!pageReady) return;
+    if (!selectedMaterial || selectedMaterial.produceQuantity <= 0 || Number.isInteger(selectedMaterial.produceQuantity) === false) {
+      setErrors("Nguyên liệu không được để trống và phải là số nguyên dương");
+      return false
+    }
+    if (selectedMaterial.produceQuantity > selectedMaterial.quantity) {
+      setErrors("Số lượng tiêu thụ đang lớn hơn số lượng nguyên liệu trong kho");
+      return false
+    }
+    setErrors("")
+    return true
+  }
+
+  const validationCart = () => {
     if (!pageReady) return;
     if (cart.filter((p) => p.produceQuantity < 0).length > 0) {
       setErrors("Số lượng thành phẩm không thể là số âm");
@@ -432,24 +464,12 @@ export default function ModifyProduction({ params }) {
       setErrors("Thành phẩm không được để trống");
       return false
     }
-    if (!selectedMaterial || selectedMaterial.produceQuantity <= 0 || Number.isInteger(selectedMaterial.produceQuantity) === false) {
-      setErrors("Nguyên liệu không được để trống và phải là số nguyên dương");
-      return false
-    }
-    if (selectedMaterial.produceQuantity > selectedMaterial.quantity) {
-      setErrors("Số lượng tiêu thụ đang lớn hơn số lượng nguyên liệu trong kho");
-      return false
-    }
     if (cart.find((p) => p.productId === selectedMaterial.productId)) {
       setErrors("Đang sản xuất ra cùng 1 loại sản phẩm")
       return false
     }
     if (cart.find((p) => Number.isInteger(p.produceQuantity) === false)) {
       setErrors("Số lượng thành phẩm phải là số nguyên");
-      return false;
-    }
-    if (type === "create" && !selectedEmployee) {
-      setErrors("Vui lòng chọn nhân viên phụ trách sản xuất");
       return false;
     }
     setErrors("")
@@ -459,7 +479,7 @@ export default function ModifyProduction({ params }) {
   const handleExit = () => {
     router.push("/productions");
   }
-    const handleExitForEmployee = () => {
+  const handleExitForEmployee = () => {
     router.push("/productions/my-productions");
   }
 
@@ -471,7 +491,7 @@ export default function ModifyProduction({ params }) {
     const totalProducts = cart.filter(p => p.produceQuantity > 0).length;
     const conversionRate = totalMaterialWeight > 0 ? ((totalExpectedWeight / totalMaterialWeight) * 100).toFixed(1) : 0;
     const stockUsageRate = selectedMaterial?.quantity > 0 ? ((selectedMaterial.produceQuantity / selectedMaterial.quantity) * 100).toFixed(1) : 0;
-    
+
     return {
       totalMaterialWeight,
       totalExpectedWeight,
@@ -580,373 +600,129 @@ export default function ModifyProduction({ params }) {
       {/* Main Content */}
       <div className="flex gap-4">
 
-      <div className="w-1/2 flex flex-col gap-4">
-        {type === "create" && (
+        <div className="w-1/2 flex flex-col gap-4">
+          {type === "create" && (
+            <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+              <div className="flex items-center gap-2 mb-4">
+                <InfoIcon className="text-purple-600" />
+                <p className="text-xl font-bold text-gray-800">Nhân viên phụ trách</p>
+              </div>
+              <AutocompleteCommon
+                name="employeeId"
+                value={selectedEmployee}
+                loading={employeeLoading}
+                options={employees}
+                onSelect={(item) => handleChangeDropdown(item, "employee")}
+                onSearch={searchEmployee}
+                getOptionLabel={(option) => `${option.fullName}`}
+                getOptionKey={(option) => option.userId}
+              />
+            </div>
+          )}
           <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
             <div className="flex items-center gap-2 mb-4">
-              <InfoIcon className="text-purple-600" />
-              <p className="text-xl font-bold text-gray-800">Nhân viên phụ trách</p>
+              <InventoryIcon className="text-blue-600" />
+              <p className="text-xl font-bold text-gray-800">Nguyên liệu sản xuất</p>
             </div>
-            <AutocompleteCommon
-              name="employeeId"
-              value={selectedEmployee}
-              loading={employeeLoading}
-              options={employees}
-              onSelect={(item) => handleChangeDropdown(item, "employee")}
-              onSearch={searchEmployee}
-              getOptionLabel={(option) => `${option.fullName}`}
-              getOptionKey={(option) => option.userId}
-            />
-          </div>
-        )}
-        <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
-          <div className="flex items-center gap-2 mb-4">
-            <InventoryIcon className="text-blue-600" />
-            <p className="text-xl font-bold text-gray-800">Nguyên liệu sản xuất</p>
-          </div>
-          {!id ? (
-            <AutocompleteCommon
-              name="productId"
-              value={selectedMaterial}
-              loading={materialLoading}
-              options={materials}
-              onSelect={(item) => handleChangeDropdown(item, "material")}
-              onSearch={searchMaterial}
-              getOptionLabel={(option) => `${option.productCode || option.code} - ${option.productName}`}
-              getOptionKey={(option) => option.productId}
-            />
-          ) : (
-            <input
-              type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"
-              disabled
-              value={selectedMaterial?.productName || ""}
-            />
-          )}
-        </div>
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-          {selectedMaterial && !id && (
-            <div className="p-4 bg-gray-50 border-b border-gray-200">
-              <p className="text-sm font-semibold text-gray-700 mb-2">Chọn nhanh số lượng:</p>
-              <div className="flex gap-2">
-                {[10, 50, 100, 200].map(num => (
-                  <button
-                    key={num}
-                    onClick={() => handleQuickSetQuantity(num)}
-                    disabled={num > selectedMaterial.quantity}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      num > selectedMaterial.quantity 
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                    }`}
-                  >
-                    {num} bao
-                  </button>
-                ))}
-                <button
-                  onClick={() => handleQuickSetQuantity(selectedMaterial.quantity)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-all"
-                >
-                  Tất cả ({selectedMaterial.quantity})
-                </button>
-              </div>
-            </div>
-          )}
-          <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow className="background-primary">
-                <TableCell sx={{ color: "white", fontWeight: 600 }}>Mã NL</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: 600 }}>Tên nguyên liệu</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Tồn kho</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL/đơn vị</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL tiêu thụ</TableCell>
-                <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Tổng KL</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {!selectedMaterial ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    <div className="py-8">
-                      <InventoryIcon sx={{ fontSize: 48, color: '#9CA3AF', mb: 2 }} />
-                      <p className="text-lg text-gray-500">
-                        Vui lòng chọn nguyên liệu
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                <TableRow key={selectedMaterial.productId} hover sx={{ backgroundColor: '#F9FAFB' }}>
-                  <TableCell><strong>{selectedMaterial.productCode}</strong></TableCell>
-                  <TableCell>{selectedMaterial.productName}</TableCell>
-                  <TableCell align="center">
-                    <Chip 
-                      label={selectedMaterial.quantity} 
-                      size="small" 
-                      color={selectedMaterial.quantity > 100 ? "success" : selectedMaterial.quantity > 50 ? "warning" : "error"}
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell align="center">
-                    <Chip label={`${selectedMaterial.weightPerUnit} kg`} size="small" variant="outlined" />
-                  </TableCell>
-                  <TableCell align="center" sx={{ width: 220 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-                      <Tooltip title={type === "update" && productionData?.status !== 0 ? "Nguyên liệu chỉ sửa được khi chưa bắt đầu sản xuất" : "Giảm 1"}>
-                        <span>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity - 1)}
-                            disabled={type === "update" && productionData?.status !== 0}
-                            sx={{ 
-                              border: "1px solid #E5E7EB", 
-                              height: "32px", 
-                              width: "32px",
-                              '&:hover': { backgroundColor: type === "update" && productionData?.status !== 0 ? 'transparent' : '#F3F4F6' }
-                            }}
-                          >
-                            <RemoveIcon fontSize="small" />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                      <TextField
-                        type="number"
-                        size="small"
-                        disabled={type === "update" && productionData?.status !== 0}
-                        inputProps={{
-                          min: 0,
-                          style: {
-                            width: 60,
-                            textAlign: "center",
-                            height: 10,
-                            fontWeight: 600,
-                            color: selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity ? '#EF4444' : '#1F2937'
-                          },
-                        }}
-                        value={removeLeadingZero(selectedMaterial.produceQuantity)}
-                        onChange={(e) => handleChangeMaterial(selectedMaterial, e.target.value)}
-                        variant="outlined"
-                        error={selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity ? '#EF4444' : '#D1D5DB',
-                              borderWidth: 2
-                            },
-                          },
-                          marginX: "8px",
-                        }}
-                      />
-                      <Tooltip title={type === "update" && productionData?.status !== 0 ? "Nguyên liệu chỉ sửa được khi chưa bắt đầu sản xuất" : "Tăng 1"}>
-                        <span>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleChangeMaterial(selectedMaterial, parseInt(selectedMaterial.produceQuantity) + 1)}
-                            disabled={type === "update" && productionData?.status !== 0}
-                            sx={{ 
-                              border: "1px solid #E5E7EB", 
-                              height: "32px", 
-                              width: "32px",
-                              '&:hover': { backgroundColor: type === "update" && productionData?.status !== 0 ? 'transparent' : '#F3F4F6' }
-                            }}
-                          >
-                            <AddIcon fontSize="small" />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                  <TableCell align="center">
-                    <strong className="text-blue-700">{selectedMaterial.produceQuantity * selectedMaterial.weightPerUnit} kg</strong>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        </div>
-        {productionWeightLog && <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
-          <div className="flex items-center gap-2 mb-4">
-            <ScaleIcon className="text-purple-600" />
-            <p className="text-xl font-bold text-gray-800">Chi tiết phiếu cân</p>
-          </div>
-          <TableContainer component={Paper}>
-            <Table size="small">
-              <TableHead>
-                <TableRow className="background-primary">
-                  <TableCell sx={{ color: "white" }}>Tên sản phẩm</TableCell>
-                  <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
-                  <TableCell sx={{ color: "white" }} align="center">Tổng khối lượng</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {productionWeightLog.products.length > 0 ? productionWeightLog.products.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{item.productName}</TableCell>
-                    <TableCell align="center">{item.totalBags}</TableCell>
-                    <TableCell align="center">{Math.round(item.totalWeight * 1000) / 1000} kg</TableCell>
-                  </TableRow>
-                )) : (
-                  <TableRow>
-                    <TableCell colSpan={3} align="center">
-                      <p className="text-lg">
-                        Chưa có dữ liệu cân thành phẩm
-                      </p>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>}
-        <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
-          <div className="flex items-center gap-2 mb-4">
-            <InfoIcon className="text-gray-600" />
-            <h1 className="text-xl font-bold text-gray-800">Ghi chú{type === "update" && user?.roles?.includes("Manager") && <span className="text-red-600 ml-1">(*Bắt buộc nếu từ chối)</span>}</h1>
-          </div>
-          <textarea
-            className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            rows={4}
-            placeholder={type === "update" && user?.roles?.includes("Manager") ? "Nhập lý do từ chối (nếu từ chối)..." : "Nhập ghi chú cho phiếu sản xuất..."}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-          {type === "update" && user?.roles?.includes("Manager") ? (
-            <div className="flex gap-3">
-              <button 
-                className="flex-1 px-6 py-3 bg-green-500 text-white font-semibold rounded-xl transition-all transform hover:bg-green-600 hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-                onClick={handleSubmit}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircleIcon />
-                  <span>Phê duyệt và hoàn thành</span>
-                </div>
-              </button>
-              <button 
-                className="flex-1 px-6 py-3 bg-red-500 text-white font-semibold rounded-xl transition-all transform hover:bg-red-600 hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-                onClick={handleReject}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <span>Yêu cầu làm lại</span>
-                </div>
-              </button>
-            </div>
-          ) : (
-            <button 
-              className={`w-full px-6 py-3 text-white font-semibold rounded-xl transition-all transform ${
-                errors 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'background-primary background-hovered hover:scale-[1.02] active:scale-[0.98] shadow-lg'
-              }`}
-              onClick={handleSubmit}
-              disabled={!!errors}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <CheckCircleIcon />
-                <span>
-                  {type === "update" 
-                    ? "Gửi phê duyệt" 
-                    : "Tạo phiếu sản xuất"
-                  }
-                </span>
-              </div>
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="w-1/2 flex flex-col gap-4">
-        <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
-          <div className="flex items-center gap-2 mb-4">
-            <FactoryIcon className="text-green-600" />
-            <p className="text-xl font-bold text-gray-800">Thành phẩm sản xuất</p>
-            {cart.length > 0 && (
-              <Chip 
-                label={`${cart.length} sản phẩm`} 
-                size="small" 
-                color="success" 
-                className="ml-auto"
+            {!id ? (
+              <AutocompleteCommon
+                name="productId"
+                value={selectedMaterial}
+                loading={materialLoading}
+                options={materials}
+                onSelect={(item) => handleChangeDropdown(item, "material")}
+                onSearch={searchMaterial}
+                getOptionLabel={(option) => `${option.productCode || option.code} - ${option.productName}`}
+                getOptionKey={(option) => option.productId}
+              />
+            ) : (
+              <input
+                type="text"
+                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"
+                disabled
+                value={selectedMaterial?.productName || ""}
               />
             )}
           </div>
-          {type === "update" ? (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center gap-2">
-                <InfoIcon className="text-blue-600" fontSize="small" />
-                <p className="text-sm text-blue-800">
-                  Không thể thêm/xóa thành phẩm khi đang hoàn thành sản xuất
-                </p>
-              </div>
-            </div>
-          ) : (
-            <AutocompleteCommon
-              name="productId"
-              value={selectedProduct}
-              loading={productLoading}
-              options={productsForSearch}
-              onSelect={(item) => handleChangeDropdown(item, "cart")}
-              onSearch={searchProducts}
-              getOptionLabel={(option) => `${option.productCode || option.code} - ${option.productName}`}
-              getOptionKey={(option) => option.productId}
-            />
-          )}
-        </div>
-        <div className="max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          <TableContainer component={Paper} className="shadow-md border border-gray-100">
-            <Table size="small">
-              <TableHead>
-                <TableRow className="background-primary">
-                  <TableCell sx={{ color: "white", fontWeight: 600 }}>Mã TP</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: 600 }}>Tên thành phẩm</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL/đơn vị</TableCell>
-                  {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL sản xuất</TableCell>}
-                  <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Thao tác</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {cart.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center">
-                      <div className="py-12">
-                        <FactoryIcon sx={{ fontSize: 64, color: '#9CA3AF', mb: 2 }} />
-                        <p className="text-xl text-gray-500 mb-2">
-                          Chưa có thành phẩm
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          Sử dụng ô tìm kiếm phía trên để thêm sản phẩm
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  cart.map((product, index) => (
-                    <TableRow 
-                      key={product.productId} 
-                      hover 
-                      sx={{ 
-                        backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9FAFB',
-                        '&:hover': { backgroundColor: '#F3F4F6' }
-                      }}
+          <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            {selectedMaterial && !id && (
+              <div className="p-4 bg-gray-50 border-b border-gray-200">
+                <p className="text-sm font-semibold text-gray-700 mb-2">Chọn nhanh số lượng:</p>
+                <div className="flex gap-2">
+                  {[10, 50, 100, 200].map(num => (
+                    <button
+                      key={num}
+                      onClick={() => handleQuickSetQuantity(num)}
+                      disabled={num > selectedMaterial.quantity}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${num > selectedMaterial.quantity
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                        }`}
                     >
-                      <TableCell><strong>{product.productCode}</strong></TableCell>
-                      <TableCell>{product.productName}</TableCell>
-                      <TableCell align="center">
-                        <Chip label={`${product.weightPerUnit} kg`} size="small" variant="outlined" color="primary" />
+                      {num} bao
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => handleQuickSetQuantity(selectedMaterial.quantity)}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-all"
+                  >
+                    Tất cả ({selectedMaterial.quantity})
+                  </button>
+                </div>
+              </div>
+            )}
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow className="background-primary">
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>Mã NL</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>Tên nguyên liệu</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Tồn kho</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL/đơn vị</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL tiêu thụ</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Tổng KL</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {!selectedMaterial ? (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        <div className="py-8">
+                          <InventoryIcon sx={{ fontSize: 48, color: '#9CA3AF', mb: 2 }} />
+                          <p className="text-lg text-gray-500">
+                            Vui lòng chọn nguyên liệu
+                          </p>
+                        </div>
                       </TableCell>
-                      {type === "update" && <TableCell align="center" sx={{ width: 220 }}>
+                    </TableRow>
+                  ) : (
+                    <TableRow key={selectedMaterial.productId} hover sx={{ backgroundColor: '#F9FAFB' }}>
+                      <TableCell><strong>{selectedMaterial.productCode}</strong></TableCell>
+                      <TableCell>{selectedMaterial.productName}</TableCell>
+                      <TableCell align="center">
+                        <Chip
+                          label={selectedMaterial.quantity}
+                          size="small"
+                          color={selectedMaterial.quantity > 100 ? "success" : selectedMaterial.quantity > 50 ? "warning" : "error"}
+                          variant="outlined"
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <Chip label={`${selectedMaterial.weightPerUnit} kg`} size="small" variant="outlined" />
+                      </TableCell>
+                      <TableCell align="center" sx={{ width: 220 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-                          <Tooltip title={user?.roles?.includes("Manager") ? "Chỉ Employee mới được sửa số lượng" : "Giảm 1"}>
+                          <Tooltip title={type === "update" && productionData?.status !== 0 ? "Nguyên liệu chỉ sửa được khi chưa bắt đầu sản xuất" : "Giảm 1"}>
                             <span>
                               <IconButton
                                 size="small"
-                                onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
-                                disabled={user?.roles?.includes("Manager") && productionData?.status !== 5}
-                                sx={{ 
-                                  border: "1px solid #E5E7EB", 
-                                  height: "32px", 
+                                onClick={() => handleChangeMaterial(selectedMaterial, selectedMaterial.produceQuantity - 1)}
+                                disabled={type === "update" && productionData?.status !== 0}
+                                sx={{
+                                  border: "1px solid #E5E7EB",
+                                  height: "32px",
                                   width: "32px",
-                                  '&:hover': { backgroundColor: user?.roles?.includes("Manager") && productionData?.status !== 5 ? 'transparent' : '#FEE2E2' }
+                                  '&:hover': { backgroundColor: type === "update" && productionData?.status !== 0 ? 'transparent' : '#F3F4F6' }
                                 }}
                               >
                                 <RemoveIcon fontSize="small" />
@@ -956,7 +732,7 @@ export default function ModifyProduction({ params }) {
                           <TextField
                             type="number"
                             size="small"
-                            disabled={user?.roles?.includes("Manager") && productionData?.status !== 5}
+                            disabled={type === "update" && productionData?.status !== 0}
                             inputProps={{
                               min: 0,
                               style: {
@@ -964,34 +740,34 @@ export default function ModifyProduction({ params }) {
                                 textAlign: "center",
                                 height: 10,
                                 fontWeight: 600,
-                                color: product.produceQuantity < 0 ? '#EF4444' : '#1F2937'
+                                color: selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity ? '#EF4444' : '#1F2937'
                               },
                             }}
-                            value={removeLeadingZero(product.produceQuantity)}
-                            onChange={(e) => handleChangeCart(product.productId, "produceQuantity", e.target.value)}
+                            value={removeLeadingZero(selectedMaterial.produceQuantity)}
+                            onChange={(e) => handleChangeMaterial(selectedMaterial, e.target.value)}
                             variant="outlined"
-                            error={product.produceQuantity < 0}
+                            error={selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity}
                             sx={{
                               '& .MuiOutlinedInput-root': {
                                 '& fieldset': {
-                                  borderColor: product.produceQuantity < 0 ? '#EF4444' : '#D1D5DB',
+                                  borderColor: selectedMaterial.produceQuantity < 0 || selectedMaterial.produceQuantity > selectedMaterial.quantity ? '#EF4444' : '#D1D5DB',
                                   borderWidth: 2
                                 },
                               },
                               marginX: "8px",
                             }}
                           />
-                          <Tooltip title={user?.roles?.includes("Manager") ? "Chỉ Employee mới được sửa số lượng" : "Tăng 1"}>
+                          <Tooltip title={type === "update" && productionData?.status !== 0 ? "Nguyên liệu chỉ sửa được khi chưa bắt đầu sản xuất" : "Tăng 1"}>
                             <span>
                               <IconButton
                                 size="small"
-                                onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity + 1)}
-                                disabled={user?.roles?.includes("Manager") && productionData?.status !== 5}
-                                sx={{ 
-                                  border: "1px solid #E5E7EB", 
-                                  height: "32px", 
+                                onClick={() => handleChangeMaterial(selectedMaterial, parseInt(selectedMaterial.produceQuantity) + 1)}
+                                disabled={type === "update" && productionData?.status !== 0}
+                                sx={{
+                                  border: "1px solid #E5E7EB",
+                                  height: "32px",
                                   width: "32px",
-                                  '&:hover': { backgroundColor: user?.roles?.includes("Manager") && productionData?.status !== 5 ? 'transparent' : '#D1FAE5' }
+                                  '&:hover': { backgroundColor: type === "update" && productionData?.status !== 0 ? 'transparent' : '#F3F4F6' }
                                 }}
                               >
                                 <AddIcon fontSize="small" />
@@ -1000,59 +776,301 @@ export default function ModifyProduction({ params }) {
                           </Tooltip>
                         </Box>
                       </TableCell>
-                      }
                       <TableCell align="center">
-                        {type === "update" ? (
-                          <Tooltip title="Không thể xóa thành phẩm khi đang hoàn thành sản xuất">
-                            <span>
+                        <strong className="text-blue-700">{isNaN(selectedMaterial.produceQuantity * selectedMaterial.weightPerUnit) ? 0 : (selectedMaterial.produceQuantity * selectedMaterial.weightPerUnit)} kg</strong>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+          {productionWeightLog && <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+            <div className="flex items-center gap-2 mb-4">
+              <ScaleIcon className="text-purple-600" />
+              <p className="text-xl font-bold text-gray-800">Chi tiết phiếu cân</p>
+            </div>
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow className="background-primary">
+                    <TableCell sx={{ color: "white" }}>Tên sản phẩm</TableCell>
+                    <TableCell sx={{ color: "white" }} align="center">Số lượng (Bao)</TableCell>
+                    <TableCell sx={{ color: "white" }} align="center">Tổng khối lượng</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {productionWeightLog.products.length > 0 ? productionWeightLog.products.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{item.productName}</TableCell>
+                      <TableCell align="center">{item.totalBags}</TableCell>
+                      <TableCell align="center">{Math.round(item.totalWeight * 1000) / 1000} kg</TableCell>
+                    </TableRow>
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center">
+                        <p className="text-lg">
+                          Chưa có dữ liệu cân thành phẩm
+                        </p>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>}
+          <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+            <div className="flex items-center gap-2 mb-4">
+              <InfoIcon className="text-gray-600" />
+              <h1 className="text-xl font-bold text-gray-800">Ghi chú{type === "update" && user?.roles?.includes("Manager") && <span className="text-red-600 ml-1">(*Bắt buộc nếu từ chối)</span>}</h1>
+            </div>
+            <textarea
+              className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={4}
+              placeholder={type === "update" && user?.roles?.includes("Manager") ? "Nhập lý do từ chối (nếu từ chối)..." : "Nhập ghi chú cho phiếu sản xuất..."}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+            {type === "update" && user?.roles?.includes("Manager") ? (
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 px-6 py-3 bg-green-500 text-white font-semibold rounded-xl transition-all transform hover:bg-green-600 hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                  onClick={handleSubmit}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <CheckCircleIcon />
+                    <span>Phê duyệt và hoàn thành</span>
+                  </div>
+                </button>
+                <button
+                  className="flex-1 px-6 py-3 bg-red-500 text-white font-semibold rounded-xl transition-all transform hover:bg-red-600 hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                  onClick={handleReject}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <span>Yêu cầu làm lại</span>
+                  </div>
+                </button>
+              </div>
+            ) : (
+              <button
+                className={`w-full px-6 py-3 text-white font-semibold rounded-xl transition-all transform ${errors
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'background-primary background-hovered hover:scale-[1.02] active:scale-[0.98] shadow-lg'
+                  }`}
+                onClick={handleSubmit}
+                disabled={!!errors}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircleIcon />
+                  <span>
+                    {type === "update"
+                      ? "Gửi phê duyệt"
+                      : "Tạo phiếu sản xuất"
+                    }
+                  </span>
+                </div>
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="w-1/2 flex flex-col gap-4">
+          <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
+            <div className="flex items-center gap-2 mb-4">
+              <FactoryIcon className="text-green-600" />
+              <p className="text-xl font-bold text-gray-800">Thành phẩm sản xuất</p>
+              {cart.length > 0 && (
+                <Chip
+                  label={`${cart.length} sản phẩm`}
+                  size="small"
+                  color="success"
+                  className="ml-auto"
+                />
+              )}
+            </div>
+            {type === "update" ? (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <InfoIcon className="text-blue-600" fontSize="small" />
+                  <p className="text-sm text-blue-800">
+                    Không thể thêm/xóa thành phẩm khi đang hoàn thành sản xuất
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <AutocompleteCommon
+                name="productId"
+                value={selectedProduct}
+                loading={productLoading}
+                options={productsForSearch}
+                onSelect={(item) => handleChangeDropdown(item, "cart")}
+                onSearch={searchProducts}
+                getOptionLabel={(option) => `${option.productCode || option.code} - ${option.productName}`}
+                getOptionKey={(option) => option.productId}
+              />
+            )}
+          </div>
+          <div className="max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <TableContainer component={Paper} className="shadow-md border border-gray-100">
+              <Table size="small">
+                <TableHead>
+                  <TableRow className="background-primary">
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>Mã TP</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>Tên thành phẩm</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">KL/đơn vị</TableCell>
+                    {type === "update" && <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">SL sản xuất</TableCell>}
+                    <TableCell sx={{ color: "white", fontWeight: 600 }} align="center">Thao tác</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {cart.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} align="center">
+                        <div className="py-12">
+                          <FactoryIcon sx={{ fontSize: 64, color: '#9CA3AF', mb: 2 }} />
+                          <p className="text-xl text-gray-500 mb-2">
+                            Chưa có thành phẩm
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            Sử dụng ô tìm kiếm phía trên để thêm sản phẩm
+                          </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    cart.map((product, index) => (
+                      <TableRow
+                        key={product.productId}
+                        hover
+                        sx={{
+                          backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9FAFB',
+                          '&:hover': { backgroundColor: '#F3F4F6' }
+                        }}
+                      >
+                        <TableCell><strong>{product.productCode}</strong></TableCell>
+                        <TableCell>{product.productName}</TableCell>
+                        <TableCell align="center">
+                          <Chip label={`${product.weightPerUnit} kg`} size="small" variant="outlined" color="primary" />
+                        </TableCell>
+                        {type === "update" && <TableCell align="center" sx={{ width: 220 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                            <Tooltip title={user?.roles?.includes("Manager") ? "Chỉ Employee mới được sửa số lượng" : "Giảm 1"}>
+                              <span>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity - 1)}
+                                  disabled={user?.roles?.includes("Manager") && productionData?.status !== 5}
+                                  sx={{
+                                    border: "1px solid #E5E7EB",
+                                    height: "32px",
+                                    width: "32px",
+                                    '&:hover': { backgroundColor: user?.roles?.includes("Manager") && productionData?.status !== 5 ? 'transparent' : '#FEE2E2' }
+                                  }}
+                                >
+                                  <RemoveIcon fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <TextField
+                              type="number"
+                              size="small"
+                              disabled={user?.roles?.includes("Manager") && productionData?.status !== 5}
+                              inputProps={{
+                                min: 0,
+                                style: {
+                                  width: 60,
+                                  textAlign: "center",
+                                  height: 10,
+                                  fontWeight: 600,
+                                  color: product.produceQuantity < 0 ? '#EF4444' : '#1F2937'
+                                },
+                              }}
+                              value={removeLeadingZero(product.produceQuantity)}
+                              onChange={(e) => handleChangeCart(product.productId, "produceQuantity", e.target.value)}
+                              variant="outlined"
+                              error={product.produceQuantity < 0}
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  '& fieldset': {
+                                    borderColor: product.produceQuantity < 0 ? '#EF4444' : '#D1D5DB',
+                                    borderWidth: 2
+                                  },
+                                },
+                                marginX: "8px",
+                              }}
+                            />
+                            <Tooltip title={user?.roles?.includes("Manager") ? "Chỉ Employee mới được sửa số lượng" : "Tăng 1"}>
+                              <span>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleChangeCart(product.productId, "produceQuantity", product.produceQuantity + 1)}
+                                  disabled={user?.roles?.includes("Manager") && productionData?.status !== 5}
+                                  sx={{
+                                    border: "1px solid #E5E7EB",
+                                    height: "32px",
+                                    width: "32px",
+                                    '&:hover': { backgroundColor: user?.roles?.includes("Manager") && productionData?.status !== 5 ? 'transparent' : '#D1FAE5' }
+                                  }}
+                                >
+                                  <AddIcon fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
+                        }
+                        <TableCell align="center">
+                          {type === "update" ? (
+                            <Tooltip title="Không thể xóa thành phẩm khi đang hoàn thành sản xuất">
+                              <span>
+                                <IconButton
+                                  size="small"
+                                  disabled
+                                  sx={{
+                                    backgroundColor: "#F3F4F6",
+                                    height: "32px",
+                                    width: "32px",
+                                    color: "#9CA3AF",
+                                    cursor: "not-allowed"
+                                  }}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title="Xóa sản phẩm">
                               <IconButton
                                 size="small"
-                                disabled
-                                sx={{ 
-                                  backgroundColor: "#F3F4F6", 
-                                  height: "32px", 
+                                onClick={() => handleRemoveCart(product.productId)}
+                                sx={{
+                                  backgroundColor: "#FEE2E2",
+                                  height: "32px",
                                   width: "32px",
-                                  color: "#9CA3AF",
-                                  cursor: "not-allowed"
+                                  color: "#EF4444",
+                                  '&:hover': { backgroundColor: '#FCA5A5' }
                                 }}
                               >
                                 <DeleteIcon fontSize="small" />
                               </IconButton>
-                            </span>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip title="Xóa sản phẩm">
-                            <IconButton
-                              size="small"
-                              onClick={() => handleRemoveCart(product.productId)}
-                              sx={{ 
-                                backgroundColor: "#FEE2E2", 
-                                height: "32px", 
-                                width: "32px",
-                                color: "#EF4444",
-                                '&:hover': { backgroundColor: '#FCA5A5' }
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                            </Tooltip>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    )))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
         </div>
       </div>
-      </div>
-      <SuccessModal 
-        isOpen={modalSuccessOpen} 
-        message={modalSuccessMessage} 
-        onClose={() => { 
+      <SuccessModal
+        isOpen={modalSuccessOpen}
+        message={modalSuccessMessage}
+        onClose={() => {
           setModalSuccessOpen(false);
           user?.roles?.includes("Manager") ? handleExit() : handleExitForEmployee();
-        }} 
+        }}
       />
       <FailedModal isOpen={modalFailedOpen} message={modalFailedMessage} subMessages={modalFailedSubMessages} onClose={() => setModalFailedOpen(false)} />
     </div >
