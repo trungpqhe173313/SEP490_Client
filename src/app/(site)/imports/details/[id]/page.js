@@ -130,8 +130,8 @@ export default function ImportDetail({ params }) {
         ...(transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11 ? [{
             key: "actualQuantity",
             label: "SL Thực tế (Bao)",
-            customValue: (item) => item.actualQuantity !== null && item.actualQuantity !== undefined ? 
-                <div className="font-semibold">{item.actualQuantity}</div> : 
+            customValue: (item) => item.actualQuantity !== null && item.actualQuantity !== undefined ?
+                <div className="font-semibold">{item.actualQuantity}</div> :
                 <div className="text-gray-400">-</div>
         },
         {
@@ -154,7 +154,7 @@ export default function ImportDetail({ params }) {
             label: "Tổng KL (Kg)",
             customValue: (item) => {
                 const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
-                    ? item.actualQuantity 
+                    ? item.actualQuantity
                     : item.quantity;
                 return item.weightPerUnit && <div>{formatLargeNumber(item.weightPerUnit * qty)}</div>
             }
@@ -169,7 +169,7 @@ export default function ImportDetail({ params }) {
             label: "Thành tiền (VND)",
             customValue: (item) => {
                 const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
-                    ? item.actualQuantity 
+                    ? item.actualQuantity
                     : item.quantity;
                 return item.unitPrice && <div>{formatLargeNumber(qty * item.unitPrice)}₫</div>
             }
@@ -179,17 +179,17 @@ export default function ImportDetail({ params }) {
     const extraRow = () => {
         // Calculate totals based on actual quantity if available, otherwise use quantity
         const showActualQuantity = transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11;
-        
+
         const totalWeight = products.reduce((total, item) => {
             const qty = showActualQuantity && item.actualQuantity !== null && item.actualQuantity !== undefined
-                ? item.actualQuantity 
+                ? item.actualQuantity
                 : item.quantity;
             return total + (item.weightPerUnit * qty);
         }, 0);
 
         const totalCost = products.reduce((total, item) => {
             const qty = showActualQuantity && item.actualQuantity !== null && item.actualQuantity !== undefined
-                ? item.actualQuantity 
+                ? item.actualQuantity
                 : item.quantity;
             return total + (qty * item.unitPrice);
         }, 0);
@@ -201,10 +201,9 @@ export default function ImportDetail({ params }) {
                 <TableCell />
                 {showActualQuantity && <TableCell />}
                 {showActualQuantity && <TableCell />}
-                {showActualQuantity && <TableCell />}
+                <TableCell />
                 <TableCell align="center">{formatLargeNumber(totalWeight)} Kg</TableCell>
                 <TableCell />
-                {!showActualQuantity && <TableCell />}
                 <TableCell align="center">{formatLargeNumber(totalCost)}₫</TableCell>
             </TableRow>
         )
@@ -451,16 +450,16 @@ export default function ImportDetail({ params }) {
                     <div className='flex flex-row items-center gap-2'>
                         {/* Employee: Submit for approval when status = 1 (Đang kiểm) */}
                         {user?.roles.includes("Employee") && transaction && transaction?.status === 1 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleOpenActualQuantity}>Nhập số lượng thực tế</button>}
-                        
+
                         {/* Manager: Approve/Reject when status = 4 (Chờ phê duyệt kho) */}
                         {user?.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleOpenApproveWithExpireDate}>Phê duyệt</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 4 && <button className='rounded-xl px-4 py-2 bg-red-500 text-white' onClick={handleOpenReject}>Kiểm lại</button>}
-                        
+
                         {/* Payment buttons */}
                         {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCompletePayment}>Thanh toán toàn bộ</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 2 && <button className='rounded-xl px-4 py-2 bg-yellow-500 text-white' onClick={handleCreatePayment}>Thanh toán một phần</button>}
                         {user?.roles.includes("Manager") && transaction?.status === 12 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handleCreatePayment}>Thanh toán phần còn thiếu</button>}
-                        
+
                         {/* Other actions */}
                         {user?.roles.includes("Manager") && <button className='rounded-xl px-4 py-2 bg-green-500 text-white' onClick={handleCopy}>Sao chép phiếu</button>}
                         {user?.roles.includes("Manager") && transaction?.status >= 11 && <button className='rounded-xl px-4 py-2 bg-cyan-500 text-white' onClick={handlePrint}>In</button>}
@@ -476,11 +475,21 @@ export default function ImportDetail({ params }) {
             <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2 p-4 text-right flex flex-col items-end'>
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h3 className='w-1/3 text-left'>Tổng khối lượng:</h3>
-                    <h3>{convertKgToTon(products.reduce((total, item) => total + (item.weightPerUnit * item.quantity), 0))}</h3>
+                    <h3>{convertKgToTon(products.reduce((total, item) => {
+                        const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
+                            ? item.actualQuantity
+                            : item.quantity;
+                        return total + (item.weightPerUnit * qty);
+                    }, 0))}</h3>
                 </div>
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h3 className='w-1/3 text-left'>Tổng tiền phiếu:</h3>
-                    <h3>{!transaction.totalCost ? formatLargeNumber(products.reduce((total, item) => total + (item.quantity * item.unitPrice), 0)) : formatLargeNumber(transaction.totalCost)}₫</h3>
+                    <h3>{formatLargeNumber(products.reduce((total, item) => {
+                        const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
+                            ? item.actualQuantity
+                            : item.quantity;
+                        return total + (qty * item.unitPrice);
+                    }, 0))}₫</h3>
                 </div>
                 {transaction?.status >= 11 && <div className='w-1/3'>
                     <div className='text-xl flex flex-row justify-between'>
@@ -494,7 +503,12 @@ export default function ImportDetail({ params }) {
                 </div>}
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h3 className='w-1/3 text-left'>Bằng chữ: </h3>
-                    <h3>{transaction?.status >= 11 ? numberToVietnamese(transaction.totalCost - paidAmount) : numberToVietnamese(transaction.totalCost)}</h3>
+                    <h3>{transaction?.status >= 11 ? numberToVietnamese(transaction.totalCost - paidAmount) : numberToVietnamese(products.reduce((total, item) => {
+                        const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
+                            ? item.actualQuantity
+                            : item.quantity;
+                        return total + (qty * item.unitPrice);
+                    }, 0))}</h3>
                 </div>
             </div>
             <PaymentForm
@@ -504,20 +518,20 @@ export default function ImportDetail({ params }) {
                 initialData={transaction}
                 mode={mode}
             />
-            <ActualQuantityForm 
-                isOpen={modalActualQuantityOpen} 
-                onClose={() => setModalActualQuantityOpen(false)} 
+            <ActualQuantityForm
+                isOpen={modalActualQuantityOpen}
+                onClose={() => setModalActualQuantityOpen(false)}
                 onConfirm={handleSubmitForApproval}
                 products={products}
             />
-            <ExpireDateForm 
-                isOpen={modalExpireDateOpen} 
-                onClose={() => setModalExpireDateOpen(false)} 
+            <ExpireDateForm
+                isOpen={modalExpireDateOpen}
+                onClose={() => setModalExpireDateOpen(false)}
                 onConfirm={handleApproveWithExpireDate}
             />
-            <RejectForm 
-                isOpen={modalRejectOpen} 
-                onClose={() => setModalRejectOpen(false)} 
+            <RejectForm
+                isOpen={modalRejectOpen}
+                onClose={() => setModalRejectOpen(false)}
                 onConfirm={handleReject}
             />
             <AssignForm isOpen={modalReassignOpen} onClose={() => setModalReassignOpen(false)} onConfirm={handleConfirmReassign} />
