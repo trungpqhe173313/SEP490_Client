@@ -44,8 +44,33 @@ export default function ImportDetail({ params }) {
     const [transaction, setTransaction] = useState({});
     const [supplier, setSupplier] = useState({});
     const [products, setProducts] = useState([]);
+    const [totalWeight, setTotalWeight] = useState(0);
+    const [totalCost, setTotalCost] = useState(0);
+    const [showActualQuantity, setShowActualQuantity] = useState(false);
     const [pageReady, setPageReady] = useState(false);
     const pageRole = ["Manager", "Employee"];
+
+    const getTotal = (transaction) => {
+        if (!transaction) return;
+        const isActual = transaction.status === 2 || transaction.status === 4 || transaction.status >= 11;
+        setShowActualQuantity(isActual);
+        const products = transaction.list;
+        const totalWeight = products.reduce((total, item) => {
+            const qty = (isActual) && item.actualQuantity !== null && item.actualQuantity !== undefined
+                ? item.actualQuantity
+                : item.quantity;
+            return total + (item.weightPerUnit * qty);
+        }, 0);
+
+        const totalCost = products.reduce((total, item) => {
+            const qty = (isActual) && item.actualQuantity !== null && item.actualQuantity !== undefined
+                ? item.actualQuantity
+                : item.quantity;
+            return total + (qty * item.unitPrice);
+        }, 0);
+        setTotalWeight(totalWeight);
+        setTotalCost(totalCost);
+    }
 
     // Check authorization
     useEffect(() => {
@@ -76,6 +101,7 @@ export default function ImportDetail({ params }) {
             setTransaction(res.data);
             setSupplier(res.data.supplier);
             setProducts(res.data.list);
+            getTotal(res.data);
             setTotalCount(res.data.list.length);
         } catch (error) {
             console.log(error);
@@ -153,7 +179,7 @@ export default function ImportDetail({ params }) {
             key: "totalWeight",
             label: "Tổng KL (Kg)",
             customValue: (item) => {
-                const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
+                const qty = showActualQuantity && item.actualQuantity !== null && item.actualQuantity !== undefined
                     ? item.actualQuantity
                     : item.quantity;
                 return item.weightPerUnit && <div>{formatLargeNumber(item.weightPerUnit * qty)}</div>
@@ -168,7 +194,7 @@ export default function ImportDetail({ params }) {
             key: "totalPrice",
             label: "Thành tiền (VND)",
             customValue: (item) => {
-                const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
+                const qty = showActualQuantity && item.actualQuantity !== null && item.actualQuantity !== undefined
                     ? item.actualQuantity
                     : item.quantity;
                 return item.unitPrice && <div>{formatLargeNumber(qty * item.unitPrice)}₫</div>
@@ -177,23 +203,6 @@ export default function ImportDetail({ params }) {
     ]
 
     const extraRow = () => {
-        // Calculate totals based on actual quantity if available, otherwise use quantity
-        const showActualQuantity = transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11;
-
-        const totalWeight = products.reduce((total, item) => {
-            const qty = showActualQuantity && item.actualQuantity !== null && item.actualQuantity !== undefined
-                ? item.actualQuantity
-                : item.quantity;
-            return total + (item.weightPerUnit * qty);
-        }, 0);
-
-        const totalCost = products.reduce((total, item) => {
-            const qty = showActualQuantity && item.actualQuantity !== null && item.actualQuantity !== undefined
-                ? item.actualQuantity
-                : item.quantity;
-            return total + (qty * item.unitPrice);
-        }, 0);
-
         return (
             <TableRow>
                 <TableCell colSpan={1} align="center">Tổng</TableCell>
@@ -475,21 +484,11 @@ export default function ImportDetail({ params }) {
             <div className='w-auto rounded-xl h-auto bg-white mx-4 my-2 p-4 text-right flex flex-col items-end'>
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h3 className='w-1/3 text-left'>Tổng khối lượng:</h3>
-                    <h3>{convertKgToTon(products.reduce((total, item) => {
-                        const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
-                            ? item.actualQuantity
-                            : item.quantity;
-                        return total + (item.weightPerUnit * qty);
-                    }, 0))}</h3>
+                    <h3>{convertKgToTon(totalWeight)}</h3>
                 </div>
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h3 className='w-1/3 text-left'>Tổng tiền phiếu:</h3>
-                    <h3>{formatLargeNumber(products.reduce((total, item) => {
-                        const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
-                            ? item.actualQuantity
-                            : item.quantity;
-                        return total + (qty * item.unitPrice);
-                    }, 0))}₫</h3>
+                    <h3>{formatLargeNumber(totalCost)}₫</h3>
                 </div>
                 {transaction?.status >= 11 && <div className='w-1/3'>
                     <div className='text-xl flex flex-row justify-between'>
@@ -503,12 +502,7 @@ export default function ImportDetail({ params }) {
                 </div>}
                 <div className='text-xl flex flex-row justify-between w-1/3'>
                     <h3 className='w-1/3 text-left'>Bằng chữ: </h3>
-                    <h3>{transaction?.status >= 11 ? numberToVietnamese(transaction.totalCost - paidAmount) : numberToVietnamese(products.reduce((total, item) => {
-                        const qty = (transaction?.status === 2 || transaction?.status === 4 || transaction?.status >= 11) && item.actualQuantity !== null && item.actualQuantity !== undefined
-                            ? item.actualQuantity
-                            : item.quantity;
-                        return total + (qty * item.unitPrice);
-                    }, 0))}</h3>
+                    <h3>{transaction?.status >= 11 ? numberToVietnamese(transaction.totalCost - paidAmount) : numberToVietnamese(totalCost)}</h3>
                 </div>
             </div>
             <PaymentForm
