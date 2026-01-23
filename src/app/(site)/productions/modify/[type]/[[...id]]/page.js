@@ -124,6 +124,7 @@ export default function ModifyProduction({ params }) {
           weightPerUnit: item.weightPerUnit
         }))
       );
+      console.log(material)
       setSelectedMaterial(material[0]);
       setNote(response.data.note);
     } catch (error) {
@@ -415,6 +416,7 @@ export default function ModifyProduction({ params }) {
   }, [products]);
 
   useEffect(() => {
+    if (!selectedMaterial) return
     validationCart();
   }, [cart]);
 
