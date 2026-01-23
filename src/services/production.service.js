@@ -17,8 +17,8 @@ export const productionService = {
         const response = await API.post('/production/CreateProductionOrder', data);
         return response.data;
     },
-    updateProductionToFinish: async (id) => {
-        const response = await API.put(`/production/ChangeToFinished/${id}`);
+    updateProductionToFinish: async (id, data) => {
+        const response = await API.put(`/production/ChangeToFinished/${id}`, data);
         return response.data;
     },
     updateProductionToReject: async (id, data) => {

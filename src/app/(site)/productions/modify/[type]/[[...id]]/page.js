@@ -358,7 +358,8 @@ export default function ModifyProduction({ params }) {
           setModalSuccessMessage("Đã gửi phiếu sản xuất để chờ phê duyệt");
         } else {
           // Manager: Only approve status (status 4 -> 2), data already filled by employee
-          await productionService.updateProductionToFinish(id);
+          const body = { note };
+          await productionService.updateProductionToFinish(id, body);
           setModalSuccessMessage("Phê duyệt và hoàn thành phiếu sản xuất thành công");
         }
         setModalSuccessOpen(true);
