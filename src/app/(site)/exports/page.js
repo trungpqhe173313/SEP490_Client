@@ -86,7 +86,7 @@ export default function Exports() {
     },
     {
       key: "transactionCode",
-      label: "Mã code giao dịch",
+      label: "Code giao dịch",
       customValue: (item) => item.transactionCode && <div>{item.transactionCode}</div>
     },
     {

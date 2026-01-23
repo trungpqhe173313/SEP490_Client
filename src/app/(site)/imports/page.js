@@ -76,13 +76,15 @@ export default function Imports() {
 
 
     const headerData = [
-        {            key: "transactionCode",
-            label: "Mã phiếu nhập",
-            customValue: (item) => item.transactionCode && <div>{item.transactionCode}</div>
-        },
-        {            key: "transactionId",
+        {
+            key: "transactionId",
             label: "Mã giao dịch",
             customValue: (item) => item.transactionId && <div>{item.transactionId}</div>
+        },
+        {
+            key: "transactionCode",
+            label: "Code giao dịch",
+            customValue: (item) => item.transactionCode && <div>{item.transactionCode}</div>
         },
         {
             key: "type",
