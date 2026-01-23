@@ -45,11 +45,6 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
             customValue: (item) => item.productName && <div>{item.productName}</div>
         },
         {
-            key: "note",
-            label: "Ghi chú",
-            customValue: (item) => item.note && <div>{item.note}</div>
-        },
-        {
             key: "weightPerUnit",
             label: "Khối lượng (Kg)",
             customValue: (item) => item.weightPerUnit && <div>{item.weightPerUnit}</div>
@@ -80,7 +75,6 @@ export function TransactionModal({ isOpen, handleClose, transaction }) {
         return (
             <TableRow>
                 <TableCell colSpan={1} align="center">Tổng</TableCell>
-                <TableCell />
                 <TableCell />
                 <TableCell />
                 <TableCell />
